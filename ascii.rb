@@ -64,10 +64,15 @@ class Invoicer
     @md['netto'] = @md['netto'].euro
     @md['summe'] = @md['summe'].euro
     @md['tax'] = @md['tax'].euro
-    @md['betreuung'] = @md['betreuung'].euro
 
     # Betreuung
-    betreuung_line = [ @products.length ," & Betreuung & " , @raw_data['hours']['time'].to_s , " & " , @raw_data['hours']['salary'].euro, " & " , @md['betreuung'] ].join + " \\\\\\ \n"
+    if @md['betreuung'] > 0
+      @md['betreuung'] = @md['betreuung'].euro
+      betreuung_line = [ @products.length ," & Betreuung & " , @raw_data['hours']['time'].to_s , " & " , @raw_data['hours']['salary'].euro, " & " , @md['betreuung'] ].join + " \\\\\\ \n"
+    else
+      betreuung_line = ''
+    end
+
     @md[''] = product_table + betreuung_line
 
     # optional Veranstaltungsname
