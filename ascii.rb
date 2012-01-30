@@ -67,7 +67,7 @@ class Invoicer
     @md['betreuung'] = @md['betreuung'].euro
 
     # Betreuung
-    betreuung_line = [ @products.length ," & Betreuung & " , @raw_data['hours']['time'].to_s , " & " , @raw_data['hours']['salary'].euro, " & " , @md['betreuung'] ].join + " \\\\\\ \n"
+    betreuung_line = [ @products.length ," & Betreuung (Stunden)& " , @raw_data['hours']['time'].to_s , " & " , @raw_data['hours']['salary'].euro, " & " , @md['betreuung'] ].join + " \\\\\\ \n"
     @md[''] = product_table + betreuung_line
 
     # optional Veranstaltungsname
