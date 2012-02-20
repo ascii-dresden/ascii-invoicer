@@ -146,7 +146,7 @@ end
 #euro wert Ausgabe für normale Zahlen
 class Object
   def euro
-    rounded = (self*100).ceil/100.0
+    rounded = (self*100)/100.0
     a,b = sprintf("%0.2f", rounded).split('.')
     a.gsub!(/(\d)(?=(\d{3})+(?!\d))/, '\\1.')
     "#{a},#{b}€"
@@ -158,6 +158,7 @@ end
 
 invoice = Invoicer.new
 invoice.load_templates :invoice => 'latex/ascii-rechnung.tex', :offer => 'latex/ascii-angebot.tex'
+#invoice.load_templates :invoice => 'latex/ascii-rechnung-en.tex', :offer => 'latex/ascii-angebot-en.tex'
 
 
 unless ARGV[1].nil? 
