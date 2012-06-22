@@ -58,6 +58,8 @@
 \def\banktext{{\footnotesize Bankverbindung\/:}}
 \def\blztext{{\footnotesize BLZ}}
 \def\kontotext{{\footnotesize Kto.}}
+\def\ibantext{{\footnotesize IBAN-Nummer:}}
+\def\bictext{{\footnotesize BIC-/SWIFT-Code:}}
 \def\steuernummertext{{\footnotesize Steuernr.}}
 \def\betrefftext{{\normalsize Betr.:}}
 \def\veranstaltungtext{\footnotesize{Veranstaltung}}
@@ -153,6 +155,8 @@
 \def\Bank#1{\def\bank{#1}} \def\bank{}
 \def\BLZ#1{\def\blz{#1}} \def\blz{}
 \def\Konto#1{\def\konto{#1}} \def\konto{}
+\def\IBAN#1{\def\iban{#1}} \def\iban{}
+\def\BIC#1{\def\bic{#1}} \def\bic{}
 \def\Steuernummer#1{\def\steuernummer{#1}} \def\steuernummer{}
 
 \def\Postvermerk#1{\def\postvermerk{#1}} \def\postvermerk{}
@@ -344,7 +348,10 @@
           \begin{tabular}{ll}
             \ifx\bank\empty \else \ifx \blz\empty \else \ifx
             \konto\empty \else \banktext & \bank \\ & \blztext \space \blz
-            \\ & \kontotext \space \konto \\ & \steuernummertext \space \steuernummer \fi \fi \fi
+            \\ & \kontotext \space \konto
+            \\ & \ibantext \space \iban
+            \\ & \bictext \space \bic
+            \\ & \steuernummertext \space \steuernummer \fi \fi \fi
           \end{tabular}}}
     \end{picture} \hfill}
   \def\@evenhead{\@oddhead} \def\@evenfoot{\@oddfoot}}

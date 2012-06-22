@@ -69,6 +69,7 @@ class Invoicer
     if @md['betreuung'] > 0
       @md['betreuung'] = @md['betreuung'].euro
       betreuung_line = [ @products.length ," & Betreuung (Stunden)& " , @raw_data['hours']['time'].to_s , " & " , @raw_data['hours']['salary'].euro, " & " , @md['betreuung'] ].join + " \\\\\\ \n"
+      #betreuung_line = [ @products.length ," & Service (hour)& " , @raw_data['hours']['time'].to_s , " & " , @raw_data['hours']['salary'].euro, " & " , @md['betreuung'] ].join + " \\\\\\ \n"
     else
       betreuung_line = ''
     end
