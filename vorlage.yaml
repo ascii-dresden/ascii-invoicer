@@ -1,4 +1,6 @@
 --- 
+# version: 20120613
+
 # always include 'Herr' oder 'Frau'
 client: |
     Herr 
@@ -15,38 +17,73 @@ anumber: 1
 manumber: #A20110520 
 
 # rechnungsnummer
-rnumber: 27 
+rnumber: #27 
 
 date: 20.05.2011 # bezieht sich auf die veranstaltung selbst
 
+# Preise:
+#   Mineralwasser:    0.61 / 1l
+#   Orangensaft:      1.82 / 1l
+#   Apfelsaft:        1.65 / 1l
+#   Kaffee:           2.50 / 1l
+#   Tee:              1.75 / 1l
+#   Bagel:            2.19 / stk
+#   Halbes Brötchen:  1.16 / stk
+#   Kuchen:           0.94 / stk
+#   Donut/Muffin:     0.94 / stk
+#   Brownie:          1,10 / stk
+#   bitte weitere hinzufuegen
+
+
+#   METADATEN:
+#   Anfrage:
+#     ""
+#
+#   Teilnehmer Zahl: ?
+#   Begin:           ?
+#   Ende:            ? 
+#
+#   Aufbauzeit: ?
+#   NacharbeitsZeit: ?
+#   Zwischendurchauffüllen: ?
+#
+#   
+
 products:
-    "Mineralwasser (1 l)":
-        amount: 8
-        price: 0.6
-        sold: 2
-    "Orangensaft (1 l)":
-        amount: 8
-        price: 1.64
-        returned: 6
-    "Apfelsaft (1 l)":
-        amount: 8
-        price: 1.54
-        sold: 2
-    Obstplatte:
-        amount: 2
-        price: 10
-        #sold: 2
-    "CocaCola (0,33l)":
-        amount: 40
-        price: 0.8
-        sold: 12
-    Kaffee:
-        amount: 7
-        #sold: 7 # wenn (sold/returned) leer, dann bitte alles als verkauft ansehen
-        price: 2.5
+  "Mineralwasser (1 l)":
+    amount: 8
+    price: 0.61
+    sold: 0
+  "Orangensaft (1 l)":
+    amount: 8
+    price: 1.82
+    returned: 0
+  "Apfelsaft (1 l)":
+    amount: 8
+    price: 1.65
+    sold: 0
+  Kaffee:
+    amount: 7
+    price: 2.5
+    # Kaffee geht nicht zurueck
+
+  # Faustregeln:
+  #   0.2l = 1 Tasse = 1 Glas
+  #
+  #   Wasser               : 0.6 l pro Person pro 3h (zuviel ist nicht so schlimm, wegen kommisionpreisen)
+  #   Saft                 : 0.4 l pro Person pro 3h
+  #   Kaffee               : 0.4 l pro Person
+  #
+  #   Essen jeweils        : schwierig... evtl 2stk pro person oder so...
+  #
+  #
+  # wenn (sold/returned) leer, dann bitte alles als verkauft ansehen
+  #
+  # sold/returned nicht kombinieren!
+
 hours: 
-    time: 3
-    salary: 8.00
+  time: 3
+  salary: 8.00
     
 signature:
     Hendrik Sollich
