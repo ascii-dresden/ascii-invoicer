@@ -19,10 +19,11 @@ manumber: #A20110520
 # rechnungsnummer
 rnumber: #27 
 
-date: 20.05.2011 # bezieht sich auf die veranstaltung selbst
+date: 20.01.2013 # bezieht sich auf die veranstaltung selbst
 
 # Preise:
-#   Mineralwasser:    0.61 / 1l
+#   Mineralwasser:    0.49 / 1l
+#   Mineralwasser:    0.47 / 0,5l
 #   Orangensaft:      1.82 / 1l
 #   Apfelsaft:        1.65 / 1l
 #   Kaffee:           2.50 / 1l
@@ -32,6 +33,7 @@ date: 20.05.2011 # bezieht sich auf die veranstaltung selbst
 #   Kuchen:           0.94 / stk
 #   Donut/Muffin:     0.94 / stk
 #   Brownie:          1,10 / stk
+#   Kekse  :          0,80 / pak
 #   bitte weitere hinzufuegen
 
 
@@ -50,22 +52,26 @@ date: 20.05.2011 # bezieht sich auf die veranstaltung selbst
 #   
 
 products:
-  "Mineralwasser (1 l)":
-    amount: 8
-    price: 0.61
-    sold: 0
-  "Orangensaft (1 l)":
-    amount: 8
-    price: 1.82
-    returned: 0
-  "Apfelsaft (1 l)":
-    amount: 8
-    price: 1.65
-    sold: 0
-  Kaffee:
+  "Kaffee (1l)":
     amount: 7
     price: 2.5
     # Kaffee geht nicht zurueck
+  "Mineralwasser (1l)":
+    amount: 8
+    price: 0.61
+    sold: 0
+  "Orangensaft (1l)":
+    amount: 8
+    price: 1.82
+    returned: 0
+  "Apfelsaft (1l)":
+    amount: 8
+    price: 1.65
+    sold: 0
+  "Belegte Brötchen":
+    amount: 0
+    price: 1.16
+
 
   # Faustregeln:
   #   0.2l = 1 Tasse = 1 Glas
