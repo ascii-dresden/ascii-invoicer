@@ -1,176 +1,110 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 # encoding: utf-8
 
 require 'yaml'
+require 'optparse'
+require 'ostruct'
+require 'pp'
+require 'fileutils'
+require './lib/invoicer.rb'
 
-class Invoicer
+@options = OpenStruct.new
+@options.test = false
+@options.path = './'
+@options.editor = 'vim' 
+@options.working_dir = "#{@options.path}projects/"
+@options.template_dir= "#{@options.path}templates/"
+@options.template= "#{@options.template_dir}vorlage.yaml"
 
-  attr_reader :invoiceaw_data, :md, :products, :template_offer, :template_invoice
-  
-  def initialize
-    @defaults = {:tax => 0.19}
+
+
+
+invoicer = Invoicer.new
+invoicer.load_templates :invoice => 'latex/ascii-rechnung.tex', :offer => 'latex/ascii-angebot.tex'
+
+def check_project name
+  path = "#{@options.working_dir}#{name}#{name}.yml" #TODO Find an nameingscheme for files
+  return path if File.exists? path
+end
+
+## Checks the existens and creates folder if neccessarry
+def check_projects_folder
+  if not File.exists? "#{@options.working_dir}/"
+    FileUtils.mkdir "#{@options.working_dir}/"
+    puts "Created Projects Directory"
   end
+end
+
+def debug_info
+  puts "Path Exists  #{@options.path} #{File.exists?(@options.path)}"
+  puts "Template Exists  #{@options.template} #{File.exists?(@options.template)}"
+  check_projects_folder()
+end
 
 
-  # Läd übergebene
-  def load_data(datafile)
-    if File.exists?(datafile)
-      file = File.open(datafile)
-      @raw_data = YAML::load(file)
-    end
+def new_project(name)
+  check_projects_folder
+  project_folder= "#{@options.working_dir}#{name}"
+  project_file  = "#{project_folder}#{name}.yml"
+  unless File.exists? "#{@options.working_dir}/#{name}"
+    FileUtils.mkdir "#{@options.working_dir}/#{name}"
+    puts "Created Project Folder #{project_folder}"
   end
-
-
-  # Läd latex Vorlagen
-  def load_templates(hash)
-    @template_offer = File.open(hash[:offer]).read if File.exists?(hash[:offer])
-    @template_invoice = File.open(hash[:invoice]).read if File.exists?(hash[:invoice])
-  end
-
-
-  # Verarbeitet die Produktliste
-  def mine_data (type)
-    mine_products type
-    @md = @raw_data
-
-    # datum
-    date  =  @raw_data['date'].split('.')
-    today = Time.now
-
-    # anrede
-    if @md['client'].downcase.include? 'herr'
-      @md['client'] = "Sehr geehrter " + @md['client']
-    else
-      @md['client'] = "Sehr geehrte " + @md['client']
-    end
-
-    @md['address'] = @raw_data['address'].each_line.map{|l| l.gsub(/[\n]/, " \\newline " )}.join
-
-
-    # Angebotsnummer
-    if @md['manumber'].nil?
-      @md['offer-number'] =  ['A', today.year , "%02d" % today.month , "%02d" % today.mday, '-', @md['anumber']].join 
-    else
-      @md['offer-number'] = @md['manumber']
-    end
-
-    @md['betreuung'] = @raw_data['hours']['salary'] * @raw_data['hours']['time']
-    @md['netto'] = 0 ; @products.each{|p| @md['netto'] += p['sum']}
-    @md['tax'] = @defaults[:tax] * @md['netto']
-    @md['brutto'] = @md['netto'] + @md['tax']
-    @md['summe'] =  @md['betreuung'] + @md['brutto']
-
-    # Werte in Preise Umwandeln
-    @md['netto'] = @md['netto'].euro
-    @md['summe'] = @md['summe'].euro
-    @md['tax'] = @md['tax'].euro
-
-    # Betreuung
-    if @md['betreuung'] > 0
-      @md['betreuung'] = @md['betreuung'].euro
-      betreuung_line = [ @products.length ," & Betreuung (Stunden)& " , @raw_data['hours']['time'].to_s , " & " , @raw_data['hours']['salary'].euro, " & " , @md['betreuung'] ].join + " \\\\\\ \n"
-      #betreuung_line = [ @products.length ," & Service (hour)& " , @raw_data['hours']['time'].to_s , " & " , @raw_data['hours']['salary'].euro, " & " , @md['betreuung'] ].join + " \\\\\\ \n"
-    else
-      betreuung_line = ''
-    end
-
-    @md[''] = product_table + betreuung_line
-
-    # optional Veranstaltungsname
-    @md['event'] = @raw_data['event'].nil? ? nil : @raw_data['event'] 
-
-    # optional Rechnungsnummer
-    @md['invoice-number'] = @raw_data['rnumber'].nil? ? '' : 'R'+date[2]+ "-%04d" % @raw_data['rnumber']
-
+  unless File.exists? project_file
+    FileUtils.cp @options.template, project_file
+    puts "Created Empty Project #{project_file}"
   end
   
-  # Verarbeitet die Produktliste
-  def mine_products(type)
-    @products = []
-    @nproducts = {}
-    @raw_data['products'].each { |name, s|
+  edit_file project_file
 
-      # alles verkauft
-      if s['returned'].nil? and s['sold'].nil? or type == :offer
-        sold = s['amount'] 
-      # was zurueck bekommen
-      elsif s['sold'].nil?
-        sold = s['amount'] - s['returned'] 
-      # fester wert verkauft
-      elsif s['returned'].nil?
-        sold = s['sold'] 
-      else
-        puts name + ' contains both sold and returned'
-        exit
-      end
-     
-      p = {}
-      p['name'] = name
-      p['sold'] = sold
-      p['price'] = s['price']
-      p['sum'] = (sold * p['price'])
+end
 
-      @products.push p 
-      @nproducts[name] = p 
-    }
-  end
-
-  def product_table
-    table = ""
-    @products.each_with_index do |p, i|
-      table += [i.to_s , " & " , p['name'].to_s , " & " , p['sold'].to_s , " & " , p['price'].euro, " & " , p['sum'].euro].join + " \\\\\\ \n"
-    end
-    table
-  end
-
-
-  def fill type
-    mine_data type
-    case type
-      when :invoice
-        template = @template_invoice
-      when :offer
-        template = @template_offer
-    end
-    filled = template.each_line.map { |line| 
-      @md.keys.each{ |key|
-       line = line.gsub('$' + key + '$',
-        @md[key].to_s)
-      }
-      line
-    }
-    puts filled 
-  end
+def edit_file(path)
+  puts "Opening #{path} in #{@options.editor}"
+  exec "#{@options.editor} #{path}"
 end
 
 
-#euro wert Ausgabe für normale Zahlen
-class Object
-  def euro
-    rounded = (self*100)/100.0
-    a,b = sprintf("%0.2f", rounded).split('.')
-    a.gsub!(/(\d)(?=(\d{3})+(?!\d))/, '\\1.')
-    "#{a},#{b}€"
+optparse = OptionParser.new do|opts|
+  opts.on('-t', 'test feature, set this first') do |test|
+    @options.test = true
+  end
+  opts.on('-v','--vim FILENAME', 'opens file with vim') do |filename|
+    exec "#{@options.editor} #{option.working_dir}/#{filename}"
+  end
+  opts.on( '-n', '--new NAME', 'Create new Project' ) do |name|
+    new_project name
+    exit
+  end
+  opts.on( '-i', '--invoice NAME', 'Create invoice from project (not implemented)' ) do |name|
+    puts name
+    exit
+  end
+  opts.on( '-o', '--offer NAME', 'Create offer from project (not implemented)' ) do |name|
+    puts name
+    exit
+  end
+  opts.on( '-a', 'Legacy option creating an offer from FILE (not implemented)' ) do |filename|
+    puts name
+    exit
+  end
+  opts.on( '-r', 'Legacy option creating an invoice from FILE (not implemented)' ) do |filename|
+    puts name
+    exit
+  end
+  opts.on('-c', '--check', "Show Debug information") do
+    debug_info()
+    exit
+  end
+
+  opts.on( '-h', '--help', 'Display this screen' ) do
+    puts opts,@options.test
+    exit
   end
 end
 
+optparse.parse!
 
-## Initialisierung des Programms
+#pp "Options:", options
+#pp "ARGV:", ARGV
 
-invoice = Invoicer.new
-invoice.load_templates :invoice => 'latex/ascii-rechnung.tex', :offer => 'latex/ascii-angebot.tex'
-#invoice.load_templates :invoice => 'latex/ascii-rechnung-en.tex', :offer => 'latex/ascii-angebot-en.tex'
-
-
-unless ARGV[1].nil? 
-  if File.exists? ARGV[0]
-    invoice.load_data ARGV[0]
-  end
-
-  case ARGV[1]
-    when 'r' 
-      invoice.fill :invoice
-    when 'a'
-      invoice.fill :offer
-  end
-end
