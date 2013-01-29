@@ -135,7 +135,7 @@ class Invoicer
       }
       line
     }
-    puts filled 
+    filled 
   end
 end
 
@@ -153,20 +153,20 @@ end
 
 ## Initialisierung des Programms
 
-invoice = Invoicer.new
-invoice.load_templates :invoice => 'latex/ascii-rechnung.tex', :offer => 'latex/ascii-angebot.tex'
-#invoice.load_templates :invoice => 'latex/ascii-rechnung-en.tex', :offer => 'latex/ascii-angebot-en.tex'
-
-
-unless ARGV[1].nil? 
-  if File.exists? ARGV[0]
-    invoice.load_data ARGV[0]
-  end
-
-  case ARGV[1]
-    when 'r' 
-      invoice.fill :invoice
-    when 'a'
-      invoice.fill :offer
-  end
-end
+#invoice = Invoicer.new
+#invoice.load_templates :invoice => 'latex/ascii-rechnung.tex', :offer => 'latex/ascii-angebot.tex'
+##invoice.load_templates :invoice => 'latex/ascii-rechnung-en.tex', :offer => 'latex/ascii-angebot-en.tex'
+#
+#
+#unless ARGV[1].nil? 
+#  if File.exists? ARGV[0]
+#    invoice.load_data ARGV[0]
+#  end
+#
+#  case ARGV[1]
+#    when 'r' 
+#      invoice.fill :invoice
+#    when 'a'
+#      invoice.fill :offer
+#  end
+#end
