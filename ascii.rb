@@ -97,14 +97,14 @@ optparse = OptionParser.new do|opts|
     exit
   end
 
-  opts.on( '-h', '--help', 'Display this screen' ) do
-    puts opts,@options.test
+  opts.on_tail( '-h', '--help', 'Display this screen' ) do
+    puts opts
     exit
   end
 end
 
-optparse.parse!
-
-#pp "Options:", options
-#pp "ARGV:", ARGV
-
+if ARGV.size == 1 and ARGV[0][0] != '-'
+  pp "ARGV:", ARGV
+else
+  optparse.parse!
+end
