@@ -18,6 +18,7 @@ require './lib/minizen.rb'
 @options.working_dir  = "#{@options.path}projects/"
 @options.template_dir = "#{@options.path}templates/"
 @options.template     = "#{@options.template_dir}vorlage.yaml"
+@options.keep_log = false
 
 
 
@@ -85,8 +86,20 @@ def new_project(name)
 end
 
 ## open project file from name
+def open_project_by_number number 
+  open_project list_projects[number-1]
+end
+
+## open project file from name
 def open_project name
   edit_file project_file name if check_project name
+end
+
+## list projects
+def list_projects
+  dir = Dir.entries(@options.working_dir).delete_if { |v| v[0] == '.' }
+  dir
+
 end
 
 ## hand path to editor
@@ -94,11 +107,11 @@ def edit_file(path)
   puts "Opening #{path} in #{@options.editor}"
   exec "#{@options.editor} #{path}"
 end
-#
+
 ## hand path to latex tool
 def render_tex(path)
   puts "Rendering #{path} with #{@options.latex}"
-  exec "#{@options.latex} #{path} -output-directory ." #TODO output directory is not generic
+  spawn "#{@options.latex} #{path} -output-directory ." #TODO output directory is not generic
 end
 
 def write_tex(name, type)
@@ -144,7 +157,10 @@ optparse = OptionParser.new do|opts|
   end
 
   opts.on( '-l', '--list', 'List all projects (not implemented)' ) do |name|
-    puts "-l  not yet implemented -- sorry"
+    projects = list_projects
+    projects.each_index do |i|
+      puts "#{i+1} #{projects[i]} "
+    end
     exit
   end
 
@@ -176,8 +192,12 @@ end
 
 ## Use Option parser or leave it if only one argument is given
 if ARGV.size == 1 and ARGV[0][0] != '-'
-  pp "ARGV:", ARGV
+  pp ARGV
+  unless ARGV[0].to_i == 0
+    open_project_by_number ARGV[0].to_i
+  end
   open_project ARGV[0]
+  
 else
   optparse.parse!
 end
