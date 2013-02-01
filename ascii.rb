@@ -10,13 +10,14 @@ require 'fileutils'
 require './lib/invoicer.rb'
 require './lib/minizen.rb'
 
-@options = OpenStruct.new
-@options.test = false
-@options.path = './'
-@options.editor = 'vim' 
-@options.working_dir = "#{@options.path}projects/"
-@options.template_dir= "#{@options.path}templates/"
-@options.template= "#{@options.template_dir}vorlage.yaml"
+@options              = OpenStruct.new
+@options.test         = false
+@options.path         = './'
+@options.editor       = 'vim'
+@options.latex        = 'pdflatex'
+@options.working_dir  = "#{@options.path}projects/"
+@options.template_dir = "#{@options.path}templates/"
+@options.template     = "#{@options.template_dir}vorlage.yaml"
 
 
 
@@ -46,10 +47,12 @@ def project_folder name
   "#{@options.working_dir}#{name}/"
 end
 
+## path to project file
 def project_file name
   "#{project_folder name}#{name}.yml"
 end
 
+## path to tex file
 def tex_file name, type
   "#{project_folder name}#{name}-#{type.to_s}.tex"
 end
@@ -91,6 +94,12 @@ def edit_file(path)
   puts "Opening #{path} in #{@options.editor}"
   exec "#{@options.editor} #{path}"
 end
+#
+## hand path to latex tool
+def render_tex(path)
+  puts "Rendering #{path} with #{@options.latex}"
+  exec "#{@options.latex} #{path} -output-directory ." #TODO output directory is not generic
+end
 
 def write_tex(name, type)
   ## here comes the complicated code
@@ -108,6 +117,7 @@ def write_tex(name, type)
   end
   f.close
   puts "file writen: #{file}"
+  file
 end
 
 ## OptionsParser
@@ -122,27 +132,29 @@ optparse = OptionParser.new do|opts|
   end
 
   opts.on( '-i', '--invoice NAME', 'Create invoice from project' ) do |name|
-    write_tex name, :invoice
+    tex = write_tex name, :invoice
+    render_tex tex
     exit
   end
 
   opts.on( '-o', '--offer NAME', 'Create offer from project' ) do |name|
-    write_tex name, :offer
+    tex = write_tex name, :offer
+    render_tex tex
     exit
   end
 
   opts.on( '-l', '--list', 'List all projects (not implemented)' ) do |name|
-    puts name
+    puts "-l  not yet implemented -- sorry"
     exit
   end
 
   opts.on( '-v', '--verbose', 'Be verbose (not implemented)' ) do |name|
-    puts name
+    puts "-v  not yet implemented -- sorry"
     exit
   end
 
   opts.on( '--close NAME', 'Close project (not implemented)' ) do |name|
-    puts name
+    puts "--close not yet implemented -- sorry"
     exit
   end
 
