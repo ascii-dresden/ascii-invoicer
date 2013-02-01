@@ -7,22 +7,10 @@ require 'ostruct'
 require 'pp'
 require 'paint'
 require 'fileutils'
+require './lib/object.rb'
 require './lib/invoicer.rb'
 require './lib/minizen.rb'
-
-@options              = OpenStruct.new
-@options.test         = false
-@options.path         = './'
-@options.editor       = 'vim'
-@options.latex        = 'pdflatex'
-@options.working_dir  = "#{@options.path}projects/"
-@options.template_dir = "#{@options.path}templates/"
-@options.template     = "#{@options.template_dir}vorlage.yaml"
-@options.keep_log = false
-
-
-
-
+require './lib/options.rb'
 
 ## Checks the existens and creates folder if neccessarry
 def check_projects_folder
@@ -115,26 +103,39 @@ def render_tex(path)
 end
 
 def write_tex(name, type)
-  ## here comes the complicated code
   invoicer = Invoicer.new
-  invoicer.load_templates :invoice => 'latex/ascii-rechnung.tex', :offer => 'latex/ascii-angebot.tex'
+
+  invoicer.load_templates :invoice => @options.template_invoice , :offer => @options.template_offer
   invoicer.load_data project_file name
 
-  tex = invoicer.fill type
+  invoicer.type = type
+  invoicer.project_name = name
 
-  file = tex_file name, type
-  f = File.new file, "w"
+  if invoicer.is_valid or true
+    tex = invoicer.create
+    
+    pp invoicer.dump
 
-  tex.each do |line|
-    f.write line
+    file = tex_file name, type
+    #  f = File.new file, "w"
+    #
+    #  tex.each do |line|
+    #    f.write line
+    #  end
+    #  f.close
+    #  puts "file writen: #{file}"
+    file
+  else
+    puts "invoice is not valid"
   end
-  f.close
-  puts "file writen: #{file}"
-  file
 end
 
 ## OptionsParser
 optparse = OptionParser.new do|opts|
+
+  opts.banner = "Usage: ascii.rb [name|number] or ascii.rb [options]"
+
+
   opts.on('-v','--vim FILENAME', 'opens file with vim') do |filename|
     exec "#{@options.editor} #{option.working_dir}/#{filename}"
   end
@@ -146,13 +147,13 @@ optparse = OptionParser.new do|opts|
 
   opts.on( '-i', '--invoice NAME', 'Create invoice from project' ) do |name|
     tex = write_tex name, :invoice
-    render_tex tex
+    #render_tex tex
     exit
   end
 
   opts.on( '-o', '--offer NAME', 'Create offer from project' ) do |name|
     tex = write_tex name, :offer
-    render_tex tex
+    #render_tex tex
     exit
   end
 

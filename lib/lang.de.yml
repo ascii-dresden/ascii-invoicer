@@ -1,0 +1,7 @@
+salutation:
+    male: Sehr geehrter
+    female: Sehr geehrte
+    keywords:
+      male: {herr}
+      female: {frau}
+
