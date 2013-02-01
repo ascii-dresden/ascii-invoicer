@@ -1,18 +1,20 @@
 # encoding: utf-8
+require './lib/object.rb'
 class Invoicer
 
-  attr_reader :invoiceaw_data, :md, :products, :template_offer, :template_invoice
+  attr_reader :invoiceaw_data, :data, :products, :template_offer, :template_invoice
+  attr_writer :type, :project_name
   
   def initialize
     @defaults = {:tax => 0.19}
   end
 
 
-  # Läd übergebene
+  ## open given .yml and parse into @data
   def load_data(datafile)
     if File.exists?(datafile)
       file = File.open(datafile)
-      @raw_data = YAML::load(file)
+      @data = YAML::load(file)
     end
   end
 
@@ -25,69 +27,69 @@ class Invoicer
 
 
   # Verarbeitet die Produktliste
-  def mine_data (type)
-    mine_products type
-    @md = @raw_data
+  def mine_data
 
     # datum
-    date  =  @raw_data['date'].split('.')
+    date  =  @data['date'].split('.')
+    @data['raw_date'] = Time.new date[2], date[1], date[0]
     today = Time.now
 
     # anrede
-    if @md['client'].downcase.include? 'herr'
-      @md['client'] = "Sehr geehrter " + @md['client']
+    @data['raw_client_raw'] = @data['client']
+    if @data['client'].downcase.include? 'herr'
+      @data['client'] = "Sehr geehrter " + @data['client']
     else
-      @md['client'] = "Sehr geehrte " + @md['client']
+      @data['client'] = "Sehr geehrte " + @data['client']
     end
 
-    @md['address'] = @raw_data['address'].each_line.map{|l| l.gsub(/[\n]/, " \\newline " )}.join
+    @data['raw_address'] = @data['address']
+    @data['address'] = @data['raw_address'].each_line.map{|l| l.gsub(/[\n]/, " \\newline " )}.join
 
 
     # Angebotsnummer
-    if @md['manumber'].nil?
-      @md['offer-number'] =  ['A', today.year , "%02d" % today.month , "%02d" % today.mday, '-', @md['anumber']].join 
+    if @data['manumber'].nil?
+      @data['offer-number'] =  ['A', today.year , "%02d" % today.month , "%02d" % today.mday, '-', @data['anumber']].join 
     else
-      @md['offer-number'] = @md['manumber']
+      @data['offer-number'] = @data['manumber']
     end
 
-    @md['betreuung'] = @raw_data['hours']['salary'] * @raw_data['hours']['time']
-    @md['netto'] = 0 ; @products.each{|p| @md['netto'] += p['sum']}
-    @md['tax'] = @defaults[:tax] * @md['netto']
-    @md['brutto'] = @md['netto'] + @md['tax']
-    @md['summe'] =  @md['betreuung'] + @md['brutto']
+    @data['betreuung'] = @data['hours']['salary'] * @data['hours']['time']
+    @data['netto']     = 0 ; @products.each{|p| @data['netto'] += p['sum']}
+    @data['tax']       = @defaults[:tax] * @data['netto']
+    @data['brutto']    = @data['netto'] + @data['tax']
+    @data['summe']     = @data['betreuung'] + @data['brutto']
 
     # Werte in Preise Umwandeln
-    @md['netto'] = @md['netto'].euro
-    @md['summe'] = @md['summe'].euro
-    @md['tax'] = @md['tax'].euro
+    @data['netto'] = @data['netto'].euro
+    @data['summe'] = @data['summe'].euro
+    @data['tax']   = @data['tax'].euro
 
     # Betreuung
-    if @md['betreuung'] > 0
-      @md['betreuung'] = @md['betreuung'].euro
-      betreuung_line = [ @products.length ," & Betreuung (Stunden)& " , @raw_data['hours']['time'].to_s , " & " , @raw_data['hours']['salary'].euro, " & " , @md['betreuung'] ].join + " \\\\\\ \n"
-      #betreuung_line = [ @products.length ," & Service (hour)& " , @raw_data['hours']['time'].to_s , " & " , @raw_data['hours']['salary'].euro, " & " , @md['betreuung'] ].join + " \\\\\\ \n"
+    if @data['betreuung'] > 0
+      @data['betreuung'] = @data['betreuung'].euro
+      betreuung_line = [ @products.length ," & Betreuung (Stunden)& " , @data['hours']['time'].to_s , " & " , @data['hours']['salary'].euro, " & " , @data['betreuung'] ].join + " \\\\\\ \n"
+      #betreuung_line = [ @products.length ," & Service (hour)& " , @data['hours']['time'].to_s , " & " , @data['hours']['salary'].euro, " & " , @data['betreuung'] ].join + " \\\\\\ \n"
     else
       betreuung_line = ''
     end
 
-    @md[''] = product_table + betreuung_line
+    @data[''] = product_table + betreuung_line
 
     # optional Veranstaltungsname
-    @md['event'] = @raw_data['event'].nil? ? nil : @raw_data['event'] 
+    @data['event'] = @data['event'].nil? ? nil : @data['event'] 
 
     # optional Rechnungsnummer
-    @md['invoice-number'] = @raw_data['rnumber'].nil? ? '' : 'R'+date[2]+ "-%04d" % @raw_data['rnumber']
+    @data['invoice-number'] = @data['rnumber'].nil? ? '' : 'R'+date[2]+ "-%04d" % @data['rnumber']
 
   end
   
   # Verarbeitet die Produktliste
-  def mine_products(type)
+  def mine_products
     @products = []
-    @nproducts = {}
-    @raw_data['products'].each { |name, s|
+    @data['products'].each { |name, s|
 
       # alles verkauft
-      if s['returned'].nil? and s['sold'].nil? or type == :offer
+      if s['returned'].nil? and s['sold'].nil? or @type == :offer
         sold = s['amount'] 
       # was zurueck bekommen
       elsif s['sold'].nil?
@@ -107,7 +109,6 @@ class Invoicer
       p['sum'] = (sold * p['price'])
 
       @products.push p 
-      @nproducts[name] = p 
     }
   end
 
@@ -119,54 +120,44 @@ class Invoicer
     table
   end
 
+  def is_valid
+    puts "IMPLEMENT VALIDITY CHECKS !!"
+    @type == :invoice || :offer and
+    not @name.nil? and @name != ""
+  end
 
-  def fill type
-    mine_data type
-    case type
+  ## produces an appropriate filename for each type
+  def filename
+    ext = '.tex'
+    case @type
+      when :invoice
+        name = @data['invoice-number']+ext
+      when :offer
+        name = @data['']+ext
+    end
+  end
+
+  ## fills the template with minded data
+  def create
+    mine_products
+    mine_data
+    case @type
       when :invoice
         template = @template_invoice
       when :offer
         template = @template_offer
     end
+
     filled = template.each_line.map { |line| 
-      @md.keys.each{ |key|
+      @data.keys.each{ |key|
        line = line.gsub('$' + key + '$',
-        @md[key].to_s)
+        @data[key].to_s)
       }
       line
     }
-    filled 
+  end
+
+  def dump
+    @data
   end
 end
-
-
-#euro wert Ausgabe für normale Zahlen
-class Object
-  def euro
-    rounded = (self*100)/100.0
-    a,b = sprintf("%0.2f", rounded).split('.')
-    a.gsub!(/(\d)(?=(\d{3})+(?!\d))/, '\\1.')
-    "#{a},#{b}€"
-  end
-end
-
-
-## Initialisierung des Programms
-
-#invoice = Invoicer.new
-#invoice.load_templates :invoice => 'latex/ascii-rechnung.tex', :offer => 'latex/ascii-angebot.tex'
-##invoice.load_templates :invoice => 'latex/ascii-rechnung-en.tex', :offer => 'latex/ascii-angebot-en.tex'
-#
-#
-#unless ARGV[1].nil? 
-#  if File.exists? ARGV[0]
-#    invoice.load_data ARGV[0]
-#  end
-#
-#  case ARGV[1]
-#    when 'r' 
-#      invoice.fill :invoice
-#    when 'a'
-#      invoice.fill :offer
-#  end
-#end
