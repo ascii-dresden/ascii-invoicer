@@ -1,3 +1,4 @@
+# encoding: utf-8
 def ask
   gets.strip
 rescue Interrupt
