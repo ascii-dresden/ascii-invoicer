@@ -11,8 +11,8 @@
 @options.done_dir         = "#{@options.path}caterings/done/"
 @options.template_dir     = "#{@options.path}templates/"
 @options.template_yml     = "#{@options.template_dir}vorlage.yaml"
-@options.template_invoice = "latex/ascii-rechnung.tex"
-@options.template_offer   = "latex/ascii-angebot.tex"
+@options.template_invoice = "#{@options.path}latex/ascii-rechnung.tex"
+@options.template_offer   = "#{@options.path}latex/ascii-angebot.tex"
 @options.keep_log         = false
 @options.verbose          = false
 
