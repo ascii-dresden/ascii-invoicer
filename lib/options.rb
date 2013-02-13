@@ -7,8 +7,8 @@
 @options.path             = './'
 @options.editor           = 'vim'
 @options.latex            = 'pdflatex'
-@options.working_dir      = "#{@options.path}projects/"
-@options.done_dir         = "#{@options.path}done/"
+@options.working_dir      = "#{@options.path}caterings/open/"
+@options.done_dir         = "#{@options.path}caterings/done/"
 @options.template_dir     = "#{@options.path}templates/"
 @options.template_yml     = "#{@options.template_dir}vorlage.yaml"
 @options.template_invoice = "latex/ascii-rechnung.tex"
