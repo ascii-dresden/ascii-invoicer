@@ -5,7 +5,7 @@ require 'yaml'
 require 'optparse'
 require 'ostruct'
 require 'pp'
-require 'paint'
+#require 'paint'
 require 'fileutils'
 require './lib/object.rb'
 require './lib/invoicer.rb'
@@ -27,7 +27,8 @@ def check_project name
   if File.exists?(project_file name)
     return true
   else
-    puts Paint["file not found: \"#{project_file name}\"", :red]
+    #puts Paint["file not found: \"#{project_file name}\"", :red]
+    puts "file not found: \"#{project_file name}\""
     # TODO: create it?
     return false
   end
