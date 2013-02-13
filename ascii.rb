@@ -172,7 +172,7 @@ else
   @options.projectname = ARGV[0] if ARGV[0][0] != '-'
   @optparse.parse!
   @options.projectname = get_project @options.projectname
-  pp @options.operations, @options.projectname, {verbose:@options.verbose} if @options.verbose
+  pp @options.operations, @options.projectname, {:verbose => @options.verbose} if @options.verbose
 
   @options.operations = [:edit] if @options.operations.size == 0
   project = @options.projectname
