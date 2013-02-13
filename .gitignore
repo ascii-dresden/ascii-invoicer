@@ -1,6 +1,8 @@
 *~
 *.swp
+*.swo
 *.pdf
 *.aux
 *.log
 projects
+done
