@@ -1,176 +1,189 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 # encoding: utf-8
 
 require 'yaml'
+require 'optparse'
+require 'ostruct'
+require 'pp'
+#require 'paint'
+require 'fileutils'
+require './lib/object.rb'
+require './lib/invoicer.rb'
+require './lib/minizen.rb'
+require './lib/options.rb'
 
-class Invoicer
-
-  attr_reader :invoiceaw_data, :md, :products, :template_offer, :template_invoice
-  
-  def initialize
-    @defaults = {:tax => 0.19}
+## Checks the existens and creates folder if neccessarry
+def check_projects_folder
+  if File.exists? "#{@options.working_dir}"
+    return true
+  else
+    FileUtils.mkdir "#{@options.working_dir}"
+    puts "Created Projects Directory"
+    return false
   end
+end
+
+def check_project name
+  if File.exists?(project_file name)
+    return true
+  else
+    #puts Paint["file not found: \"#{project_file name}\"", :red]
+    puts "file not found: \"#{project_file name}\""
+    # TODO: create it?
+    return false
+  end
+end
+
+def close_project name
+  # TODO rename folders
+  FileUtils.mkdir @options.done_dir unless(File.exists? @options.done_dir)
+  FileUtils.mv "#{@options.working_dir}#{name}", @options.done_dir if check_project name
+end
+
+def project_folder name 
+  "#{@options.working_dir}#{name}/"
+end
+
+## path to project file
+def project_file name
+  "#{project_folder name}#{name}.yml"
+end
 
 
-  # Läd übergebene
-  def load_data(datafile)
-    if File.exists?(datafile)
-      file = File.open(datafile)
-      @raw_data = YAML::load(file)
+def debug_info
+  puts "Path Exists  #{@options.path} #{File.exists?(@options.path)}"
+  puts "Template Exists  #{@options.template_yml} #{File.exists?(@options.template_yml)}"
+  check_projects_folder()
+end
+
+## creates new project folder and file
+def new_project(name)
+  check_projects_folder
+
+  unless File.exists? "#{@options.working_dir}/#{name}"
+    FileUtils.mkdir "#{@options.working_dir}/#{name}"
+    puts "Created Project Folder #{project_folder name}"
+  end
+  unless File.exists? project_file(name)
+    FileUtils.cp @options.template_yml, project_file(name)
+    puts "Created Empty Project #{project_file name}"
+  else
+    puts "Project File exists.#{project_file name}"
+    if confirm "Do you want to overwrite it?"
+      FileUtils.cp @options.template_yml, project_file(name)
     end
   end
 
+  edit_file project_file name
+end
 
-  # Läd latex Vorlagen
-  def load_templates(hash)
-    @template_offer = File.open(hash[:offer]).read if File.exists?(hash[:offer])
-    @template_invoice = File.open(hash[:invoice]).read if File.exists?(hash[:invoice])
+## open project file from name
+def get_project input
+  if (number = input.to_i) != 0
+    @options.projectname = list_projects[number-1]
+  else
+    @options.projectname = input
   end
+end
 
+## open project file from name
+def edit_project name
+  edit_file project_file name if check_project name
+end
 
-  # Verarbeitet die Produktliste
-  def mine_data (type)
-    mine_products type
-    @md = @raw_data
+## hand path to editor
+def edit_file(path)
+  puts "Opening #{path} in #{@options.editor}"
+  pid = spawn "#{@options.editor} #{path}"
+  Process.wait pid
+end
 
-    # datum
-    date  =  @raw_data['date'].split('.')
-    today = Time.now
+## list projects
+def list_projects
+  check_projects_folder
+  dir = Dir.entries(@options.working_dir).delete_if { |v| v[0] == '.' }
+  dir
+end
 
-    # anrede
-    if @md['client'].downcase.include? 'herr'
-      @md['client'] = "Sehr geehrter " + @md['client']
-    else
-      @md['client'] = "Sehr geehrte " + @md['client']
+## pretty version list projects TODO: make prettier
+def print_project_list
+    projects = list_projects
+    projects.each_index do |i|
+      puts "#{i+1} #{projects[i]} "
     end
+end
 
-    @md['address'] = @raw_data['address'].each_line.map{|l| l.gsub(/[\n]/, " \\newline " )}.join
+## creates a  latex file from NAME of the desired TYPE
+def write_tex(name, type)
+  return false unless check_project name
+  invoicer = Invoicer.new
 
+  invoicer.load_templates :invoice => @options.template_invoice , :offer => @options.template_offer
+  invoicer.load_data project_file name
 
-    # Angebotsnummer
-    if @md['manumber'].nil?
-      @md['offer-number'] =  ['A', today.year , "%02d" % today.month , "%02d" % today.mday, '-', @md['anumber']].join 
-    else
-      @md['offer-number'] = @md['manumber']
-    end
+  invoicer.type = type
+  invoicer.project_name = name
 
-    @md['betreuung'] = @raw_data['hours']['salary'] * @raw_data['hours']['time']
-    @md['netto'] = 0 ; @products.each{|p| @md['netto'] += p['sum']}
-    @md['tax'] = @defaults[:tax] * @md['netto']
-    @md['brutto'] = @md['netto'] + @md['tax']
-    @md['summe'] =  @md['betreuung'] + @md['brutto']
+  if invoicer.is_valid or true
+    tex = invoicer.create
 
-    # Werte in Preise Umwandeln
-    @md['netto'] = @md['netto'].euro
-    @md['summe'] = @md['summe'].euro
-    @md['tax'] = @md['tax'].euro
+    d = invoicer.dump
 
-    # Betreuung
-    if @md['betreuung'] > 0
-      @md['betreuung'] = @md['betreuung'].euro
-      betreuung_line = [ @products.length ," & Betreuung (Stunden)& " , @raw_data['hours']['time'].to_s , " & " , @raw_data['hours']['salary'].euro, " & " , @md['betreuung'] ].join + " \\\\\\ \n"
-      #betreuung_line = [ @products.length ," & Service (hour)& " , @raw_data['hours']['time'].to_s , " & " , @raw_data['hours']['salary'].euro, " & " , @md['betreuung'] ].join + " \\\\\\ \n"
-    else
-      betreuung_line = ''
-    end
-
-    @md[''] = product_table + betreuung_line
-
-    # optional Veranstaltungsname
-    @md['event'] = @raw_data['event'].nil? ? nil : @raw_data['event'] 
-
-    # optional Rechnungsnummer
-    @md['invoice-number'] = @raw_data['rnumber'].nil? ? '' : 'R'+date[2]+ "-%04d" % @raw_data['rnumber']
-
-  end
-  
-  # Verarbeitet die Produktliste
-  def mine_products(type)
-    @products = []
-    @nproducts = {}
-    @raw_data['products'].each { |name, s|
-
-      # alles verkauft
-      if s['returned'].nil? and s['sold'].nil? or type == :offer
-        sold = s['amount'] 
-      # was zurueck bekommen
-      elsif s['sold'].nil?
-        sold = s['amount'] - s['returned'] 
-      # fester wert verkauft
-      elsif s['returned'].nil?
-        sold = s['sold'] 
-      else
-        puts name + ' contains both sold and returned'
-        exit
-      end
-     
-      p = {}
-      p['name'] = name
-      p['sold'] = sold
-      p['price'] = s['price']
-      p['sum'] = (sold * p['price'])
-
-      @products.push p 
-      @nproducts[name] = p 
-    }
-  end
-
-  def product_table
-    table = ""
-    @products.each_with_index do |p, i|
-      table += [i.to_s , " & " , p['name'].to_s , " & " , p['sold'].to_s , " & " , p['price'].euro, " & " , p['sum'].euro].join + " \\\\\\ \n"
-    end
-    table
-  end
-
-
-  def fill type
-    mine_data type
     case type
-      when :invoice
-        template = @template_invoice
-      when :offer
-        template = @template_offer
+    when :invoice
+      datestr = d['raw_date'].strftime("%Y-%m-%d")
+      filename = "R#{d['rnumber']} #{name} #{datestr}.tex"
+      file = "#{project_folder name}"+filename
+    when :offer
+      datestr = d['raw_date'].strftime("%y%m%d")
+      filename = "#{datestr} Angebot #{name}.tex"
+      file = "#{project_folder name}"+filename
     end
-    filled = template.each_line.map { |line| 
-      @md.keys.each{ |key|
-       line = line.gsub('$' + key + '$',
-        @md[key].to_s)
-      }
-      line
-    }
-    puts filled 
+
+    pp file
+    f = File.new file, "w"
+
+    tex.each do |line|
+      f.write line
+    end
+    f.close
+    puts "file writen: #{file}"
+    file
+
+    puts "Rendering #{file} with #{@options.latex}"
+    silencer = @options.verbose ? "" : "> /dev/null" 
+    system "#{@options.latex} \"#{file}\" -output-directory . #{silencer}" #TODO output directory is not generic
+    unless @options.keep_log
+      FileUtils.rm filename.gsub('.tex','.log')
+      FileUtils.rm filename.gsub('.tex','.aux')
+    end
+  else
+    puts "invoice is not valid"
   end
 end
 
 
-#euro wert Ausgabe für normale Zahlen
-class Object
-  def euro
-    rounded = (self*100)/100.0
-    a,b = sprintf("%0.2f", rounded).split('.')
-    a.gsub!(/(\d)(?=(\d{3})+(?!\d))/, '\\1.')
-    "#{a},#{b}€"
+## Use Option parser or leave it if only one argument is given
+if ARGV.size == 0
+  projects = list_projects
+  projects.each_index do |i|
+    puts "#{i+1} #{projects[i]} "
   end
-end
+else
+  @options.projectname = ARGV[0] if ARGV[0][0] != '-'
+  @optparse.parse!
+  @options.projectname = get_project @options.projectname
+  pp @options.operations, @options.projectname, {:verbose => @options.verbose} if @options.verbose
 
+  @options.operations = [:edit] if @options.operations.size == 0
+  project = @options.projectname
+  operations = @options.operations
 
-## Initialisierung des Programms
+  edit_project project        if operations.include? :edit
+  write_tex project, :invoice if operations.include? :invoice
+  write_tex project, :offer   if operations.include? :offer
+  print_project_list          if operations.include? :list
+  close_project project       if operations.include? :close
+  new_project project         if operations.include? :new
 
-invoice = Invoicer.new
-invoice.load_templates :invoice => 'latex/ascii-rechnung.tex', :offer => 'latex/ascii-angebot.tex'
-#invoice.load_templates :invoice => 'latex/ascii-rechnung-en.tex', :offer => 'latex/ascii-angebot-en.tex'
-
-
-unless ARGV[1].nil? 
-  if File.exists? ARGV[0]
-    invoice.load_data ARGV[0]
-  end
-
-  case ARGV[1]
-    when 'r' 
-      invoice.fill :invoice
-    when 'a'
-      invoice.fill :offer
-  end
 end
