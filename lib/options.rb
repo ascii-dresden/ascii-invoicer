@@ -60,7 +60,6 @@
   opts.on( '-l', '--list', 'List all projects (not implemented)' ) do |name|
     #print_project_list
     @options.operations.push :list
-    exit
   end
 
   opts.on( '--close NAME', 'Close project (no implemented)' ) do |name|
