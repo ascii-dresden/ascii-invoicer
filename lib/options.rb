@@ -67,15 +67,15 @@
     @options.operations.push :close
   end
 
-  opts.on( '--clean NAME', 'Removes everything but the project file (not implemented)' ) do |name|
-    puts "--clean is not yet implemented -- sorry"
-    exit
-  end
+  #opts.on( '--clean NAME', 'Removes everything but the project file (not implemented)' ) do |name|
+  #  puts "--clean is not yet implemented -- sorry"
+  #  exit
+  #end
 
-  opts.on('-c', '--check', "Show Debug information") do
-    debug_info()
-    exit
-  end
+  #opts.on('-c', '--check', "Show Debug information") do
+  #  debug_info()
+  #  exit
+  #end
 
   opts.on_tail( '-h', '--help', 'Display this screen' ) do
     puts opts
