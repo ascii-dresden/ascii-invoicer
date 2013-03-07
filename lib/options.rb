@@ -67,6 +67,12 @@
     @options.operations.push :close
   end
 
+  opts.on( '-d', '--dump [NAME', 'Create offer from project' ) do |name|
+    @options.projectname = @options.projectname.nil? ? name : @options.projectname
+    @options.operations.push :dump
+    #write_tex project, :offer unless project.nil?
+  end
+
   #opts.on( '--clean NAME', 'Removes everything but the project file (not implemented)' ) do |name|
   #  puts "--clean is not yet implemented -- sorry"
   #  exit
