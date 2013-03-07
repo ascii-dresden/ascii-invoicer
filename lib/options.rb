@@ -51,7 +51,7 @@
     #write_tex project, :invoice unless project.nil?
   end
 
-  opts.on( '-o', '--offer [NAME', 'Create offer from project' ) do |name|
+  opts.on( '-o', '--offer [NAME]', 'Create offer from project' ) do |name|
     @options.projectname = @options.projectname.nil? ? name : @options.projectname
     @options.operations.push :offer
     #write_tex project, :offer unless project.nil?
@@ -67,7 +67,7 @@
     @options.operations.push :close
   end
 
-  opts.on( '-d', '--dump [NAME', 'Create offer from project' ) do |name|
+  opts.on( '-d', '--dump [NAME]', 'Create offer from project' ) do |name|
     @options.projectname = @options.projectname.nil? ? name : @options.projectname
     @options.operations.push :dump
     #write_tex project, :offer unless project.nil?
