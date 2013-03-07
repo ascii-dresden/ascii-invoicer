@@ -108,8 +108,11 @@ end
 ## pretty version list projects TODO: make prettier
 def print_project_list
     projects = list_projects
+    invoicer = Invoicer.new
     projects.each_index do |i|
-      puts "#{i+1} #{projects[i]} "
+      invoicer.load_data project_file projects[i]
+      invoice = invoicer.dump
+      puts "#{i+1} #{projects[i].ljust 25} #{invoice['signature']}"
     end
 end
 
