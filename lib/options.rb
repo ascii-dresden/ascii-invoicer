@@ -57,12 +57,12 @@
     #write_tex project, :offer unless project.nil?
   end
 
-  opts.on( '-l', '--list', 'List all projects (not implemented)' ) do |name|
+  opts.on( '-l', '--list', 'List all projects' ) do |name|
     #print_project_list
     @options.operations.push :list
   end
 
-  opts.on( '--close NAME', 'Close project (no implemented)' ) do |name|
+  opts.on( '--close NAME', 'Close project ' ) do |name|
     @options.projectname = @options.projectname.nil? ? name : @options.projectname
     @options.operations.push :close
   end
