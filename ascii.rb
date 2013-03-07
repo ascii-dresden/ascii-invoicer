@@ -98,6 +98,15 @@ def edit_file(path)
   Process.wait pid
 end
 
+def dump_file(path)
+  invoicer = Invoicer.new
+
+  invoicer.load_templates :invoice => @options.template_invoice , :offer => @options.template_offer
+  invoicer.load_data project_file path
+  pp invoicer.dump
+
+end
+
 ## list projects
 def list_projects
   check_projects_folder
@@ -108,8 +117,8 @@ end
 ## pretty version list projects TODO: make prettier
 def print_project_list
     projects = list_projects
-    invoicer = Invoicer.new
     projects.each_index do |i|
+      invoicer = Invoicer.new
       invoicer.load_data project_file projects[i]
       invoice = invoicer.dump
       puts "#{i+1} #{projects[i].ljust 25} #{invoice['signature'].ljust 25} #{invoice['date']}"
@@ -186,5 +195,6 @@ else
   print_project_list          if operations.include? :list
   close_project project       if operations.include? :close
   new_project project         if operations.include? :new
+  dump_file project           if operations.include? :dump
 
 end
