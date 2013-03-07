@@ -121,7 +121,8 @@ def print_project_list
       invoicer = Invoicer.new
       invoicer.load_data project_file projects[i]
       invoice = invoicer.dump
-      puts "#{i+1} #{projects[i].ljust 25} #{invoice['signature'].ljust 25} #{invoice['date']}"
+      invoice['rnumber'] =  !invoice['rnumber'].nil? ? invoice['rnumber'] : "_"
+      puts "#{i+1} #{projects[i].ljust 25} #{invoice['signature'].ljust 17} R#{invoice['rnumber'].to_s.ljust 3} #{invoice['date']}"
     end
 end
 
@@ -141,10 +142,11 @@ def write_tex(name, type)
 
     d = invoicer.dump
 
+    # datei namen
     case type
     when :invoice
       datestr = d['raw_date'].strftime("%Y-%m-%d")
-      filename = "R#{d['rnumber']} #{name} #{datestr}.tex"
+      filename = "R#{d['rnumber'].to_s.rjust 3, "0"} #{name} #{datestr}.tex"
       file = "#{project_folder name}"+filename
     when :offer
       datestr = d['raw_date'].strftime("%y%m%d")
