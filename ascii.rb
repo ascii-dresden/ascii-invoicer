@@ -112,7 +112,7 @@ def print_project_list
     projects.each_index do |i|
       invoicer.load_data project_file projects[i]
       invoice = invoicer.dump
-      puts "#{i+1} #{projects[i].ljust 25} #{invoice['signature']}"
+      puts "#{i+1} #{projects[i].ljust 25} #{invoice['signature'].ljust 25} #{invoice['date']}"
     end
 end
 
