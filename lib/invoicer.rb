@@ -47,7 +47,7 @@ class Invoicer
 
 
     # Angebotsnummer
-    if @data['manumber'].nil?
+    if @data['manumber'].nil? and @type == :offer
       @data['offer-number'] =  ['A', today.year , "%02d" % today.month , "%02d" % today.mday, '-', @data['anumber']].join 
     else
       @data['offer-number'] = @data['manumber']
