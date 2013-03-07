@@ -169,9 +169,7 @@ end
 ## Use Option parser or leave it if only one argument is given
 if ARGV.size == 0
   projects = list_projects
-  projects.each_index do |i|
-    puts "#{i+1} #{projects[i]} "
-  end
+  print_project_list
 else
   @options.projectname = ARGV[0] if ARGV[0][0] != '-'
   @optparse.parse!
