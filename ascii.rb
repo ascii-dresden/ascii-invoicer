@@ -103,6 +103,7 @@ def dump_file(path)
 
   invoicer.load_templates :invoice => @options.template_invoice , :offer => @options.template_offer
   invoicer.load_data project_file path
+  invoicer.mine_data
   pp invoicer.dump
 
 end

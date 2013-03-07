@@ -1,5 +1,6 @@
 # encoding: utf-8
 require './lib/object.rb'
+require 'pp'
 class Invoicer
 
   attr_reader :invoiceaw_data, :data, :products, :template_offer, :template_invoice
@@ -7,6 +8,13 @@ class Invoicer
   
   def initialize
     @defaults = {:tax => 0.19}
+    @type = :none
+    langpath = "lib/lang.yml"
+    if File.exists?(langpath)
+      @lang = YAML::load File.open langpath
+    else
+      error "#{langpath} missing"
+    end
   end
 
 
@@ -26,8 +34,15 @@ class Invoicer
   end
 
 
+  def match_addressing(keyword, lang)
+    form = @lang["addressing"][lang]["keywords"][keyword]
+    @lang["addressing"][lang]["forms"][form]
+  end
+
   # Verarbeitet die Produktliste
   def mine_data
+    mine_products
+
 
     # datum
     date  =  @data['date'].split('.')
@@ -35,12 +50,13 @@ class Invoicer
     today = Time.now
 
     # anrede
-    @data['raw_client_raw'] = @data['client']
-    if @data['client'].downcase.include? 'herr'
-      @data['client'] = "Sehr geehrter " + @data['client']
-    else
-      @data['client'] = "Sehr geehrte " + @data['client']
-    end
+    @data['raw_client'] = @data['client']
+    @data['raw_addressing'] = @data['client'].split("\n")[0].split[0].downcase.strip
+    pp @data['raw_addressing']
+    @data['lang'] = !@data['lang'].nil? ?  @data['lang'] : "de"
+
+    @data['addressing'] = match_addressing(@data["raw_addressing"], @data['lang'])
+    @data['client'] = @data['addressing'] + @data['client']
 
     @data['raw_address'] = @data['address']
     @data['address'] = @data['raw_address'].each_line.map{|l| l.gsub(/[\n]/, " \\newline " )}.join
@@ -139,7 +155,7 @@ class Invoicer
 
   ## fills the template with minded data
   def create
-    mine_products
+    #mine_products # done in mine_data
     mine_data
     case @type
       when :invoice
