@@ -52,11 +52,11 @@ class Invoicer
     # anrede
     @data['raw_client'] = @data['client']
     @data['raw_addressing'] = @data['client'].split("\n")[0].split[0].downcase.strip
-    pp @data['raw_addressing']
+    #pp @data['raw_addressing']
     @data['lang'] = !@data['lang'].nil? ?  @data['lang'] : "de"
 
     @data['addressing'] = match_addressing(@data["raw_addressing"], @data['lang'])
-    @data['client'] = @data['addressing'] + @data['client']
+    @data['client'] = "#{@data['addressing']} #{ @data['client']}"
 
     @data['raw_address'] = @data['address']
     @data['address'] = @data['raw_address'].each_line.map{|l| l.gsub(/[\n]/, " \\newline " )}.join
