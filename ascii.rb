@@ -36,8 +36,15 @@ end
 
 def close_project name
   # TODO rename folders
+  invoicer = Invoicer.new
+  invoicer.load_data project_file name
+  invoicer.mine_data
+  invoice = invoicer.dump
+  rn  =  !invoice['rnumber'].nil? ? invoice['rnumber'] : "_"
+  year = invoice['raw_date'].year
+
   FileUtils.mkdir @options.done_dir unless(File.exists? @options.done_dir)
-  FileUtils.mv "#{@options.working_dir}#{name}", @options.done_dir if check_project name
+  FileUtils.mv "#{@options.working_dir}#{name}", "#{@options.done_dir}R#{rn}-#{year}-#{name}" if check_project name
 end
 
 def project_folder name 
