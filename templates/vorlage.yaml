@@ -1,5 +1,5 @@
 --- 
-# version: 20130307
+# version: 20130529
 lang: de
 
 # always include 'Herr' oder 'Frau'
@@ -27,8 +27,8 @@ rnumber: #27
 date: 20.01.2013 # bezieht sich auf die veranstaltung selbst
 
 # Preise:
-#   Mineralwasser:    0.49 / 1l
-#   Mineralwasser:    0.47 / 0,5l
+#   Mineralwasser:    0.61 / 1l
+#   Mineralwasser:    0.59 / 0,5l
 #   Orangensaft:      1.82 / 1l
 #   Apfelsaft:        1.65 / 1l
 #   Kaffee:           2.50 / 1l
