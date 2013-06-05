@@ -15,7 +15,6 @@ address: |
 event: 
 
 
-
 anumber: 1 # fortlaufende nummer fuer mehere Angebote an einem Tag
 
 # manuelle Angebotsnummer, überschreibt anumber
@@ -35,6 +34,7 @@ date: 20.01.2013 # bezieht sich auf die veranstaltung selbst
 #   Tee:              1.75 / 1l
 #   Bagel:            2.19 / stk
 #   Halbes Brötchen:  1.16 / stk
+#   Lachsbrötchen:    1.38 / stk
 #   Kuchen:           0.94 / stk
 #   Donut/Muffin:     0.94 / stk
 #   Brownie:          1.10 / stk
