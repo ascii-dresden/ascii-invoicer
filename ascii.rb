@@ -127,33 +127,42 @@ def sum_up(path)
 end
 
 ## list projects
-def list_projects
+def parse_projects
   check_projects_folder
-  dir = Dir.entries(@options.working_dir).delete_if { |v| v[0] == '.' }
+  dirs = Dir.entries(@options.working_dir).delete_if { |v| v[0] == '.' }
+  @projects= []
+  dirs.each_index do |i|
+    invoicer = Invoicer.new
+    invoicer.load_data project_file dirs[i]
+    invoicer.mine_data()
+    invoice = invoicer.dump
+    invoice['name'] = dirs[i]
+    invoice['rnumber'] =  !invoice['rnumber'].nil? ? invoice['rnumber'] : "_"
+    @projects.push invoice
+    #puts "#{i+1} #{projects[i].ljust 25} #{invoice['signature'].ljust 17} R#{invoice['rnumber'].to_s.ljust 3} #{invoice['date']}"
+  end
+  @projects.sort_by! { |invoice| invoice['raw_date'] }
+end
+
+## list projects
+def list_projects
+  parse_projects if @projects.nil?
+  dir = []
+  @projects.each { |invoice|
+    dir.push invoice['name']
+  }
   dir
 end
 
 ## pretty version list projects TODO: make prettier
 def print_project_list
-    projects = list_projects
-    invoices = []
-    projects.each_index do |i|
-      invoicer = Invoicer.new
-      invoicer.load_data project_file projects[i]
-      invoicer.mine_data()
-      invoice = invoicer.dump
-      invoice['name'] = projects[i] 
-      invoice['rnumber'] =  !invoice['rnumber'].nil? ? invoice['rnumber'] : "_"
-      invoices.push invoice
-      #puts "#{i+1} #{projects[i].ljust 25} #{invoice['signature'].ljust 17} R#{invoice['rnumber'].to_s.ljust 3} #{invoice['date']}"
-    end
-    invoices.sort_by! { |invoice| invoice['raw_date'] }
-    invoices.each_index do |i|
-      invoice = invoices[i]
-      puts "#{(i+1).to_s.rjust 3} #{invoice['name'].ljust 25} #{invoice['signature'].ljust 17} R#{invoice['rnumber'].to_s.ljust 3} #{invoice['date'].rjust 13}"
-      puts "    ".ljust(66,'-') if invoice['raw_date'] <= Time.now and invoices[i+1]['raw_date'] > Time.now
-      #puts "R#{invoice['rnumber'].to_s}, #{invoice['name']}, #{invoice['signature']}, #{invoice['date']}"
-    end
+  parse_projects if @projects.nil?
+  @projects.each_index do |i|
+    invoice = @projects[i]
+    puts "#{(i+1).to_s.rjust 3} #{invoice['name'].ljust 25} #{invoice['signature'].ljust 17} R#{invoice['rnumber'].to_s.ljust 3} #{invoice['date'].rjust 13}"
+    puts "    ".ljust(66,'-') if invoice['raw_date'] <= Time.now and @projects[i+1]['raw_date'] > Time.now
+    #puts "R#{invoice['rnumber'].to_s}, #{invoice['name']}, #{invoice['signature']}, #{invoice['date']}"
+  end
 end
 
 ## creates a  latex file from NAME of the desired TYPE
@@ -209,7 +218,8 @@ end
 
 ## Use Option parser or leave it if only one argument is given
 if ARGV.size == 0
-  projects = list_projects
+  @projects = parse_projects
+  @dirs = list_projects
   print_project_list
 else
   @options.projectname = ARGV[0] if ARGV[0][0] != '-'
