@@ -105,14 +105,25 @@ def edit_file(path)
   Process.wait pid
 end
 
-def dump_file(path)
+def get_dump(path)
   invoicer = Invoicer.new
 
   invoicer.load_templates :invoice => @options.template_invoice , :offer => @options.template_offer
   invoicer.load_data project_file path
   invoicer.mine_data
-  pp invoicer.dump
+  invoicer.dump
+end
 
+def dump_file(path)
+  pp get_dump path
+end
+
+def sum_up(path)
+  dump = get_dump path
+  picks = ['event', 'summe', 'date',
+  ]
+
+  pp dump.keep_if { |k,v| picks.include? k and not v.nil? }
 end
 
 ## list projects
@@ -206,5 +217,6 @@ else
   close_project project       if operations.include? :close
   new_project project         if operations.include? :new
   dump_file project           if operations.include? :dump
+  sum_up project              if operations.include? :sum
 
 end
