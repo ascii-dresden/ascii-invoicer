@@ -1,5 +1,5 @@
 --- 
-# version: 20130529
+# version: 20130606
 lang: de
 
 # always include 'Herr' oder 'Frau'
@@ -8,12 +8,14 @@ client: |
   Herr
   name
 
+#email: 
+
 address: | 
   Voller Name
   Nöthnitzerstraße 46
   01187 Dresden
-event: 
 
+event: 
 
 anumber: 1 # fortlaufende nummer fuer mehere Angebote an einem Tag
 
@@ -84,4 +86,5 @@ hours:
     
 signature:
     Hendrik Sollich
+    # Frank Hedecke
 
