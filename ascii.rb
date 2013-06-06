@@ -153,7 +153,7 @@ def print_project_list
       if @options.verbose
         puts "".ljust(65,'-') if invoice['raw_date'] <= Time.now and invoices[i+1]['raw_date'] > Time.now
       end
-      puts "#{(i+1).to_s.rjust 3} #{invoice['name'].ljust 25} #{invoice['signature'].ljust 17} R#{invoice['rnumber'].to_s.ljust 3} #{invoice['date']}"
+      puts "#{(i+1).to_s.rjust 3} #{invoice['name'].ljust 25} #{invoice['signature'].ljust 17} R#{invoice['rnumber'].to_s.ljust 3} #{invoice['date'].rjust 13}"
     end
 end
 
