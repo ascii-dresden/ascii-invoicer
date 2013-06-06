@@ -150,8 +150,8 @@ def print_project_list
     invoices.sort_by! { |invoice| invoice['raw_date'] }
     invoices.each_index do |i|
       invoice = invoices[i]
-      puts "    ".ljust(66,'-') if invoice['raw_date'] <= Time.now and invoices[i+1]['raw_date'] > Time.now
       puts "#{(i+1).to_s.rjust 3} #{invoice['name'].ljust 25} #{invoice['signature'].ljust 17} R#{invoice['rnumber'].to_s.ljust 3} #{invoice['date'].rjust 13}"
+      puts "    ".ljust(66,'-') if invoice['raw_date'] <= Time.now and invoices[i+1]['raw_date'] > Time.now
       #puts "R#{invoice['rnumber'].to_s}, #{invoice['name']}, #{invoice['signature']}, #{invoice['date']}"
     end
 end
