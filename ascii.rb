@@ -136,12 +136,24 @@ end
 ## pretty version list projects TODO: make prettier
 def print_project_list
     projects = list_projects
+    invoices = []
     projects.each_index do |i|
       invoicer = Invoicer.new
       invoicer.load_data project_file projects[i]
+      invoicer.mine_data()
       invoice = invoicer.dump
+      invoice['name'] = projects[i] 
       invoice['rnumber'] =  !invoice['rnumber'].nil? ? invoice['rnumber'] : "_"
-      puts "#{i+1} #{projects[i].ljust 25} #{invoice['signature'].ljust 17} R#{invoice['rnumber'].to_s.ljust 3} #{invoice['date']}"
+      invoices.push invoice
+      #puts "#{i+1} #{projects[i].ljust 25} #{invoice['signature'].ljust 17} R#{invoice['rnumber'].to_s.ljust 3} #{invoice['date']}"
+    end
+    invoices.sort_by! { |invoice| invoice['raw_date'] }
+    invoices.each_index do |i|
+      invoice = invoices[i]
+      if @options.verbose
+        puts "".ljust(65,'-') if invoice['raw_date'] <= Time.now and invoices[i+1]['raw_date'] > Time.now
+      end
+      puts "#{(i+1).to_s.rjust 3} #{invoice['name'].ljust 25} #{invoice['signature'].ljust 17} R#{invoice['rnumber'].to_s.ljust 3} #{invoice['date']}"
     end
 end
 
