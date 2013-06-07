@@ -24,6 +24,8 @@ def check_projects_folder
 end
 
 def check_project name
+  return true if not @options.project_file.nil? and File.exists?(@options.project_file) 
+
   if File.exists?(project_file name)
     return true
   else
@@ -44,6 +46,7 @@ def close_project name
   year = invoice['raw_date'].year
 
   FileUtils.mkdir @options.done_dir unless(File.exists? @options.done_dir)
+  FileUtils.mkdir "#{@options.done_dir}/#{year}" unless(File.exists? @options.done_dir)
   FileUtils.mv "#{@options.working_dir}#{name}", "#{@options.done_dir}R#{rn}-#{year}-#{name}" if check_project name
 end
 
@@ -53,7 +56,11 @@ end
 
 ## path to project file
 def project_file name
-  "#{project_folder name}#{name}.yml"
+  if @options.project_file.nil?
+    "#{project_folder name}#{name}.yml"
+  else
+    @options.project_file
+  end
 end
 
 
@@ -95,7 +102,7 @@ end
 
 ## open project file from name
 def edit_project name
-  edit_file project_file name if check_project name
+  edit_file project_file name if check_project name or not @options.project_file.nil?
 end
 
 ## hand path to editor
@@ -160,7 +167,9 @@ def print_project_list
   @projects.each_index do |i|
     invoice = @projects[i]
     puts "#{(i+1).to_s.rjust 3} #{invoice['name'].ljust 25} #{invoice['signature'].ljust 17} R#{invoice['rnumber'].to_s.ljust 3} #{invoice['date'].rjust 13}"
-    puts "    ".ljust(66,'-') if invoice['raw_date'] <= Time.now and @projects[i+1]['raw_date'] > Time.now
+    unless @projects[i+1].nil?
+      puts "    ".ljust(66,'-') if invoice['raw_date'] <= Time.now and @projects[i+1]['raw_date'] > Time.now
+    end
     #puts "R#{invoice['rnumber'].to_s}, #{invoice['name']}, #{invoice['signature']}, #{invoice['date']}"
   end
 end
