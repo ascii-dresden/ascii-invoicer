@@ -26,11 +26,11 @@ end
 def check_project name
   return true if not @options.project_file.nil? and File.exists?(@options.project_file) 
 
-  if File.exists?(project_file name)
+  if File.exists?(get_project_file name)
     return true
   else
-    #puts Paint["file not found: \"#{project_file name}\"", :red]
-    puts "file not found: \"#{project_file name}\""
+    #puts Paint["file not found: \"#{get_project_file name}\"", :red]
+    puts "file not found: \"#{get_project_file name}\""
     # TODO: create it?
     return false
   end
@@ -39,7 +39,7 @@ end
 def close_project name
   # TODO rename folders
   invoicer = Invoicer.new
-  invoicer.load_data project_file name
+  invoicer.load_data get_project_file name
   invoicer.mine_data
   invoice = invoicer.dump
   rn  =  !invoice['rnumber'].nil? ? invoice['rnumber'] : "_"
@@ -50,14 +50,14 @@ def close_project name
   FileUtils.mv "#{@options.working_dir}#{name}", "#{@options.done_dir}R#{rn}-#{year}-#{name}" if check_project name
 end
 
-def project_folder name 
+def get_project_folder name 
   "#{@options.working_dir}#{name}/"
 end
 
 ## path to project file
-def project_file name
+def get_project_file name
   if @options.project_file.nil?
-    "#{project_folder name}#{name}.yml"
+    "#{get_project_folder name}#{name}.yml"
   else
     @options.project_file
   end
@@ -76,19 +76,19 @@ def new_project(name)
 
   unless File.exists? "#{@options.working_dir}/#{name}"
     FileUtils.mkdir "#{@options.working_dir}/#{name}"
-    puts "Created Project Folder #{project_folder name}"
+    puts "Created Project Folder #{get_project_folder name}"
   end
-  unless File.exists? project_file(name)
-    FileUtils.cp @options.template_yml, project_file(name)
-    puts "Created Empty Project #{project_file name}"
+  unless File.exists? get_project_file(name)
+    FileUtils.cp @options.template_yml, get_project_file(name)
+    puts "Created Empty Project #{get_project_file name}"
   else
-    puts "Project File exists.#{project_file name}"
+    puts "Project File exists.#{get_project_file name}"
     if confirm "Do you want to overwrite it?"
-      FileUtils.cp @options.template_yml, project_file(name)
+      FileUtils.cp @options.template_yml, get_project_file(name)
     end
   end
 
-  edit_file project_file name
+  edit_file get_project_file name
 end
 
 ## open project file from name
@@ -102,7 +102,7 @@ end
 
 ## open project file from name
 def edit_project name
-  edit_file project_file name if check_project name or not @options.project_file.nil?
+  edit_file get_project_file name if check_project name or not @options.project_file.nil?
 end
 
 ## hand path to editor
@@ -116,7 +116,7 @@ def get_dump(path)
   invoicer = Invoicer.new
 
   invoicer.load_templates :invoice => @options.template_invoice , :offer => @options.template_offer
-  invoicer.load_data project_file path
+  invoicer.load_data get_project_file path
   invoicer.mine_data
   invoicer.dump
 end
@@ -140,7 +140,7 @@ def parse_projects
   @projects= []
   dirs.each_index do |i|
     invoicer = Invoicer.new
-    invoicer.load_data project_file dirs[i]
+    invoicer.load_data get_project_file dirs[i]
     invoicer.mine_data()
     invoice = invoicer.dump
     invoice['name'] = dirs[i]
@@ -180,7 +180,7 @@ def write_tex(name, type)
   invoicer = Invoicer.new
 
   invoicer.load_templates :invoice => @options.template_invoice , :offer => @options.template_offer
-  invoicer.load_data project_file name
+  invoicer.load_data get_project_file name
 
   invoicer.type = type
   invoicer.project_name = name
@@ -195,11 +195,11 @@ def write_tex(name, type)
     when :invoice
       datestr = d['raw_date'].strftime("%Y-%m-%d")
       filename = "R#{d['rnumber'].to_s.rjust 3, "0"} #{name} #{datestr}.tex"
-      file = "#{project_folder name}"+filename
+      file = "#{get_project_folder name}"+filename
     when :offer
       datestr = d['raw_date'].strftime("%y%m%d")
       filename = "#{datestr} Angebot #{name}.tex"
-      file = "#{project_folder name}"+filename
+      file = "#{get_project_folder name}"+filename
     end
 
     pp file
