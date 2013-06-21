@@ -31,7 +31,7 @@ end
 
 ## open project file from name
 def edit_project name
-  edit_file @plumber.get_project_file
+  edit_file @plumber.files[name]
 end
 
 ## hand path to editor
@@ -42,16 +42,14 @@ def edit_file(path)
 end
 
 def dump_file(project)
-  path = @plumber.files[project]
-  pp @plumber.open_project path
+  pp @plumber.open_project project
 end
 
-def sum_up(path)
-  dump = get_dump path
-  picks = ['event', 'summe', 'date',
-  ]
+def sum_up(project)
+  project = @plumber.open_project project
+  picks = ['event', 'summe', 'date']
 
-  pp dump.keep_if { |k,v| picks.include? k and not v.nil? }
+  pp project.keep_if { |k,v| picks.include? k and not v.nil? }
 end
 
 
@@ -129,10 +127,12 @@ else
   @options.projectname = ARGV[0] if ARGV[0][0] != '-'
   @optparse.parse!
   @options.projectname = pick_project @options.projectname
-  pp @options.operations, @options.projectname, {:verbose => @options.verbose} if @options.verbose
+  
 
   @options.operations = [:edit] if @options.operations.size == 0
-  project = pick_project @options.projectname
+
+  project = pick_project @options.projectname # turns index numbers into names
+  puts project
 
   edit_project project        if @options.operations.include? :edit
   write_tex project, :invoice if @options.operations.include? :invoice
@@ -143,4 +143,5 @@ else
   dump_file project           if @options.operations.include? :dump
   sum_up project              if @options.operations.include? :sum
 
+  pp @options.operations, @options.projectname, {:verbose => @options.verbose} if @options.verbose
 end
