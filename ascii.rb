@@ -12,6 +12,8 @@ require './lib/invoicer.rb'
 require './lib/minizen.rb'
 require './lib/options.rb'
 
+### Plumbing
+
 ## Checks the existens and creates folder if neccessarry
 def check_projects_folder
   if File.exists? "#{@options.working_dir}"
@@ -36,20 +38,6 @@ def check_project name
   end
 end
 
-def close_project name
-  # TODO rename folders
-  invoicer = Invoicer.new
-  invoicer.load_data get_project_file name
-  invoicer.mine_data
-  invoice = invoicer.dump
-  rn  =  !invoice['rnumber'].nil? ? invoice['rnumber'] : "_"
-  year = invoice['raw_date'].year
-
-  FileUtils.mkdir @options.done_dir unless(File.exists? @options.done_dir)
-  FileUtils.mkdir "#{@options.done_dir}/#{year}" unless(File.exists? @options.done_dir)
-  FileUtils.mv "#{@options.working_dir}#{name}", "#{@options.done_dir}R#{rn}-#{year}-#{name}" if check_project name
-end
-
 def get_project_folder name 
   "#{@options.working_dir}#{name}/"
 end
@@ -70,6 +58,14 @@ def debug_info
   check_projects_folder()
 end
 
+
+
+
+
+
+
+
+### Project life cycle
 ## creates new project folder and file
 def new_project(name)
   check_projects_folder
@@ -91,8 +87,28 @@ def new_project(name)
   edit_file get_project_file name
 end
 
+## Move to archive directory
+def close_project name
+  # TODO rename folders
+  invoicer = Invoicer.new
+  invoicer.read_file get_project_file name
+  invoicer.mine
+  invoice = invoicer.dump
+  rn  =  !invoice['rnumber'].nil? ? invoice['rnumber'] : "_"
+  year = invoice['raw_date'].year
+  FileUtils.mkdir @options.done_dir unless(File.exists? @options.done_dir)
+  FileUtils.mkdir "#{@options.done_dir}/#{year}" unless(File.exists? @options.done_dir)
+  FileUtils.mv "#{@options.working_dir}#{name}", "#{@options.done_dir}R#{rn}-#{year}-#{name}" if check_project name
+end
+
+
+
+
+
+
+
 ## open project file from name
-def get_project input
+def pick_project input
   if (number = input.to_i) != 0
     @options.projectname = list_projects[number-1]
   else
@@ -116,8 +132,8 @@ def get_dump(path)
   invoicer = Invoicer.new
 
   invoicer.load_templates :invoice => @options.template_invoice , :offer => @options.template_offer
-  invoicer.load_data get_project_file path
-  invoicer.mine_data
+  invoicer.read_file get_project_file path
+  invoicer.mine
   invoicer.dump
 end
 
@@ -133,16 +149,25 @@ def sum_up(path)
   pp dump.keep_if { |k,v| picks.include? k and not v.nil? }
 end
 
+
+
+
+## TODO FIXME XXX
+def open_project file
+  invoicer = Invoicer.new
+  invoicer.read_file file
+  invoicer.mine()
+  invoicer.dump
+end
+
+
 ## list projects
 def parse_projects
   check_projects_folder
   dirs = Dir.entries(@options.working_dir).delete_if { |v| v[0] == '.' }
   @projects= []
   dirs.each_index do |i|
-    invoicer = Invoicer.new
-    invoicer.load_data get_project_file dirs[i]
-    invoicer.mine_data()
-    invoice = invoicer.dump
+    invoice  = open_project get_project_file dirs[i]
     invoice['name'] = dirs[i]
     invoice['rnumber'] =  !invoice['rnumber'].nil? ? invoice['rnumber'] : "_"
     @projects.push invoice
@@ -180,7 +205,7 @@ def write_tex(name, type)
   invoicer = Invoicer.new
 
   invoicer.load_templates :invoice => @options.template_invoice , :offer => @options.template_offer
-  invoicer.load_data get_project_file name
+  invoicer.read_file get_project_file name
 
   invoicer.type = type
   invoicer.project_name = name
@@ -233,7 +258,7 @@ if ARGV.size == 0
 else
   @options.projectname = ARGV[0] if ARGV[0][0] != '-'
   @optparse.parse!
-  @options.projectname = get_project @options.projectname
+  @options.projectname = pick_project @options.projectname
   pp @options.operations, @options.projectname, {:verbose => @options.verbose} if @options.verbose
 
   @options.operations = [:edit] if @options.operations.size == 0
