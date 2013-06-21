@@ -20,6 +20,7 @@ class Invoicer
 
   ## open given .yml and parse into @data
   def read_file(datafile)
+    @datafile = datafile
     if File.exists?(datafile)
       file = File.open(datafile)
       @data = YAML::load(file)
@@ -41,8 +42,21 @@ class Invoicer
 
   # Verarbeitet die Produktliste
   def mine
-    mine_products()
+
+    begin
     mine_meta_data()
+    rescue
+      puts "failed to parse #{@datafile} (metadata)"
+    end
+
+
+    begin
+    mine_products()
+    rescue
+      puts "failed to parse #{@datafile} (products)"
+    end
+
+
   end
 
   def mine_meta_data
