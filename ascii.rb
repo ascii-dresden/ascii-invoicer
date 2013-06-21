@@ -45,7 +45,9 @@ end
 ## path to project file
 def get_project_file name
   if @options.project_file.nil?
-    "#{get_project_folder name}#{name}.yml"
+    files = Dir.glob("#{get_project_folder name}*.yml")
+    fail "ambiguous amount of yml files in #{file}" if files.length != 1
+    return files[0]
   else
     @options.project_file
   end
@@ -153,11 +155,20 @@ end
 
 
 ## TODO FIXME XXX
-def open_project file
-  invoicer = Invoicer.new
-  invoicer.read_file file
-  invoicer.mine()
-  invoicer.dump
+def open_project file # or folder ??
+  case File.ftype file
+    when 'file' then
+      invoicer = Invoicer.new
+      invoicer.read_file file
+      invoicer.mine()
+      invoicer.dump
+    when 'directory' then
+      files = Dir.glob file+'/*.yml'
+      fail "ambiguous amount of yml files in #{file}" if files.length != 1
+      open_project files[0]
+    else
+      fail "Unexpected Filetype"
+    end
 end
 
 
@@ -249,13 +260,13 @@ def write_tex(name, type)
   end
 end
 
-
 ## Use Option parser or leave it if only one argument is given
 if ARGV.size == 0
   @projects = parse_projects
   @dirs = list_projects
   print_project_list
 else
+
   @options.projectname = ARGV[0] if ARGV[0][0] != '-'
   @optparse.parse!
   @options.projectname = pick_project @options.projectname
