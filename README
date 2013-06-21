@@ -5,3 +5,11 @@ TODO allow reopening closed projects
 TODO allow opening arbitrary files
 TODO change management of yml-files in folder so that yaml can have different names (maybe for versioning or multiple offers)
 TODO pick another editor
+
+TODO add watch mode
+TODO name offers by date of offer not catering
+TODO introduce git functionality
+TODO write tests
+TODO better CLI output (summ, csv)
+TODO rake like commands
+TODO output folder
