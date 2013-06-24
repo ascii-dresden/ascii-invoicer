@@ -19,6 +19,7 @@ require './lib/ascii_plumbing.rb'
 ## open project file from name
 def pick_project input
   if (number = input.to_i) != 0
+    error "invalid index" if number > @plumber.dirs.size
     @options.projectname = @plumber.dirs[number-1]
   else
     @options.projectname = input
