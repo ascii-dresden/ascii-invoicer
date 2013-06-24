@@ -113,11 +113,11 @@
     @options.operations.push :close
   end
 
-  # reopen a project
-  opts.on( '--reopen NAME', 'Reopen a closed project ' ) do |name|
-    exit
-    @options.projectname = @options.projectname.nil? ? name : @options.projectname
-    @options.operations.push :close
-  end
+  ## reopen a project
+  #opts.on( '--reopen NAME', 'Reopen a closed project ' ) do |name|
+  #  exit
+  #  @options.projectname = @options.projectname.nil? ? name : @options.projectname
+  #  @options.operations.push :close
+  #end
 
 end
