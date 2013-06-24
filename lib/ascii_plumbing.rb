@@ -2,9 +2,11 @@ class ProjectsPlumber
 
   attr_reader :projects, :dirs, :files
 
-  def initialize(working_dir)
-    @working_dir = working_dir
-    #puts "Hey There!"
+  def initialize(options)
+    @working_dir  = options.working_dir
+    @template_yml = options.template_yml
+    @editor       = options.editor
+    #puts "hey there!"
     error "projects folder fail" unless check_projects_folder()
    
     # read all the projects
@@ -28,9 +30,6 @@ class ProjectsPlumber
     if File.exists?(get_project_file name)
       return true
     else
-      #puts Paint["file not found: \"#{get_project_file name}\"", :red]
-      puts "file not found: \"#{get_project_file name}\""
-      # TODO: create it?
       return false
     end
   end
@@ -39,11 +38,15 @@ class ProjectsPlumber
     "#{@working_dir}#{name}/"
   end
 
+  def get_project_file_path name
+    "#{get_project_folder name}/#{name}.yml"
+  end
+
   ## path to project file
   def get_project_file name
     if @project_file.nil?
       files = Dir.glob("#{get_project_folder name}*.yml")
-      fail "ambiguous amount of yml files in #{file}" if files.length != 1
+      fail "ambiguous amount of yml files in #{name}" if files.length != 1
       return files[0]
     else
       @project_file
@@ -77,7 +80,6 @@ class ProjectsPlumber
     @dirs
   end
 
-
   ### Project life cycle
   ## creates new project folder and file
   def new_project(name)
@@ -87,9 +89,10 @@ class ProjectsPlumber
       FileUtils.mkdir "#{@working_dir}/#{name}"
       puts "Created Project Folder #{get_project_folder name}"
     end
-    unless File.exists? get_project_file(name)
-      FileUtils.cp @template_yml, get_project_file(name)
-      puts "Created Empty Project #{get_project_file name}"
+
+    unless File.exists? get_project_file_path name
+      FileUtils.cp @template_yml, get_project_file_path(name)
+      puts "Created Empty Project #{get_project_file_path name}"
     else
       puts "Project File exists.#{get_project_file name}"
       if confirm "Do you want to overwrite it?"
@@ -97,7 +100,6 @@ class ProjectsPlumber
       end
     end
 
-    edit_file get_project_file name
   end
 
   ## Move to archive directory
