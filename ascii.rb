@@ -47,10 +47,10 @@ def dump_file(project)
 end
 
 def sum_up(project)
-  project = @plumber.open_project project
+  file = @plumber.get_project_file project
+  project = @plumber.open_project file
   picks = ['event', 'summe', 'date']
-
-  pp project.keep_if { |k,v| picks.include? k and not v.nil? }
+  puts "\"#{project['event']}\":".ljust(30) + "#{project['summe'].rjust 8}"
 end
 
 
