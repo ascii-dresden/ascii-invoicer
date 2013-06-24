@@ -7,7 +7,7 @@
 @options.path             = './'
 @options.editor           = 'vim'
 @options.latex            = 'pdflatex'
-@options.store_dir        = "#{@options.path}caterings-dev/"
+@options.store_dir        = "#{@options.path}caterings/"
 @options.working_dir      = "#{@options.store_dir}open/"
 @options.done_dir         = "#{@options.store_dir}done/"
 @options.template_dir     = "#{@options.path}templates/"
