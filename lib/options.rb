@@ -33,7 +33,7 @@
     @options.verbose = true
   end
 
-  opts.on_tail( '-V', '--veryverbose', 'Be veryverbose' ) do |name|
+  opts.on_tail( '-V', '--veryverbose', 'Be very verbose' ) do |name|
     @options.verbose = true
     @options.veryverbose = true
   end
