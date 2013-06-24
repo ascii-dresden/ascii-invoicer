@@ -1,11 +1,10 @@
 class ProjectsPlumber
 
   attr_reader :projects, :dirs, :files
+  attr_writer :options
 
   def initialize(options)
-    @working_dir  = options.working_dir
-    @template_yml = options.template_yml
-    @project_file = options.project_file
+    @options = options
     #puts "hey there!"
     error "projects folder fail" unless check_projects_folder()
    
@@ -15,10 +14,10 @@ class ProjectsPlumber
   
   ## Checks the existens and creates folder if neccessarry
   def check_projects_folder
-    if File.exists? "#{@working_dir}"
+    if File.exists? "#{@options.working_dir}"
       return true
     else
-      FileUtils.mkdir "#{@working_dir}"
+      FileUtils.mkdir "#{@options.working_dir}"
       puts "Created Projects Directory"
       return false
     end
@@ -26,7 +25,7 @@ class ProjectsPlumber
 
   def check_project name
     get_project_file name
-    return true if not @project_file.nil? and File.exists?(@project_file) 
+    return true if not @options.project_file.nil? and File.exists?(@options.project_file) 
     if File.exists?(get_project_file name)
       return true
     else
@@ -35,28 +34,38 @@ class ProjectsPlumber
   end
 
   def get_project_folder name 
-    "#{@working_dir}#{name}/"
+    if @options.project_file.nil?
+    "#{@options.working_dir}#{name}/"
+    else
+      # means the file was not taken from the repository buy addressed directly with -f 
+      "./"
+    end
   end
 
+  #do not use this for opening the file, only for making up a name for new files
   def get_project_file_path name
     "#{get_project_folder name}/#{name}.yml"
   end
 
   ## path to project file
   def get_project_file name
-    if @project_file.nil?
+    if @options.project_file.nil?
+      unless name.nil?
       files = Dir.glob("#{get_project_folder name}*.yml")
-      fail "ambiguous amount of yml files in #{name}" if files.length != 1
+      fail "ambiguous amount of yml files in \"#{name}\"" if files.length != 1
       return files[0]
+      else
+        fail "name not given"
+      end
     else
-      @project_file
+      @options.project_file
     end
   end
 
   ## list projects
   def parse_projects
     check_projects_folder
-    dirs = Dir.entries(@working_dir).delete_if { |v| v[0] == '.' }
+    dirs = Dir.entries(@options.working_dir).delete_if { |v| v[0] == '.' }
     @projects = []
     dirs.each_index do |i|
       invoice  = open_project get_project_file dirs[i]
@@ -85,18 +94,18 @@ class ProjectsPlumber
   def new_project(name)
     check_projects_folder
 
-    unless File.exists? "#{@working_dir}/#{name}"
-      FileUtils.mkdir "#{@working_dir}/#{name}"
+    unless File.exists? "#{@options.working_dir}/#{name}"
+      FileUtils.mkdir "#{@options.working_dir}/#{name}"
       puts "Created Project Folder #{get_project_folder name}"
     end
 
     unless File.exists? get_project_file_path name
-      FileUtils.cp @template_yml, get_project_file_path(name)
+      FileUtils.cp @options.template_yml, get_project_file_path(name)
       puts "Created Empty Project #{get_project_file_path name}"
     else
       puts "Project File exists.#{get_project_file name}"
       if confirm "Do you want to overwrite it?"
-        FileUtils.cp @template_yml, get_project_file(name)
+        FileUtils.cp @options.template_yml, get_project_file(name)
       end
     end
 
@@ -111,9 +120,9 @@ class ProjectsPlumber
     invoice = invoicer.dump
     rn  =  !invoice['rnumber'].nil? ? invoice['rnumber'] : "_"
     year = invoice['raw_date'].year
-    FileUtils.mkdir @done_dir unless(File.exists? @done_dir)
-    FileUtils.mkdir "#{@done_dir}/#{year}" unless(File.exists? @done_dir)
-    FileUtils.mv "#{@working_dir}#{name}", "#{@done_dir}R#{rn}-#{year}-#{name}" if check_project name
+    FileUtils.mkdir @options.done_dir unless(File.exists? @options.done_dir)
+    FileUtils.mkdir "#{@options.done_dir}/#{year}" unless(File.exists? @options.done_dir)
+    FileUtils.mv "#{@options.working_dir}#{name}", "#{@options.done_dir}R#{rn}-#{year}-#{name}" if check_project name
   end
 
 

@@ -14,6 +14,7 @@ require './lib/options.rb'
 require './lib/ascii_plumbing.rb'
 
 ### Plumbing
+@plumber = ProjectsPlumber.new @options
 
 ## open project file from name
 def pick_project input
@@ -74,7 +75,7 @@ end
 ## creates a  latex file from NAME of the desired TYPE
 def write_tex(name, type)
   return false unless @plumber.check_project name
-  path = @plumber.get_project_file name
+  path    = @plumber.get_project_file name
   pfolder = @plumber.get_project_folder name
 
   invoicer = Invoicer.new
@@ -83,6 +84,15 @@ def write_tex(name, type)
 
   invoicer.type = type
   invoicer.project_name = name
+  if name.nil? or name.size == 0 
+    if invoicer.dump['event'].nil? or invoicer.dump['event'].size == 0
+      name = path.tr '/', '_'
+      puts name
+    else
+      name = invoicer.dump['event']
+      puts "name taken from event \"#{name}\""
+    end
+  end
 
   if invoicer.is_valid or true
     tex = invoicer.create
@@ -139,13 +149,15 @@ else
 
   project = pick_project @options.projectname # turns index numbers into names
 
-  @plumber = ProjectsPlumber.new @options
+  @plumber.options = @options
 
   edit_project project        if @options.operations.include? :edit
   write_tex project, :invoice if @options.operations.include? :invoice
   write_tex project, :offer   if @options.operations.include? :offer
   print_project_list          if @options.operations.include? :list
-  archive_project project     if @options.operations.include? :close
+  if @options.operations.include? :close
+    @plumber.archive_project project
+  end
   if @options.operations.include? :new
     new_project project         
     edit_project project

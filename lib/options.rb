@@ -101,11 +101,6 @@
     @options.project_file = path
   end
 
-  opts.on('-c', '--check', "Show Debug information") do
-    debug_info()
-    exit
-  end
-
   opts.on_tail( '-h', '--help', 'Display this screen' ) do
     puts opts
     @options.operations.push :help
