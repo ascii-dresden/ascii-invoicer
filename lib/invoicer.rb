@@ -8,7 +8,7 @@ class Invoicer
   
   def initialize
     @defaults = {:tax => 0.19}
-    @type = :none
+    @type = :none #either invoice or offer
     langpath = "lib/lang.yml"
     if File.exists?(langpath)
       @lang = YAML::load File.open langpath
@@ -19,7 +19,8 @@ class Invoicer
 
 
   ## open given .yml and parse into @data
-  def load_data(datafile)
+  def read_file(datafile)
+    @datafile = datafile
     if File.exists?(datafile)
       file = File.open(datafile)
       @data = YAML::load(file)
@@ -40,9 +41,25 @@ class Invoicer
   end
 
   # Verarbeitet die Produktliste
-  def mine_data
-    mine_products
+  def mine
 
+    begin
+    mine_meta_data()
+    rescue
+      puts "failed to parse #{@datafile} (metadata)"
+    end
+
+
+    begin
+    mine_products()
+    rescue
+      puts "failed to parse #{@datafile} (products)"
+    end
+
+
+  end
+
+  def mine_meta_data
 
     # datum
     date  =  @data['date'].split('.')
@@ -69,27 +86,6 @@ class Invoicer
       @data['offer-number'] = @data['manumber']
     end
 
-    @data['betreuung'] = @data['hours']['salary'] * @data['hours']['time']
-    @data['netto']     = 0 ; @products.each{|p| @data['netto'] += p['sum']}
-    @data['tax']       = @defaults[:tax] * @data['netto']
-    @data['brutto']    = @data['netto'] + @data['tax']
-    @data['summe']     = @data['betreuung'] + @data['brutto']
-
-    # Werte in Preise Umwandeln
-    @data['netto'] = @data['netto'].euro
-    @data['summe'] = @data['summe'].euro
-    @data['tax']   = @data['tax'].euro
-
-    # Betreuung
-    if @data['betreuung'] > 0
-      @data['betreuung'] = @data['betreuung'].euro
-      betreuung_line = [ @products.length ," & Betreuung (Stunden)& " , @data['hours']['time'].to_s , " & " , @data['hours']['salary'].euro, " & " , @data['betreuung'] ].join + " \\\\\\ \n"
-      #betreuung_line = [ @products.length ," & Service (hour)& " , @data['hours']['time'].to_s , " & " , @data['hours']['salary'].euro, " & " , @data['betreuung'] ].join + " \\\\\\ \n"
-    else
-      betreuung_line = ''
-    end
-
-    @data[''] = product_table + betreuung_line
 
     # optional Veranstaltungsname
     @data['event'] = @data['event'].nil? ? nil : @data['event'] 
@@ -126,14 +122,36 @@ class Invoicer
 
       @products.push p 
     }
+
+    @data['betreuung'] = @data['hours']['salary'] * @data['hours']['time']
+    @data['netto']     = 0 ; @products.each{|p| @data['netto'] += p['sum']}
+    @data['tax']       = @defaults[:tax] * @data['netto']
+    @data['brutto']    = @data['netto'] + @data['tax']
+    @data['summe']     = @data['betreuung'] + @data['brutto']
+
+    # Werte in Preise Umwandeln
+    @data['netto'] = @data['netto'].euro
+    @data['summe'] = @data['summe'].euro
+    @data['tax']   = @data['tax'].euro
+
+    # Betreuung
+    if @data['betreuung'] > 0
+      @data['betreuung'] = @data['betreuung'].euro
+      betreuung_line = [ @products.length ," & Betreuung (Stunden)& " , @data['hours']['time'].to_s , " & " , @data['hours']['salary'].euro, " & " , @data['betreuung'] ].join + " \\\\\\ \n"
+      #betreuung_line = [ @products.length ," & Service (hour)& " , @data['hours']['time'].to_s , " & " , @data['hours']['salary'].euro, " & " , @data['betreuung'] ].join + " \\\\\\ \n"
+    else
+      betreuung_line = ''
+    end
+
+    @data[''] = tex_product_table + betreuung_line
   end
 
-  def product_table
+  def tex_product_table
     table = ""
     @products.each_with_index do |p, i|
       table += [i.to_s , " & " , p['name'].to_s , " & " , p['sold'].to_s , " & " , p['price'].euro, " & " , p['sum'].euro].join + " \\\\\\ \n"
     end
-    table
+    return table
   end
 
   def is_valid
@@ -156,7 +174,7 @@ class Invoicer
   ## fills the template with minded data
   def create
     #mine_products # done in mine_data
-    mine_data
+    mine()
     case @type
       when :invoice
         template = @template_invoice
