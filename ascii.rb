@@ -42,7 +42,8 @@ def edit_file(path)
 end
 
 def dump_file(project)
-  pp @plumber.open_project project
+  file = @plumber.get_project_file project
+  pp @plumber.open_project file
 end
 
 def sum_up(project)
