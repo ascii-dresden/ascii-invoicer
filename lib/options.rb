@@ -7,8 +7,9 @@
 @options.path             = './'
 @options.editor           = 'vim'
 @options.latex            = 'pdflatex'
-@options.working_dir      = "#{@options.path}caterings/open/"
-@options.done_dir         = "#{@options.path}caterings/done/"
+@options.store_dir        = "#{@options.path}caterings-dev/"
+@options.working_dir      = "#{@options.store_dir}open/"
+@options.done_dir         = "#{@options.store_dir}done/"
 @options.template_dir     = "#{@options.path}templates/"
 @options.template_yml     = "#{@options.template_dir}vorlage.yaml"
 @options.template_invoice = "#{@options.path}latex/ascii-rechnung.tex"
@@ -30,6 +31,11 @@
   # verbose
   opts.on_tail( '-v', '--verbose', 'Be verbose' ) do |name|
     @options.verbose = true
+  end
+
+  opts.on_tail( '-V', '--veryverbose', 'Be very verbose' ) do |name|
+    @options.verbose = true
+    @options.veryverbose = true
   end
 
   # choose project 
@@ -71,10 +77,12 @@
     @options.operations.push :list
   end
 
-  # close a project
-  opts.on( '--close NAME', 'Close project ' ) do |name|
-    @options.projectname = @options.projectname.nil? ? name : @options.projectname
-    @options.operations.push :close
+  # list projects
+  opts.on( '-a', '--list-all', 'List all projects' ) do |name|
+    #print_project_list
+    puts "NOT YET IMPLEMENTED"
+    exit
+    @options.operations.push :list
   end
 
   opts.on( '-s', '--sum [NAME]', 'Sum up project sum' ) do |name|
@@ -89,14 +97,8 @@
     #write_tex project, :offer unless project.nil?
   end
 
-  opts.on( '--file NAME', 'Manualy specify .yml file (not implemented)' ) do |name|
-    puts "--file is not yet implemented -- sorry"
-    exit
-  end
-
-  opts.on('-c', '--check', "Show Debug information") do
-    debug_info()
-    exit
+  opts.on( '-f','--file PATH', 'Manualy specify .yml file' ) do |path|
+    @options.project_file = path
   end
 
   opts.on_tail( '-h', '--help', 'Display this screen' ) do
@@ -104,4 +106,18 @@
     @options.operations.push :help
     exit
   end
+
+  # close a project
+  opts.on( '--close NAME', 'Close project ' ) do |name|
+    @options.projectname = @options.projectname.nil? ? name : @options.projectname
+    @options.operations.push :close
+  end
+
+  # reopen a project
+  opts.on( '--reopen NAME', 'Reopen a closed project ' ) do |name|
+    exit
+    @options.projectname = @options.projectname.nil? ? name : @options.projectname
+    @options.operations.push :close
+  end
+
 end
