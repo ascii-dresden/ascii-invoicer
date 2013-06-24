@@ -74,11 +74,13 @@ end
 
 ## creates a  latex file from NAME of the desired TYPE
 def write_tex(name, type)
-  return false unless check_project name
-  invoicer = Invoicer.new
+  return false unless @plumber.check_project name
+  path = @plumber.get_project_file name
+  pfolder = @plumber.get_project_folder name
 
+  invoicer = Invoicer.new
   invoicer.load_templates :invoice => @options.template_invoice , :offer => @options.template_offer
-  invoicer.read_file get_project_file name
+  invoicer.read_file path
 
   invoicer.type = type
   invoicer.project_name = name
@@ -93,11 +95,11 @@ def write_tex(name, type)
     when :invoice
       datestr = d['raw_date'].strftime("%Y-%m-%d")
       filename = "R#{d['rnumber'].to_s.rjust 3, "0"} #{name} #{datestr}.tex"
-      file = "#{get_project_folder name}"+filename
+      file = "#{pfolder}"+filename
     when :offer
       datestr = d['raw_date'].strftime("%y%m%d")
       filename = "#{datestr} Angebot #{name}.tex"
-      file = "#{get_project_folder name}"+filename
+      file = "#{pfolder}"+filename
     end
 
     pp file
@@ -133,10 +135,8 @@ else
   @options.projectname = pick_project @options.projectname
 
   @options.operations = [:edit] if @options.operations.size == 0 and not @options.projectname.nil?
-  puts @options.editor
 
   project = pick_project @options.projectname # turns index numbers into names
-  puts project
 
   edit_project project        if @options.operations.include? :edit
   write_tex project, :invoice if @options.operations.include? :invoice
