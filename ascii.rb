@@ -14,7 +14,7 @@ require './lib/options.rb'
 require './lib/ascii_plumbing.rb'
 
 ### Plumbing
-@plumber = ProjectsPlumber.new @options.working_dir
+@plumber = ProjectsPlumber.new @options
 
 
 ## open project file from name
@@ -31,7 +31,7 @@ end
 
 ## open project file from name
 def edit_project name
-  edit_file @plumber.files[name]
+  edit_file @plumber.get_project_file name
 end
 
 ## hand path to editor
@@ -66,6 +66,10 @@ def print_project_list
     end
     #puts "R#{invoice['rnumber'].to_s}, #{invoice['name']}, #{invoice['signature']}, #{invoice['date']}"
   end
+end
+
+def new_project(name)
+  @plumber.new_project name
 end
 
 ## creates a  latex file from NAME of the desired TYPE
@@ -127,9 +131,9 @@ else
   @options.projectname = ARGV[0] if ARGV[0][0] != '-'
   @optparse.parse!
   @options.projectname = pick_project @options.projectname
-  
 
-  @options.operations = [:edit] if @options.operations.size == 0
+  @options.operations = [:edit] if @options.operations.size == 0 and not @options.projectname.nil?
+  puts @options.editor
 
   project = pick_project @options.projectname # turns index numbers into names
   puts project
@@ -139,7 +143,10 @@ else
   write_tex project, :offer   if @options.operations.include? :offer
   print_project_list          if @options.operations.include? :list
   archive_project project     if @options.operations.include? :close
-  new_project project         if @options.operations.include? :new
+  if @options.operations.include? :new
+    new_project project         
+    edit_project project
+  end
   dump_file project           if @options.operations.include? :dump
   sum_up project              if @options.operations.include? :sum
 
