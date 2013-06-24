@@ -117,7 +117,7 @@ class ProjectsPlumber
 
 
 
-  def open_project file# or folder ??
+  def open_project file # or folder ??
     case File.ftype file
       when 'file' then
         invoicer = Invoicer.new
