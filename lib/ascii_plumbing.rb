@@ -5,6 +5,7 @@ class ProjectsPlumber
   def initialize(options)
     @working_dir  = options.working_dir
     @template_yml = options.template_yml
+    @project_file = options.project_file
     #puts "hey there!"
     error "projects folder fail" unless check_projects_folder()
    
