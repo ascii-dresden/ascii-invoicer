@@ -14,8 +14,6 @@ require './lib/options.rb'
 require './lib/ascii_plumbing.rb'
 
 ### Plumbing
-@plumber = ProjectsPlumber.new @options
-
 
 ## open project file from name
 def pick_project input
@@ -130,14 +128,18 @@ end
 if ARGV.size == 0
   print_project_list()
 else
-
+  # direkt naming
   @options.projectname = ARGV[0] if ARGV[0][0] != '-'
+
   @optparse.parse!
   @options.projectname = pick_project @options.projectname
-
-  @options.operations = [:edit] if @options.operations.size == 0 and not @options.projectname.nil?
+  if @options.operations.size == 0 and not @options.projectname.nil?
+    @options.operations = [:edit]
+  end
 
   project = pick_project @options.projectname # turns index numbers into names
+
+  @plumber = ProjectsPlumber.new @options
 
   edit_project project        if @options.operations.include? :edit
   write_tex project, :invoice if @options.operations.include? :invoice
@@ -151,5 +153,13 @@ else
   dump_file project           if @options.operations.include? :dump
   sum_up project              if @options.operations.include? :sum
 
-  pp @options.operations, @options.projectname, {:verbose => @options.verbose} if @options.verbose
+  if @options.verbose
+    pp "operations:",   @options.operations
+    pp "projectname:",  @options.projectname
+    pp "project:",  project
+    pp "project_file:",  @options.project_file
+  if @options.veryverbose
+    pp 'options:' ,     @options
+  end
+  end
 end

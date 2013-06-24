@@ -33,6 +33,11 @@
     @options.verbose = true
   end
 
+  opts.on_tail( '-V', '--veryverbose', 'Be veryverbose' ) do |name|
+    @options.verbose = true
+    @options.veryverbose = true
+  end
+
   # choose project 
   opts.on( '-p', '--project NAME', 'Use this project (overrides others)' ) do |name|
     @options.projectname = name
