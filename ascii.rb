@@ -58,7 +58,7 @@ end
 
 ## pretty version list projects TODO: make prettier
 def print_project_list
-  projects = @plumber.projects
+  projects = @plumber.working_projects
   projects.each_index do |i|
     invoice = projects[i]
     puts "#{(i+1).to_s.rjust 3} #{invoice['name'].ljust 25} #{invoice['signature'].ljust 17} R#{invoice['rnumber'].to_s.ljust 3} #{invoice['date'].rjust 13}"
