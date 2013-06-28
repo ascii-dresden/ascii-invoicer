@@ -1,6 +1,6 @@
 class ProjectsPlumber
 
-  attr_reader :projects, :dirs, :files
+  attr_reader :working_projects, :dirs, :files
   attr_writer :options
 
   def initialize(options)
@@ -63,18 +63,18 @@ class ProjectsPlumber
   end
 
   ## list projects
-  def parse_projects
+  def parse_projects(folder = @options.working_dir)
     check_projects_folder
-    dirs = Dir.entries(@options.working_dir).delete_if { |v| v[0] == '.' }
-    @projects = []
+    dirs = Dir.entries(folder ).delete_if { |v| v[0] == '.' }
+    @working_projects = []
     dirs.each_index do |i|
       invoice  = open_project get_project_file dirs[i]
       invoice['name'] = dirs[i]
       invoice['rnumber'] =  !invoice['rnumber'].nil? ? invoice['rnumber'] : "_"
-      @projects.push invoice
+      @working_projects.push invoice
       #puts "#{i+1} #{projects[i].ljust 25} #{invoice['signature'].ljust 17} R#{invoice['rnumber'].to_s.ljust 3} #{invoice['date']}"
     end
-    @projects.sort_by! { |invoice| invoice['raw_date'] }
+    @working_projects.sort_by! { |invoice| invoice['raw_date'] }
   end
 
   ## list projects
@@ -82,7 +82,7 @@ class ProjectsPlumber
     parse_projects if @projects.nil?
     @dirs = []
     @files = {}
-    @projects.each { |invoice|
+    @working_projects.each { |invoice|
       @dirs.push invoice['name']
       @files[invoice['name']] = get_project_file  invoice['name']
     }
