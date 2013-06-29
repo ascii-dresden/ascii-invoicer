@@ -70,7 +70,6 @@ class ProjectsPlumber
   ## list projects
   def list_projects folder
     check_projects_folder()
-    pp folder
     @dirs = Dir.entries(folder).delete_if { |v| v[0] == '.' }
     @files = {}
     @working_projects = []

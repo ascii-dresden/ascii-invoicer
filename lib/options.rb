@@ -82,7 +82,6 @@
   opts.on( '-a', '--archive', 'List archived projects' ) do |name|
     #print_project_list
     @options.read_archive = true
-    @options.operations.push :list
   end
 
   opts.on( '-s', '--sum [NAME]', 'Sum up project sum' ) do |name|
