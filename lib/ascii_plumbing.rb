@@ -1,6 +1,6 @@
 class ProjectsPlumber
 
-  attr_reader :archived_projects, :working_projects, :dirs, :s
+  attr_reader :archived_projects, :working_projects, :dirs, :ordered_dirs
   attr_writer :options
 
   def initialize(options)
@@ -10,10 +10,11 @@ class ProjectsPlumber
    
     # read all the projects
     if @options.read_archive
-      list_projects @options.done_dir
+      @current_dir = @options.done_dir
     else
-      list_projects @options.working_dir
+      @current_dir = @options.working_dir
     end
+    list_projects @current_dir
   end
 
   ## Checks the existens and creates folder if neccessarry
@@ -39,7 +40,7 @@ class ProjectsPlumber
 
   def get_project_folder name 
     if @options.project_file.nil?
-    "#{@options.working_dir}#{name}/"
+    "#{@current_dir}#{name}/"
     else
       # means the file was not taken from the repository buy addressed directly with -f 
       "./"
@@ -70,9 +71,10 @@ class ProjectsPlumber
   def list_projects folder
     check_projects_folder()
     pp folder
-    @dirs = Dir.entries(folder ).delete_if { |v| v[0] == '.' }
+    @dirs = Dir.entries(folder).delete_if { |v| v[0] == '.' }
     @files = {}
     @working_projects = []
+    @ordered_dirs = []
 
     @dirs.each_index do |i|
       invoice  = open_project get_project_file dirs[i]
@@ -83,6 +85,9 @@ class ProjectsPlumber
       #puts "#{i+1} #{projects[i].ljust 25} #{invoice['signature'].ljust 17} R#{invoice['rnumber'].to_s.ljust 3} #{invoice['date']}"
     end
     @working_projects.sort_by! { |invoice| invoice['raw_date'] }
+    @working_projects.each do |invoice|
+      @ordered_dirs.push invoice['name']
+    end
     return
   end
 
