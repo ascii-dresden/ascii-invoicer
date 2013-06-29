@@ -62,7 +62,7 @@ class AsciiInvoicer
   def pick_project input
     if (number = input.to_i) != 0
       error "invalid index" if number > @plumber.dirs.size
-      @options.projectname = @plumber.dirs[number-1]
+      @options.projectname = @plumber.ordered_dirs[number-1]
     else
       @options.projectname = input
     end
