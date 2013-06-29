@@ -21,8 +21,12 @@ class AsciiInvoicer
     @plumber = ProjectsPlumber.new @options
 
     @options.projectname = pick_project @options.projectname
-    if @options.operations.size == 0 and not @options.projectname.nil?
-      @options.operations = [:edit]
+    if @options.operations.size == 0 
+      unless @options.projectname.nil?
+        @options.operations = [:edit]
+      else
+        @options.operations = [:list]
+      end
     end
 
 
@@ -177,13 +181,9 @@ class AsciiInvoicer
   end
 end
 
-if ARGV.size == 0
-  @options.operations.push :list
-else
-  # direkt naming
-  @options.projectname = ARGV[0] if ARGV[0][0] != '-'
-  @optparse.parse!
-end
+# direkt naming
+@options.projectname = ARGV[0] if ARGV.size > 0 and ARGV[0][0] != '-'
+@optparse.parse!
 
 ascii = AsciiInvoicer.new @options
 ascii.execute()
