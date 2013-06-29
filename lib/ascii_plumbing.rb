@@ -9,9 +9,13 @@ class ProjectsPlumber
     error "projects folder fail" unless check_projects_folder()
    
     # read all the projects
-    list_projects()
+    if @options.read_archive
+      list_projects @options.done_dir
+    else
+      list_projects @options.working_dir
+    end
   end
-  
+
   ## Checks the existens and creates folder if neccessarry
   def check_projects_folder
     if File.exists? "#{@options.working_dir}"
@@ -63,24 +67,23 @@ class ProjectsPlumber
   end
 
   ## list projects
-  def list_projects(folder = @options.working_dir)
+  def list_projects folder
     check_projects_folder()
-    dirs = Dir.entries(folder ).delete_if { |v| v[0] == '.' }
-    @dirs = []
+    pp folder
+    @dirs = Dir.entries(folder ).delete_if { |v| v[0] == '.' }
     @files = {}
     @working_projects = []
 
-    dirs.each_index do |i|
+    @dirs.each_index do |i|
       invoice  = open_project get_project_file dirs[i]
       invoice['name'] = dirs[i]
       invoice['rnumber'] =  !invoice['rnumber'].nil? ? invoice['rnumber'] : "_"
       @working_projects.push invoice
-      @dirs.push invoice['name']
       @files[invoice['name']] = get_project_file  invoice['name']
       #puts "#{i+1} #{projects[i].ljust 25} #{invoice['signature'].ljust 17} R#{invoice['rnumber'].to_s.ljust 3} #{invoice['date']}"
     end
     @working_projects.sort_by! { |invoice| invoice['raw_date'] }
-    @dirs
+    return
   end
 
   ### Project life cycle
