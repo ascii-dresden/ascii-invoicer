@@ -1,18 +1,17 @@
-TODO allow only one yml file per prject ( makes finding easier )
-TODO allow listing closed projects too ( --list-all -la )
-TODO change folder structure of DONE: DONE/2003/R042-name
+TODO add "canceled flag"
 TODO allow reopening closed projects
-TODO allow opening arbitrary files
-TODO change management of yml-files in folder so that yaml can have different names (maybe for versioning or multiple offers)
+TODO change folder structure of DONE: DONE/2003/R042-name
 TODO pick another editor
-TODO display who owns how many projects ( open, closed, per time)
-TODO add watch mode
-TODO name offers by date of offer not catering
-TODO introduce git functionality
-TODO write tests
-TODO better CLI output (summ, csv)
-TODO rake like commands
 TODO output folder
-TODO use paint
-TODO highlight current day
+TODO name offers by date of offer not catering
+
+TODO change management of yml-files in folder so that yaml can have different names (maybe for versioning or multiple offers)
+
+TODO display summary who owns how many projects ( open, closed, per time)
+TODO add watch mode
+TODO introduce git functionality
+TODO better CLI output (summ, csv)
 TODO add Gemfile
+TODO use paint
+TODO rake like commands
+TODO write tests
