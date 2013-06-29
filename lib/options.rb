@@ -14,6 +14,7 @@
 @options.template_yml     = "#{@options.template_dir}vorlage.yaml"
 @options.template_invoice = "#{@options.path}latex/ascii-rechnung.tex"
 @options.template_offer   = "#{@options.path}latex/ascii-angebot.tex"
+@options.read_archive     = false # overwritten if "--archive" is used
 @options.keep_log         = false
 @options.verbose          = false
 
@@ -78,10 +79,9 @@
   end
 
   # list projects
-  opts.on( '-a', '--list-all', 'List all projects' ) do |name|
+  opts.on( '-a', '--archive', 'List archived projects' ) do |name|
     #print_project_list
-    puts "NOT YET IMPLEMENTED"
-    exit
+    @options.read_archive = true
     @options.operations.push :list
   end
 

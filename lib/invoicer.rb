@@ -23,7 +23,11 @@ class Invoicer
     @datafile = datafile
     if File.exists?(datafile)
       file = File.open(datafile)
+      begin
       @data = YAML::load(file)
+      rescue
+        error " error reading #{file}"
+      end
     end
   end
 

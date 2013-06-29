@@ -1,6 +1,6 @@
 class ProjectsPlumber
 
-  attr_reader :projects, :dirs, :files
+  attr_reader :archived_projects, :working_projects, :dirs, :ordered_dirs
   attr_writer :options
 
   def initialize(options)
@@ -9,9 +9,14 @@ class ProjectsPlumber
     error "projects folder fail" unless check_projects_folder()
    
     # read all the projects
-    list_projects()
+    if @options.read_archive
+      @current_dir = @options.done_dir
+    else
+      @current_dir = @options.working_dir
+    end
+    list_projects @current_dir
   end
-  
+
   ## Checks the existens and creates folder if neccessarry
   def check_projects_folder
     if File.exists? "#{@options.working_dir}"
@@ -35,7 +40,7 @@ class ProjectsPlumber
 
   def get_project_folder name 
     if @options.project_file.nil?
-    "#{@options.working_dir}#{name}/"
+    "#{@current_dir}#{name}/"
     else
       # means the file was not taken from the repository buy addressed directly with -f 
       "./"
@@ -63,30 +68,27 @@ class ProjectsPlumber
   end
 
   ## list projects
-  def parse_projects
-    check_projects_folder
-    dirs = Dir.entries(@options.working_dir).delete_if { |v| v[0] == '.' }
-    @projects = []
-    dirs.each_index do |i|
+  def list_projects folder
+    check_projects_folder()
+    pp folder
+    @dirs = Dir.entries(folder).delete_if { |v| v[0] == '.' }
+    @files = {}
+    @working_projects = []
+    @ordered_dirs = []
+
+    @dirs.each_index do |i|
       invoice  = open_project get_project_file dirs[i]
       invoice['name'] = dirs[i]
       invoice['rnumber'] =  !invoice['rnumber'].nil? ? invoice['rnumber'] : "_"
-      @projects.push invoice
+      @working_projects.push invoice
+      @files[invoice['name']] = get_project_file  invoice['name']
       #puts "#{i+1} #{projects[i].ljust 25} #{invoice['signature'].ljust 17} R#{invoice['rnumber'].to_s.ljust 3} #{invoice['date']}"
     end
-    @projects.sort_by! { |invoice| invoice['raw_date'] }
-  end
-
-  ## list projects
-  def list_projects
-    parse_projects if @projects.nil?
-    @dirs = []
-    @files = {}
-    @projects.each { |invoice|
-      @dirs.push invoice['name']
-      @files[invoice['name']] = get_project_file  invoice['name']
-    }
-    @dirs
+    @working_projects.sort_by! { |invoice| invoice['raw_date'] }
+    @working_projects.each do |invoice|
+      @ordered_dirs.push invoice['name']
+    end
+    return
   end
 
   ### Project life cycle
