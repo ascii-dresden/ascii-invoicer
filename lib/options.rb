@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+@version          = '1.2.9'
+
 @options                  = OpenStruct.new
 @options.projectname      = nil # leave this way !!
 @options.operations       = [] # :invoice, :offer, :edit, :new
@@ -121,3 +123,4 @@
   #end
 
 end
+@optparse.version = @version
