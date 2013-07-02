@@ -115,15 +115,13 @@ class ProjectsPlumber
   ## Move to archive directory
   def archive_project name
     # TODO rename folders
-    invoicer = Invoicer.new
-    invoicer.read_file get_project_file name
-    invoicer.mine
-    invoice = invoicer.dump
+    invoice = open_project get_project_file name
     rn  =  !invoice['rnumber'].nil? ? invoice['rnumber'] : "_"
     year = invoice['raw_date'].year
     FileUtils.mkdir @options.done_dir unless(File.exists? @options.done_dir)
     FileUtils.mkdir "#{@options.done_dir}/#{year}" unless(File.exists? @options.done_dir)
     FileUtils.mv "#{@options.working_dir}#{name}", "#{@options.done_dir}R#{rn}-#{year}-#{name}" if check_project name
+    puts "archived #{name} \"#{invoice['event']}\""
   end
 
 
