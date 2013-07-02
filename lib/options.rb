@@ -1,4 +1,5 @@
 # encoding: utf-8
+@version = '1.3.0'
 
 @options                  = OpenStruct.new
 @options.projectname      = nil # leave this way !!
@@ -129,3 +130,5 @@
   #end
 
 end
+
+@optparse.version = @version
