@@ -10,11 +10,11 @@ class ProjectsPlumber
    
     # read all the projects
     if @options.read_archive
-      @current_dir = @options.done_dir
+      list_archives()
     else
       @current_dir = @options.working_dir
+      list_projects @current_dir
     end
-    list_projects @current_dir
   end
 
   ## Checks the existens and creates folder if neccessarry
@@ -65,6 +65,16 @@ class ProjectsPlumber
     else
       @options.project_file
     end
+  end
+
+  def list_archives
+    year_dirs = Dir.entries(@options.done_dir).delete_if { |v| v[0] == '.' }
+    unless year_dirs.include?(@options.archive_year)
+      error "no such year \"#{@options.archive_year}\" in archive"
+    end
+    @current_dir = "#{@options.done_dir}#{@options.archive_year}/"
+    pp @current_dir
+    list_projects @current_dir
   end
 
   ## list projects
@@ -118,9 +128,14 @@ class ProjectsPlumber
     invoice = open_project get_project_file name
     rn  =  !invoice['rnumber'].nil? ? invoice['rnumber'] : "_"
     year = invoice['raw_date'].year
-    FileUtils.mkdir @options.done_dir unless(File.exists? @options.done_dir)
-    FileUtils.mkdir "#{@options.done_dir}/#{year}" unless(File.exists? @options.done_dir)
-    FileUtils.mv "#{@options.working_dir}#{name}", "#{@options.done_dir}R#{rn}-#{year}-#{name}" if check_project name
+
+    archive_dir = @options.done_dir
+    archive_year_dir = "#{archive_dir}#{year}/"
+
+    FileUtils.mkdir archive_dir unless(File.exists? archive_dir)
+    FileUtils.mkdir archive_year_dir unless(File.exists? archive_year_dir)
+    FileUtils.mv "#{@options.working_dir}#{name}", "#{archive_year_dir}R#{rn.to_s.rjust(3,'0')}-#{year}-#{name}" if check_project name
+    puts "#{archive_year_dir}R#{rn.to_s.rjust(3,'0')}-#{year}-#{name}"
     puts "archived #{name} \"#{invoice['event']}\""
   end
 

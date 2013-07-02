@@ -15,6 +15,7 @@
 @options.template_invoice = "#{@options.path}latex/ascii-rechnung.tex"
 @options.template_offer   = "#{@options.path}latex/ascii-angebot.tex"
 @options.read_archive     = false # overwritten if "--archive" is used
+@options.archive_year     = Date.today.year.to_s # overwritten if "--archive" is used
 @options.keep_log         = false
 @options.verbose          = false
 
@@ -79,8 +80,9 @@
   end
 
   # list projects
-  opts.on( '-a', '--archive', 'List archived projects' ) do |name|
+  opts.on( '-a', '--archive [year]', 'List archived projects (default is current year)' ) do |year|
     #print_project_list
+    @options.archive_year = year unless year.nil? or year.length == 0
     @options.read_archive = true
   end
 
@@ -110,6 +112,12 @@
   opts.on( '--close NAME', 'Close project ' ) do |name|
     @options.projectname = @options.projectname.nil? ? name : @options.projectname
     @options.operations.push :close
+  end
+
+  # close a project
+  opts.on( '--reopen NAME', 'Reopen project ' ) do |name|
+    @options.projectname = @options.projectname.nil? ? name : @options.projectname
+    @options.operations.push :reopen
   end
 
   ## reopen a project
