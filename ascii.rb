@@ -35,13 +35,13 @@ class AsciiInvoicer
     def execute
       project = pick_project @options.projectname # turns index numbers into names
 
-      edit_project project        if @options.operations.include? :edit
-      write_tex project, :invoice if @options.operations.include? :invoice
-      write_tex project, :offer   if @options.operations.include? :offer
-      print_project_list          if @options.operations.include? :list
-      if @options.operations.include? :close
-        @plumber.archive_project project
-      end
+      edit_project project               if @options.operations.include? :edit
+      write_tex project, :invoice        if @options.operations.include? :invoice
+      write_tex project, :offer          if @options.operations.include? :offer
+      print_project_list                 if @options.operations.include? :list
+      @plumber.archive_project project   if @options.operations.include? :archive
+      @plumber.unarchive_project project if @options.operations.include? :unarchive
+
       if @options.operations.include? :new
         new_project project         
         edit_project project

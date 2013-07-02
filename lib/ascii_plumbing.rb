@@ -73,7 +73,7 @@ class ProjectsPlumber
       error "no such year \"#{@options.archive_year}\" in archive"
     end
     @current_dir = "#{@options.done_dir}#{@options.archive_year}/"
-    pp @current_dir
+    puts @current_dir
     list_projects @current_dir
   end
 
@@ -137,6 +137,23 @@ class ProjectsPlumber
     FileUtils.mv "#{@options.working_dir}#{name}", "#{archive_year_dir}R#{rn.to_s.rjust(3,'0')}-#{year}-#{name}" if check_project name
     puts "#{archive_year_dir}R#{rn.to_s.rjust(3,'0')}-#{year}-#{name}"
     puts "archived #{name} \"#{invoice['event']}\""
+  end
+
+  ## Move to archive directory
+  def unarchive_project name
+    #invoice = open_project get_project_file name
+    file     = get_project_file name
+    folder   = get_project_folder name
+
+    project_name = file.split('/').last.split('.').first
+
+    puts project_name
+    destination = "#{@options.working_dir}#{project_name}"
+
+    puts()
+    FileUtils.mv folder, destination
+    puts "moved #{folder} to #{destination}"
+
   end
 
 
