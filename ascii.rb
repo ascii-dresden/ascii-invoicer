@@ -107,9 +107,9 @@ class AsciiInvoicer
     projects = @plumber.working_projects
     projects.each_index do |i|
       invoice = projects[i]
-      puts "#{(i+1).to_s.rjust 3} #{invoice['name'].ljust 25} #{invoice['signature'].ljust 17} R#{invoice['rnumber'].to_s.ljust 3} #{invoice['date'].rjust 13}"
+      puts "#{(i+1).to_s.rjust 3} #{invoice['name'].ljust 34} #{invoice['signature'].ljust 17} R#{invoice['rnumber'].to_s.ljust 3} #{invoice['date'].rjust 13}"
       unless projects[i+1].nil?
-        puts "    ".ljust(66,'-') if invoice['raw_date'] <= Time.now and projects[i+1]['raw_date'] > Time.now
+        puts "    ".ljust(75,'-') if invoice['raw_date'] <= Time.now and projects[i+1]['raw_date'] > Time.now
       end
       #puts "R#{invoice['rnumber'].to_s}, #{invoice['name']}, #{invoice['signature']}, #{invoice['date']}"
     end
