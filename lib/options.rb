@@ -79,13 +79,6 @@
     @options.operations.push :list
   end
 
-  # list projects
-  opts.on( '-a', '--archive [year]', 'List archived projects (default is current year)' ) do |year|
-    #print_project_list
-    @options.archive_year = year unless year.nil? or year.length == 0
-    @options.read_archive = true
-  end
-
   opts.on( '-s', '--sum [NAME]', 'Sum up project sum' ) do |name|
     @options.projectname = @options.projectname.nil? ? name : @options.projectname
     @options.operations.push :sum
@@ -111,13 +104,21 @@
   # close a project
   opts.on( '--close NAME', 'Close project ' ) do |name|
     @options.projectname = @options.projectname.nil? ? name : @options.projectname
-    @options.operations.push :close
+    @options.operations.push :archive
   end
 
   # close a project
-  opts.on( '--reopen NAME', 'Reopen project ' ) do |name|
+  opts.on( '--reopen NAME', 'Move closed project back to working dir (Combine with -a)' ) do |name|
+    @options.read_archive = true
     @options.projectname = @options.projectname.nil? ? name : @options.projectname
-    @options.operations.push :reopen
+    @options.operations.push :unarchive
+  end
+
+  # list projects
+  opts.on( '-a', '--archive [year]', 'List archived projects (default is current year)' ) do |year|
+    #print_project_list
+    @options.archive_year = year unless year.nil? or year.length == 0
+    @options.read_archive = true
   end
 
   ## reopen a project
