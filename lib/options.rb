@@ -1,4 +1,5 @@
 # encoding: utf-8
+@version = '1.3.0'
 
 @options                  = OpenStruct.new
 @options.projectname      = nil # leave this way !!
@@ -14,6 +15,8 @@
 @options.template_yml     = "#{@options.template_dir}vorlage.yaml"
 @options.template_invoice = "#{@options.path}latex/ascii-rechnung.tex"
 @options.template_offer   = "#{@options.path}latex/ascii-angebot.tex"
+@options.read_archive     = false # overwritten if "--archive" is used
+@options.archive_year     = Date.today.year.to_s # overwritten if "--archive" is used
 @options.keep_log         = false
 @options.verbose          = false
 
@@ -77,14 +80,6 @@
     @options.operations.push :list
   end
 
-  # list projects
-  opts.on( '-a', '--list-all', 'List all projects' ) do |name|
-    #print_project_list
-    puts "NOT YET IMPLEMENTED"
-    exit
-    @options.operations.push :list
-  end
-
   opts.on( '-s', '--sum [NAME]', 'Sum up project sum' ) do |name|
     @options.projectname = @options.projectname.nil? ? name : @options.projectname
     @options.operations.push :sum
@@ -110,7 +105,21 @@
   # close a project
   opts.on( '--close NAME', 'Close project ' ) do |name|
     @options.projectname = @options.projectname.nil? ? name : @options.projectname
-    @options.operations.push :close
+    @options.operations.push :archive
+  end
+
+  # close a project
+  opts.on( '--reopen NAME', 'Move closed project back to working dir (Combine with -a)' ) do |name|
+    @options.read_archive = true
+    @options.projectname = @options.projectname.nil? ? name : @options.projectname
+    @options.operations.push :unarchive
+  end
+
+  # list projects
+  opts.on( '-a', '--archive [year]', 'List archived projects (default is current year)' ) do |year|
+    #print_project_list
+    @options.archive_year = year unless year.nil? or year.length == 0
+    @options.read_archive = true
   end
 
   ## reopen a project
@@ -121,3 +130,5 @@
   #end
 
 end
+
+@optparse.version = @version
