@@ -8,3 +8,4 @@ caterings
 .directory
 caterings-dev
 *.yml
+Gemfile.lock
