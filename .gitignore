@@ -7,5 +7,6 @@
 caterings
 .directory
 caterings-dev
+values.tex
 *.yml
 Gemfile.lock
