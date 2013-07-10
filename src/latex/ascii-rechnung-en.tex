@@ -1,4 +1,4 @@
-\documentclass[11pt,utf8]{latex/ascii-brief}
+\documentclass[11pt,utf8]{src/latex/ascii-brief-en}
 \usepackage{graphicx}       % Fuer die Einbindung der Logo-Graphik 
 \usepackage{amssymb,amsfonts,textcomp,latexsym}
 \usepackage{booktabs}        % Striche in Tabellen
@@ -8,31 +8,30 @@
 \usepackage[scaled]{berasans}
 \renewcommand*\familydefault{\sfdefault}  %% Only if the base font of the document is to be sans serif
 
-\input{latex/ascii-include}
+\input{src/latex/ascii-include}
 
 \Unterschrift        {$signature$}
 
 \Postvermerk         {}
 \Adresse             {$address$}
 
-\Betreff             {Angebot} %% [Angebot|Rechnung]
+\Betreff             {Invoice} %% [Angebot|Rechnung]
 
 \Datum              {\today}
 \AngebotManuel     {$offer-number$} %% Manuel ueberschreibbar ansonsten automatisch heute
 \Veranstaltung      {$event$}
-\RechnungsNummer     {} %% bei Angeboten leer lassen
+\RechnungsNummer     {$invoice-number$} %% bei Angeboten leer lassen
 
 \Anrede              {$client$, }
-\Gruss               {Mit freundlichen Grüßen}{1cm}
+\Gruss               {Sincerely yours}{1cm}
 
 %\Anlagen             {Anlagen}
 %\Verteiler           {Verteiler}
 
 \begin{document}
-\begin{ascii-brief}
+\begin{ascii-brief-en}
 
-hiermit möchten wir Ihnen für die gastronomische Betreuung Ihrer Veranstaltung am $date$ folgendes
-Angebot unterbreiten: 
+We thank you for letting us arrange the catering on $date$ and would like to make out this invoice to you:
 
 \begin{center}
 \begin{tabular}{rp{7cm}rrr}
@@ -40,14 +39,17 @@ Angebot unterbreiten:
 \midrule
 $$
 \bottomrule[1pt]
-\multicolumn{4}{r}{Netto MwSt. 19\%}    & $netto$    \\
-\multicolumn{4}{r}{+MwSt. 19\%}        &  $tax$    \\
-\multicolumn{4}{r}{MwSt 0\%}        & $betreuung$    \\
-\multicolumn{4}{r}{Gesamtpreis}        & $summe$    \\
+\multicolumn{4}{r}{Netto Tax 19\%}    & $netto$    \\
+\multicolumn{4}{r}{+Tax 19\%}        &  $tax$    \\
+\multicolumn{4}{r}{Tax 0\%}        & $betreuung$    \\
+\multicolumn{4}{r}{Total}        & $summe$    \\
 \end{tabular}
 \end{center}
 
-\end{ascii-brief}
+We would ask you to pay within 14 days of reciving this bill.
+
+
+\end{ascii-brief-en}
 \end{document}
 
 

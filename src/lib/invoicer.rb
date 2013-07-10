@@ -1,5 +1,4 @@
 # encoding: utf-8
-require './lib/object.rb'
 require 'pp'
 class Invoicer
 
@@ -9,7 +8,7 @@ class Invoicer
   def initialize
     @defaults = {:tax => 0.19}
     @type = :none #either invoice or offer
-    langpath = "lib/lang.yml"
+    langpath = "#{$SCRIPT_PATH}/lib/lang.yml"
     if File.exists?(langpath)
       @lang = YAML::load File.open langpath
     else

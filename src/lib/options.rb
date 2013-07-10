@@ -6,19 +6,35 @@
 @options.operations       = [] # :invoice, :offer, :edit, :new
 @options.test             = false
 @options.path             = './'
+@options.script_path      = $SCRIPT_PATH + '/'
 @options.editor           = 'vim'
 @options.latex            = 'pdflatex'
 @options.store_dir        = "#{@options.path}caterings/"
 @options.working_dir      = "#{@options.store_dir}open/"
 @options.done_dir         = "#{@options.store_dir}done/"
-@options.template_dir     = "#{@options.path}templates/"
+@options.template_dir     = "#{@options.script_path}templates/"
 @options.template_yml     = "#{@options.template_dir}vorlage.yaml"
-@options.template_invoice = "#{@options.path}latex/ascii-rechnung.tex"
-@options.template_offer   = "#{@options.path}latex/ascii-angebot.tex"
+@options.template_invoice = "#{@options.script_path}latex/ascii-rechnung.tex"
+@options.template_offer   = "#{@options.script_path}latex/ascii-angebot.tex"
 @options.read_archive     = false # overwritten if "--archive" is used
 @options.archive_year     = Date.today.year.to_s # overwritten if "--archive" is used
 @options.keep_log         = false
 @options.verbose          = false
+
+def read_file(datafile)
+  if File.exists?(datafile)
+    file = File.open(datafile)
+    begin
+    data = YAML::load(file)
+    rescue
+      error " error reading #{file}"
+    end
+    return data
+  end
+end
+
+
+@settings = read_file "#{$SCRIPT_PATH}/lib/settings.yml"
 
 
 ## OptionsParser

@@ -1,18 +1,3 @@
-#!/usr/bin/env ruby
-# encoding: utf-8
-
-require 'yaml'
-require 'optparse'
-require 'ostruct'
-require 'pp'
-require 'paint'
-require 'fileutils'
-require './lib/object.rb'
-require './lib/invoicer.rb'
-require './lib/minizen.rb'
-require './lib/options.rb'
-require './lib/ascii_plumbing.rb'
-
 class AsciiInvoicer
   ## Use Option parser or leave it if only one argument is given
   def initialize (options)
@@ -212,10 +197,3 @@ class AsciiInvoicer
     end
   end
 end
-
-# direkt naming
-@options.projectname = ARGV[0] if ARGV.size > 0 and ARGV[0][0] != '-'
-@optparse.parse!
-
-ascii = AsciiInvoicer.new @options
-ascii.execute()

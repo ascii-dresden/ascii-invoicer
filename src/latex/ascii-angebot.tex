@@ -1,4 +1,4 @@
-\documentclass[11pt,utf8]{latex/ascii-brief}
+\documentclass[11pt,utf8]{src/latex/ascii-brief}
 \usepackage{graphicx}       % Fuer die Einbindung der Logo-Graphik 
 \usepackage{amssymb,amsfonts,textcomp,latexsym}
 \usepackage{booktabs}        % Striche in Tabellen
@@ -8,19 +8,19 @@
 \usepackage[scaled]{berasans}
 \renewcommand*\familydefault{\sfdefault}  %% Only if the base font of the document is to be sans serif
 
-\input{latex/ascii-include}
+\input{src/latex/ascii-include}
 
 \Unterschrift        {$signature$}
 
 \Postvermerk         {}
 \Adresse             {$address$}
 
-\Betreff             {Rechnung} %% [Angebot|Rechnung]
+\Betreff             {Angebot} %% [Angebot|Rechnung]
 
 \Datum              {\today}
 \AngebotManuel     {$offer-number$} %% Manuel ueberschreibbar ansonsten automatisch heute
 \Veranstaltung      {$event$}
-\RechnungsNummer     {$invoice-number$} %% bei Angeboten leer lassen
+\RechnungsNummer     {} %% bei Angeboten leer lassen
 
 \Anrede              {$client$, }
 \Gruss               {Mit freundlichen Grüßen}{1cm}
@@ -31,8 +31,8 @@
 \begin{document}
 \begin{ascii-brief}
 
-wir bedanken uns für Ihren Auftrag für das Catering am $date$ und erlauben uns ihnen
-folgende Rechnung zu stellen:
+hiermit möchten wir Ihnen für die gastronomische Betreuung Ihrer Veranstaltung am $date$ folgendes
+Angebot unterbreiten: 
 
 \begin{center}
 \begin{tabular}{rp{7cm}rrr}
@@ -46,9 +46,6 @@ $$
 \multicolumn{4}{r}{Gesamtpreis}        & $summe$    \\
 \end{tabular}
 \end{center}
-
-Wir bitten um eine Begleichung des Betrags innerhalb von 14 Tagen nach Erhalt der Rechnung.
-
 
 \end{ascii-brief}
 \end{document}

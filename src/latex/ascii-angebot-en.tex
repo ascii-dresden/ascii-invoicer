@@ -1,4 +1,4 @@
-\documentclass[11pt,utf8]{latex/ascii-brief-en}
+\documentclass[11pt,utf8]{src/latex/ascii-brief-en}
 \usepackage{graphicx}       % Fuer die Einbindung der Logo-Graphik 
 \usepackage{amssymb,amsfonts,textcomp,latexsym}
 \usepackage{booktabs}        % Striche in Tabellen
@@ -8,19 +8,19 @@
 \usepackage[scaled]{berasans}
 \renewcommand*\familydefault{\sfdefault}  %% Only if the base font of the document is to be sans serif
 
-\input{latex/ascii-include}
+\input{src/latex/ascii-include}
 
 \Unterschrift        {$signature$}
 
 \Postvermerk         {}
 \Adresse             {$address$}
 
-\Betreff             {Invoice} %% [Angebot|Rechnung]
+\Betreff             {Offer} %% [Angebot|Rechnung]
 
 \Datum              {\today}
 \AngebotManuel     {$offer-number$} %% Manuel ueberschreibbar ansonsten automatisch heute
 \Veranstaltung      {$event$}
-\RechnungsNummer     {$invoice-number$} %% bei Angeboten leer lassen
+\RechnungsNummer     {} %% bei Angeboten leer lassen
 
 \Anrede              {$client$, }
 \Gruss               {Sincerely yours}{1cm}
@@ -31,11 +31,11 @@
 \begin{document}
 \begin{ascii-brief-en}
 
-We thank you for letting us arrange the catering on $date$ and would like to make out this invoice to you:
+Hereby we would like to make you the follwing offer for catering your event on $date$
 
 \begin{center}
 \begin{tabular}{rp{7cm}rrr}
-\textbf{Nr.} & \textbf{Bezeichnung}&    \textbf{Menge}    &    \textbf{EP}&    \textbf{Preis}    \\
+\textbf{No.} & \textbf{Name}&    \textbf{Amount}    &    \textbf{netto}&    \textbf{price}    \\
 \midrule
 $$
 \bottomrule[1pt]
@@ -45,9 +45,6 @@ $$
 \multicolumn{4}{r}{Total}        & $summe$    \\
 \end{tabular}
 \end{center}
-
-We would ask you to pay within 14 days of reciving this bill.
-
 
 \end{ascii-brief-en}
 \end{document}
