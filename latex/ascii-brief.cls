@@ -9,6 +9,7 @@
 %% =======================================================================
 %% 
 %% Copyright (C) 1991-2003 Michael Lenzen.
+%% modified by Hendrik Sollich
 %% 
 %% For additional copyright information see further down in this file.
 %% 
@@ -33,55 +34,62 @@
 %%                            <m.lenzen@t-online.de>
 %% 
 %% 
-\def\filedate{2011/05/06}
-\def\fileversion{4.0.1}
+\def\filedate{2013/07/10}
+\def\fileversion{4.1.0}
 \NeedsTeXFormat{LaTeX2e}[2001/06/01]
 
-\ProvidesClass{ascii-brief}[\filedate\space v\fileversion\space ascii-brief class]
+\ProvidesClass{ascii-brief}[ \filedate \space v \fileversion \space ascii-brief class]
 
-\newdimen\VorschubH
-\newdimen\VorschubV
+\newdimen \VorschubH
+\newdimen \VorschubV
 \VorschubH = 0.0mm
 \VorschubV = 0.0mm
 
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
+\usepackage{graphicx}       % Fuer die Einbindung der Logo-Graphik 
+\usepackage{amssymb,amsfonts,textcomp,latexsym}
+\usepackage{booktabs}        % Striche in Tabellen
+\usepackage{dcolumn}
+\usepackage[utf8]{inputenc}
+\usepackage[scaled]{berasans}
 \renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
 
-\def\sprache{ngerman}
+\def \sprache{ngerman}
 \newcommand{\leadingzero}[1]{\ifnum #1<10 0\the#1\else\the#1\fi}       
-\def\telefontex{{\footnotesize Telefon\/:}}
-\def\telefaxtext{{\footnotesize Telefax\/:}}
-\def\telextext{{\footnotesize Telex\/:}}
-\def\emailtext{{\footnotesize e--Mail\/:}}
-\def\httptext{{\footnotesize HTTP\/:}}
-\def\banktext{{\footnotesize Bankverbindung\/:}}
-\def\blztext{{\footnotesize BLZ}}
-\def\kontotext{{\footnotesize Kto.}}
-\def\ibantext{{\footnotesize IBAN-Nummer:}}
-\def\bictext{{\footnotesize BIC-/SWIFT-Code:}}
-\def\steuernummertext{{\footnotesize Steuernr.}}
-\def\betrefftext{{\normalsize Betr.:}}
-\def\veranstaltungtext{\footnotesize{Veranstaltung}}
 
-\def\rechnungstext{\footnotesize{Rechnungsnummer}}
-\def\rechnungsnummer{}
-\def\rechnung{R\the\year-\rechnungsnummer}
+\def \telefontex          {{ \footnotesize  Telefon\/:        }}
+\def \telefaxtext         {{ \footnotesize  Telefax\/:        }}
+\def \telextext           {{ \footnotesize  Telex\/:          }}
+\def \emailtext           {{ \footnotesize  e--Mail\/:        }}
+\def \httptext            {{ \footnotesize  HTTP\/:           }}
+\def \banktext            {{ \footnotesize  Bankverbindung\/: }}
+\def \blztext             {{ \footnotesize  BLZ               }}
+\def \kontotext           {{ \footnotesize  Kto.              }}
+\def \ibantext            {{ \footnotesize  IBAN-Nummer:      }}
+\def \bictext             {{ \footnotesize  BIC-/SWIFT-Code:  }}
+\def \steuernummertext    {{ \footnotesize  Steuernr.         }}
+\def \betrefftext         {{ \normalsize    Betr.:            }}
+\def \veranstaltungtext   {{ \footnotesize  Veranstaltung     }}
+\def \rechnungstext       {{ \footnotesize  Rechnungsnummer   }}
 
-\def\angebotltext{\footnotesize{Angebot}}
-%\def\angebot{A\the\year\leadingzero{\month}\leadingzero{\day}}
-\def\angebot{}
-
-\def\unserzeichentext{\footnotesize{Unser Zeichen}}
-
-\def\datumtext{\footnotesize{Datum}}
-\def\datum{\number\day.~\ifcase\month\or Januar\or Februar\or
+\def \rechnungsnummer{}
+\def \rechnung{ R\the\year-\rechnungsnummer }
+     
+\def \angebotltext{\footnotesize{Angebot}}
+%\de f\angebot{A\the\year\leadingzero{\month}\leadingzero{\day}}
+\def \angebot{}
+     
+\def \unserzeichentext{\footnotesize{Unser Zeichen}}
+     
+\def \datumtext{\footnotesize{Datum}}
+\def \datum{\number\day.~\ifcase\month\or Januar\or Februar\or
   M\"arz\or April\or Mai\or Juni\or Juli\or August\or September\or
   Oktober\or November\or Dezember\fi \space\number\year}
 
-\DeclareOption{10pt}{\def\@schrift{0}}
-\DeclareOption{11pt}{\def\@schrift{1}}
-\DeclareOption{12pt}{\def\@schrift{2}}
+\DeclareOption{10pt}{ \def \@schrift{0} }
+\DeclareOption{11pt}{ \def \@schrift{1} }
+\DeclareOption{12pt}{ \def \@schrift{2} }
 
 
 %%% irgendwelches Encoding
@@ -107,76 +115,77 @@
 
 
 
+
 \ExecuteOptions{11pt,@sprache} \ProcessOptions
 \LoadClass[1\@schrift pt, a4paper, oneside, final]{letter}[1999/04/29]
 \normalsize
 
 %% Seitenformatierung
-\setlength\oddsidemargin{0\p@}
-\setlength\evensidemargin{\oddsidemargin}
-\setlength\marginparwidth{90\p@}
-\setlength\marginparsep{11\p@}
-\setlength\marginparpush{5\p@}
-\setlength\topmargin{-12.69mm}
-\setlength\headheight{4.23mm}
-\setlength\headsep{6.35mm}
-\setlength\topskip{3.38mm}
-\addtolength\footskip{4.23mm}
-\setlength\textheight{178.88mm}
-\setlength\textwidth{165mm}
-\setlength\lineskip{1\p@}
-\setlength\normallineskip{1\p@}
+\setlength     \oddsidemargin{0\p@}
+\setlength     \evensidemargin{\oddsidemargin}
+\setlength     \marginparwidth{90\p@}
+\setlength     \marginparsep{11\p@}
+\setlength     \marginparpush{5\p@}
+\setlength     \topmargin{-12.69mm}
+\setlength     \headheight{4.23mm}
+\setlength     \headsep{6.35mm}
+\setlength     \topskip{3.38mm}
+\addtolength   \footskip{4.23mm}
+\setlength     \textheight{178.88mm}
+\setlength     \textwidth{165mm}
+\setlength     \lineskip{1\p@}
+\setlength     \normallineskip{1\p@}
 
-\renewcommand\baselinestretch{1}
+\renewcommand \baselinestretch{1}
 
-\advance\topmargin by \VorschubV
-\advance\oddsidemargin by \VorschubH
-\setlength\evensidemargin{\oddsidemargin}
+\advance \topmargin     by \VorschubV
+\advance \oddsidemargin by \VorschubH
+\setlength \evensidemargin{\oddsidemargin}
 
 \AtEndOfClass{\pagestyle{regularpage}}
 
 
 
-\def\Name#1{\def\name{#1}} \def\name{}
-\def\Strasse#1{\def\strasse{#1}} \def\strasse{}
-\def\Zusatz#1{\def\zusatz{#1}} \def\zusatz{}
-\def\Logo#1{\def\logo{#1}} \def\logo{}
-\def\Universitaet#1{\def\universitaet{#1}} \def\universitaet{}
-\def\Fakultaet#1{\def\fakultaet{#1}} \def\fakultaet{}
-\def\Ort#1{\def\ort{#1}} \def\ort{}
-\def\Land#1{\def\land{#1}} \def\land{}
-\def\RetourAdresse#1{\def\retouradresse{#1}} \def\retouradresse{}
+\def \Name#1{\def\name{#1}} \def\name{}
+\def \Strasse#1{\def\strasse{#1}} \def\strasse{}
+\def \Zusatz#1{\def\zusatz{#1}} \def\zusatz{}
+\def \Logo#1{\def\logo{#1}} \def\logo{}
+\def \Universitaet#1{\def\universitaet{#1}} \def\universitaet{}
+\def \Fakultaet#1{\def\fakultaet{#1}} \def\fakultaet{}
+\def \Ort#1{\def\ort{#1}} \def\ort{}
+\def \Land#1{\def\land{#1}} \def\land{}
+\def \RetourAdresse#1{\def\retouradresse{#1}} \def\retouradresse{}
 
-\def\Telefax#1{\def\telefax{#1}} \def\telefax{}
-\def\Telex#1{\def\telex{#1}} \def\telex{}
-\def\EMail#1{\def\email{#1}} \def\email{}
-\def\HTTP#1{\def\http{#1}} \def\http{}
+\def \Telefax#1{\def\telefax{#1}} \def\telefax{}
+\def \Telex#1{\def\telex{#1}} \def\telex{}
+\def \EMail#1{\def\email{#1}} \def\email{}
+\def \HTTP#1{\def\http{#1}} \def\http{}
 
-\def\Bank#1{\def\bank{#1}} \def\bank{}
-\def\BLZ#1{\def\blz{#1}} \def\blz{}
-\def\Konto#1{\def\konto{#1}} \def\konto{}
-\def\IBAN#1{\def\iban{#1}} \def\iban{}
-\def\BIC#1{\def\bic{#1}} \def\bic{}
-\def\Steuernummer#1{\def\steuernummer{#1}} \def\steuernummer{}
+\def \Bank#1{\def\bank{#1}} \def\bank{}
+\def \BLZ#1{\def\blz{#1}} \def\blz{}
+\def \Konto#1{\def\konto{#1}} \def\konto{}
+\def \IBAN#1{\def\iban{#1}} \def\iban{}
+\def \BIC#1{\def\bic{#1}} \def\bic{}
+\def \Steuernummer#1{\def\steuernummer{#1}} \def\steuernummer{}
 
-\def\Postvermerk#1{\def\postvermerk{#1}} \def\postvermerk{}
-\def\Adresse#1{\def\adresse{#1}} \def\adresse{}
+\def \Postvermerk#1{\def\postvermerk{#1}} \def\postvermerk{}
+\def \Adresse#1{\def\adresse{#1}} \def\adresse{}
 
-\def\Veranstaltung#1{\def\veranstaltung{#1}} \def\veranstaltung{}
-\def\RechnungsNummer#1{\def\rechnungsnummer{#1}} \def\rechnungsnummer{}
-\def\AngebotManuel#1{\def\angebotmanuel{#1}} \def\angebotmanuel{}
-\def\Datum#1{\def\datum{#1}} \def\datum{\today}
+\def \Veranstaltung#1{\def\veranstaltung{#1}} \def\veranstaltung{}
+\def \RechnungsNummer#1{\def\rechnungsnummer{#1}} \def\rechnungsnummer{}
+\def \AngebotManuel#1{\def\angebotmanuel{#1}} \def\angebotmanuel{}
+\def \Datum#1{\def\datum{#1}} \def\datum{\today}
 
-\def\Betreff#1{\def\betreff{#1}} \def\betreff{}
+\def \Betreff#1{\def\betreff{#1}} \def\betreff{}
 
-\def\Anrede#1{\def\anrede{#1}} \def\anrede{}
-\def\Gruss#1#2{\def\gruss{#1} \def\grussskip{#2}}
-    \def\gruss{} \def\grussskip{}
+\def \Anrede#1{\def\anrede{#1}} \def\anrede{}
+\def \Gruss#1#2{\def\gruss{#1} \def\grussskip{#2}}
+\def \gruss{} \def\grussskip{}
 
-\def\Unterschrift#1{\def\unterschrift{#1}} \def\unterschrift{}
+\def \Unterschrift#1{\def\unterschrift{#1}} \def\unterschrift{}
 
-\def\Anlagen#1{\def\anlagen{#1}} \def\anlagen{}
-\def\Verteiler#1{\def\verteiler{#1}} \def\verteiler{}
+\def \Anlagen#1{\def\anlagen{#1}} \def\anlagen{}
+\def \Verteiler#1{\def\verteiler{#1}} \def\verteiler{}
 
 \long\def\Einrueckung#1{\par\begin{tabular}{@{\hspace{1in}}p{5in}@{}}
     #1\end{tabular}\par}
@@ -190,7 +199,7 @@
 \newif\iflochermarke\lochermarkefalse
 \def\lochermarke{\lochermarketrue}
 
-\newif\iffaltmarken\faltmarkenfalse
+\newif \iffaltmarken \faltmarkenfalse
 \def\faltmarken{\faltmarkentrue}
 
 \newif\iffenstermarken\fenstermarkenfalse
@@ -302,23 +311,38 @@
       %        \land \quad \fi \end{tabular}} \fi}
       %}
       
-      \iftrennlinien
-        %%\put(-9,-7){\rule{180mm}{0.5pt}}
-      \fi
+      %\iftrennlinien
+      %  \put(-9,-7){\rule{180mm}{0.5pt}}
+      %\fi
       
-      \iflochermarke \put(-20,- 130.50){\line(1,0){4}} \fi
-      \iffaltmarken \put(-15,- 75.16){\line(1,0){3}}
-      \put(-15,-182.16){\line(1,0){3}} \fi
+      \iflochermarke
+        \put(-20,- 130.50){\line(1,0){4}}
+      \fi
+
+      \iffaltmarken
+        \put(-15,- 75.16){\line(1,0){3}}
+        \put(-15,-182.16){\line(1,0){3}}
+      \fi
+
       \put(135,-12) {\includegraphics[height=2.5cm]{\logo}}
       \put( -9, -22.00){
         \makebox(85,4){
-          \scriptsize \ifx \retouradresse\empty
-            \textrm{\name\ $\cdot$\ \strasse\ $\cdot$\ \ort \ifx
-              \land\empty \else \ $\cdot$\ \land \fi } \else
-              {\retouradresse} \fi}
+          \scriptsize
+          \ifx
+            \retouradresse\empty
+            \textrm{\name\ $\cdot$\ \strasse\ $\cdot$\ \ort
+            \ifx
+              \land\empty \else \ $\cdot$\ \land
+            \fi }
+            \else
+            {\retouradresse}
+          \fi
+        }
       }
 
-      \iftrennlinien \put( -9, -22.10){\line(1,0){85}} \fi
+      \iftrennlinien
+        \put( -9, -22.10){\line(1,0){85}}
+      \fi
 
         \put(-1,-28.15){\parbox[t]{3in}{\ifx \postvermerk\empty \hfill \par
           \else \textbf{\postvermerk} \par \vspace{2mm} \fi \adresse}}
