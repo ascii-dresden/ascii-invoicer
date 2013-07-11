@@ -38,6 +38,18 @@ class ProjectsPlumber
     end
   end
 
+  ## open project file from name
+  def pick_project input
+    if (number = input.to_i) != 0
+      error "invalid index" if number > @dirs.size
+      projectname = @ordered_dirs[number-1]
+    else
+      projectname = input
+    end
+    return projectname
+  end
+
+
   def get_project_folder name 
     if @options.project_file.nil?
     "#{@current_dir}#{name}/"

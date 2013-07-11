@@ -1,25 +1,25 @@
 # encoding: utf-8
-@version = '1.3.2'
+@version = 'dev'
 
-@options                  = OpenStruct.new
-@options.projectname      = nil # leave this way !!
-@options.operations       = [] # :invoice, :offer, :edit, :new
-@options.test             = false
-@options.path             = './'
-@options.script_path      = $SCRIPT_PATH + '/'
-@options.editor           = 'vim'
-@options.latex            = 'pdflatex'
-@options.store_dir        = "#{@options.path}caterings/"
-@options.working_dir      = "#{@options.store_dir}open/"
-@options.done_dir         = "#{@options.store_dir}done/"
-@options.template_dir     = "#{@options.script_path}templates/"
-@options.template_yml     = "#{@options.template_dir}vorlage.yaml"
-@options.template_invoice = "#{@options.script_path}latex/ascii-rechnung.tex"
-@options.template_offer   = "#{@options.script_path}latex/ascii-angebot.tex"
-@options.read_archive     = false # overwritten if "--archive" is used
-@options.archive_year     = Date.today.year.to_s # overwritten if "--archive" is used
-@options.keep_log         = false
-@options.verbose          = false
+$settings                  = OpenStruct.new
+$settings.projectname      = nil # leave this way !!
+$settings.operations       = [] # :invoice, :offer, :edit, :new
+$settings.test             = false
+$settings.path             = './'
+$settings.script_path      = $SCRIPT_PATH + '/'
+$settings.editor           = 'vim'
+$settings.latex            = 'pdflatex'
+$settings.store_dir        = "#{$settings.path}caterings/"
+$settings.working_dir      = "#{$settings.store_dir}open/"
+$settings.done_dir         = "#{$settings.store_dir}done/"
+$settings.template_dir     = "#{$settings.script_path}templates/"
+$settings.template_yml     = "#{$settings.template_dir}vorlage.yaml"
+$settings.template_invoice = "#{$settings.script_path}latex/ascii-rechnung.tex"
+$settings.template_offer   = "#{$settings.script_path}latex/ascii-angebot.tex"
+$settings.read_archive     = false # overwritten if "--archive" is used
+$settings.archive_year     = Date.today.year.to_s # overwritten if "--archive" is used
+$settings.keep_log         = false
+$settings.verbose          = false
 
 # def read_file(datafile)
 #   if File.exists?(datafile)
