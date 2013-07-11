@@ -185,7 +185,8 @@ class AsciiInvoicer
         filename = "R#{d['rnumber'].to_s.rjust 3, "0"} #{name} #{datestr}.tex"
         file = "#{pfolder}"+filename
       when :offer
-        datestr = d['raw_date'].strftime("%y%m%d")
+        #datestr = d['raw_date'].strftime("%y%m%d") # date of invoice
+        datestr = Date.today.strftime("%y%m%d") # current date
         filename = "#{datestr} Angebot #{name}.tex"
         file = "#{pfolder}"+filename
       end
