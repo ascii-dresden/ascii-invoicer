@@ -1,27 +1,16 @@
-\documentclass[11pt,utf8]{src/latex/ascii-brief}
-\usepackage{graphicx}       % Fuer die Einbindung der Logo-Graphik 
-\usepackage{amssymb,amsfonts,textcomp,latexsym}
-\usepackage{booktabs}        % Striche in Tabellen
-\usepackage{dcolumn}
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage[scaled]{berasans}
-\renewcommand*\familydefault{\sfdefault}  %% Only if the base font of the document is to be sans serif
-
-\input{src/latex/ascii-include}
+\documentclass[11pt,utf8]{latex/ascii-brief}
+\input{latex/values}
 
 \Unterschrift        {$signature$}
-
 \Postvermerk         {}
 \Adresse             {$address$}
 
 \Betreff             {Rechnung} %% [Angebot|Rechnung]
 
-\Datum              {\today}
-\AngebotManuel     {$offer-number$} %% Manuel ueberschreibbar ansonsten automatisch heute
-\Veranstaltung      {$event$}
+\Datum               {\today}
+\AngebotManuel       {$offer-number$} %% Manuel ueberschreibbar ansonsten automatisch heute
+\Veranstaltung       {$event$}
 \RechnungsNummer     {$invoice-number$} %% bei Angeboten leer lassen
-
 \Anrede              {$client$, }
 \Gruss               {Mit freundlichen Grüßen}{1cm}
 
@@ -40,17 +29,14 @@ folgende Rechnung zu stellen:
 \midrule
 $$
 \bottomrule[1pt]
-\multicolumn{4}{r}{Netto MwSt. 19\%}    & $netto$    \\
-\multicolumn{4}{r}{+MwSt. 19\%}        &  $tax$    \\
-\multicolumn{4}{r}{MwSt 0\%}        & $betreuung$    \\
-\multicolumn{4}{r}{Gesamtpreis}        & $summe$    \\
+\multicolumn{4}{r}{Netto MwSt. 19\%} & $netto$     \\
+\multicolumn{4}{r}{+MwSt. 19\%}      & $tax$       \\
+\multicolumn{4}{r}{MwSt 0\%}         & $betreuung$ \\
+\multicolumn{4}{r}{Gesamtpreis}      & $summe$     \\
 \end{tabular}
 \end{center}
 
 Wir bitten um eine Begleichung des Betrags innerhalb von 14 Tagen nach Erhalt der Rechnung.
 
-
 \end{ascii-brief}
 \end{document}
-
-

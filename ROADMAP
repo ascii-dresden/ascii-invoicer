@@ -1,8 +1,5 @@
-TODO allow reopening closed projects
-TODO change folder structure of DONE: DONE/2003/R042-name
 TODO pick another editor
 TODO output folder
-TODO name offers by date of offer not catering
 TODO add "canceled flag"
 TODO add "can be archived check"
 
@@ -12,7 +9,5 @@ TODO display summary who owns how many projects ( open, closed, per time)
 TODO add watch mode
 TODO introduce git functionality
 TODO better CLI output (summ, csv)
-TODO add Gemfile
-TODO use paint
 TODO rake like commands
 TODO write tests
