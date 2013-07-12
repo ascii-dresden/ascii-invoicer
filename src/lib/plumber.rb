@@ -3,8 +3,8 @@ class ProjectsPlumber
   attr_reader :archived_projects, :working_projects, :dirs, :ordered_dirs
   attr_writer :options
 
-  def initialize(options)
-    @options = options
+  def initialize(settings)
+    @options = settings
     #puts "hey there!"
     error "projects folder fail" unless check_projects_folder()
    
@@ -31,6 +31,7 @@ class ProjectsPlumber
   def check_project name
     get_project_file name
     return true if not @options.project_file.nil? and File.exists?(@options.project_file) 
+
     if File.exists?(get_project_file name)
       return true
     else
@@ -61,7 +62,7 @@ class ProjectsPlumber
 
   #do not use this for opening the file, only for making up a name for new files
   def get_project_file_path name
-    "#{get_project_folder name}/#{name}.yml"
+    "#{get_project_folder name}#{name}.yml"
   end
 
   ## path to project file
@@ -124,14 +125,15 @@ class ProjectsPlumber
 
     unless File.exists? get_project_file_path name
       FileUtils.cp @options.template_yml, get_project_file_path(name)
-      puts "Created Empty Project #{get_project_file_path name}"
+      file_path = get_project_file_path name
+      puts "Created Empty Project #{file_path}"
     else
       puts "Project File exists.#{get_project_file name}"
-      if confirm "Do you want to overwrite it?"
+      if sure? "Do you want to overwrite it?"
         FileUtils.cp @options.template_yml, get_project_file(name)
       end
     end
-
+    return file_path
   end
 
   ## Move to archive directory

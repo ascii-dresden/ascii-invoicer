@@ -2,7 +2,6 @@
 # encoding: utf-8
 
 require 'yaml'
-require 'optparse'
 require 'ostruct'
 require 'pp'
 require 'paint'
@@ -18,33 +17,120 @@ require "#{$SCRIPT_PATH}/lib/plumber.rb"
 require "#{$SCRIPT_PATH}/lib/ascii_invoicer.rb"
 
 class Commander < Thor
+  include Thor::Actions
+  include AsciiInvoicer
 
   package_name "ascii invoicer"
   #argument :first, :type => :numeric
+  map "-l" => :list
 
   class_option :verbose, :aliases=> "-v", :type => :boolean
+  class_option "keep-log", :aliases=> "-k", :type => :boolean
 
   desc "new FILE", "creating a new project" 
-  def new(file)
-    puts "creating a new project name #{file}"
+  def new(name)
+    @plumber = ProjectsPlumber.new $settings
+    puts "creating a new project name #{name}"
+    edit_file @plumber.new_project name
   end
 
-  desc "list", "List current Projects"
-  method_option :archives, :type=>:numeric, :aliases => "-a", :lazy_default=> Date.today.year, :required => false, :desc => "List archived Projects"
+
+
+
+  desc "list", "List current Projects."
+  method_option :archives,
+    :type=>:string, :aliases => "-a",
+    :lazy_default=> Date.today.year.to_s,
+    :required => false,
+    :desc => "List archived Projects"
+
   def list
     unless options[:archives]
-      print_project_list()
+      @plumber = ProjectsPlumber.new $settings
+      projects = @plumber.working_projects
+      print_project_list(projects)
     else
-      puts "now listing archived projects" , options[:archives]
+      $settings.archive_year = options[:archives]
+      $settings.read_archive = true
+      
+      @plumber = ProjectsPlumber.new $settings
+      projects = @plumber.working_projects
+      print_project_list(projects)
     end
   end
 
-  desc "show NAME", "Show information about the project"
+
+
+
+  desc "show NAME", "Show information about the project."
   def show(name)
-    puts name
+    @plumber = ProjectsPlumber.new $settings
+
+    project = @plumber.pick_project name
+    file    = @plumber.get_project_file project
+    data    = @plumber.open_project file
+    puts "\"#{data['event']}\":".ljust(30) + "#{data['summe'].rjust 8}"
+    puts "MORE TO COME"
+  end
+
+
+
+
+  desc "edit NAME", "Edit project file."
+  def edit(name)
+    # TODO implement edit --archive
+    @plumber = ProjectsPlumber.new $settings
+    project = @plumber.pick_project name
+    edit_file @plumber.get_project_file_path project
+  end
+
+
+
+
+  desc "offer NAME", "Create an offer from project file."
+  def offer(name)
+    # TODO implement offer --archive
+    @plumber = ProjectsPlumber.new $settings
     puts @plumber.pick_project name
   end
 
+
+
+
+  desc "invoice NAME", "Create an invoice from project file."
+  def invoice(name)
+    # TODO implement invoice --archive
+    @plumber = ProjectsPlumber.new $settings
+    puts @plumber.pick_project name
+  end
+
+
+
+
+  desc "archive NAME", "Move project to archive."
+  def archive(name)
+    # TODO implement archive Project
+    @plumber = ProjectsPlumber.new $settings
+
+    if yes? "Sicher? [Yes|No]"
+      puts @plumber.pick_project name
+      puts "NOT YET IMPLEMENTED"
+    else
+      puts "ok, so not"
+    end
+  end
+
+
+
+
+  desc "reopen NAME", "Opposite of \"archive\"."
+  def reopen(name)
+    puts @plumber.pick_project name
+    puts "NOT YET IMPLEMENTED"
+  end
+
+
+  ## example
   #desc "hello NAME", "say hello to NAME"
   #options :from => :required, :yell => :boolean
   #def hello(name)
@@ -66,11 +152,6 @@ class Commander < Thor
 
     def initialize(*args)
       super
-      @plumber = ProjectsPlumber.new $settings
-    end
-
-    def start
-      puts "thor initialized"
     end
 
     ## hand path to editor
@@ -80,48 +161,21 @@ class Commander < Thor
       Process.wait pid
     end
 
-    def print_project_list
-      projects = @plumber.working_projects
+    def print_project_list projects
       projects.each_index do |i|
         invoice   = projects[i]
 
-
         number    = (i+1).to_s
-        name      = invoice['name']
-        signature = invoice['signature']
+        number    = number.rjust 4
+        name      = invoice['name'].ljust 34
+        signature = invoice['signature'].ljust 17
         rnumber   = invoice['rnumber']
         rnumber   = "R" + rnumber.to_s.rjust(3,'0') if rnumber.class == Fixnum
-        date      = invoice['date']
-
-        number    = number.rjust 4
-        name      = name.ljust 34
-        signature = signature.ljust 17
         rnumber   = rnumber.to_s.ljust 4
-        date      = date.rjust 15
-
-        number    = Paint[number, :bright]
-        name      = Paint[name, [145,145,145], :clean] if invoice['raw_date'].to_date <= Date.today
-        name      = Paint[name, [255,0,0], :bright ]   if invoice['raw_date'].to_date - Date.today < 7
-        name      = Paint[name, [255,255,0] ]          if invoice['raw_date'].to_date - Date.today < 14
-        name      = Paint[name, [0,255,0] ]            if invoice['raw_date'].to_date - Date.today >= 14
-        signature = signature
-        rnumber   = rnumber
-        date      = date
+        date      = invoice['date'].rjust 15
 
         line = "#{number}. #{name} #{signature} #{rnumber} #{date}"
-
-
-
         puts line
-        #unless projects[i+1].nil?
-        #  if invoice['raw_date'] <= Time.now and projects[i+1]['raw_date'] > Time.now
-        #    padding = Paint.unpaint(number).length + 3
-        #    plain_line = Paint.unpaint line
-        #    divider = ''.rjust(padding).ljust(plain_line.length-padding, '█')
-        #    puts divider
-        #  end
-        #end
-        #puts "R#{invoice['rnumber'].to_s}, #{invoice['name']}, #{invoice['signature']}, #{invoice['date']}"
       end
     end
 
@@ -131,4 +185,3 @@ class Commander < Thor
 end
 
 Commander.start
-

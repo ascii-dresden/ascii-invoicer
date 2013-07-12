@@ -1,14 +1,14 @@
 # encoding: utf-8
-def ask
+def do_ask
   gets.strip
 rescue Interrupt
   puts
   exit
 end
 
-def confirm(message="Are you sure you wish to continue?")
+def sure?(message="Are you sure you wish to continue?")
   display("#{message} (y/N)? ", false)
-  ask.downcase == 'y'
+  do_ask.downcase == 'y'
 end
 
 def display(msg, newline=true)

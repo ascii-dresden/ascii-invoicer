@@ -11,3 +11,4 @@ TODO introduce git functionality
 TODO better CLI output (summ, csv)
 TODO rake like commands
 TODO write tests
+TODO inotify
