@@ -48,7 +48,8 @@ class Commander < Thor
     unless options[:archives]
       @plumber = ProjectsPlumber.new $settings
       projects = @plumber.working_projects
-      print_project_list(projects)
+      #print_project_list_colored(projects)
+      print_project_list_colored(projects)
     else
       $settings.archive_year = options[:archives]
       $settings.read_archive = true
@@ -128,59 +129,6 @@ class Commander < Thor
     puts @plumber.pick_project name
     puts "NOT YET IMPLEMENTED"
   end
-
-
-  ## example
-  #desc "hello NAME", "say hello to NAME"
-  #options :from => :required, :yell => :boolean
-  #def hello(name)
-  #  puts "> saying hello" if options[:verbose]
-  #  output = []
-  #  output << "from: #{options[:from]}" if options[:from]
-  #  output << "Hello #{name}"
-  #  output = output.join("\n")
-  #  puts options[:yell] ? output.upcase : output
-  #  puts "> done saying hello" if options[:verbose]
-  #end
-
-  desc "test","test task"
-  def test
-    puts @plumber.dirs
-  end
-
-  no_commands {
-
-    def initialize(*args)
-      super
-    end
-
-    ## hand path to editor
-    def edit_file(path)
-      puts "Opening #{path} in #{$settings.editor}"
-      pid = spawn "#{$settings.editor} #{path}"
-      Process.wait pid
-    end
-
-    def print_project_list projects
-      projects.each_index do |i|
-        invoice   = projects[i]
-
-        number    = (i+1).to_s
-        number    = number.rjust 4
-        name      = invoice['name'].ljust 34
-        signature = invoice['signature'].ljust 17
-        rnumber   = invoice['rnumber']
-        rnumber   = "R" + rnumber.to_s.rjust(3,'0') if rnumber.class == Fixnum
-        rnumber   = rnumber.to_s.ljust 4
-        date      = invoice['date'].rjust 15
-
-        line = "#{number}. #{name} #{signature} #{rnumber} #{date}"
-        puts line
-      end
-    end
-
-  }
-
 
 end
 

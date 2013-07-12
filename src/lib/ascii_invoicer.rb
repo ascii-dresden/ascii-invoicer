@@ -1,6 +1,10 @@
 module AsciiInvoicer
   ## Use Option parser or leave it if only one argument is given
 
+  def print_project_list(projects)
+    print_project_list_plain projects
+  end
+
   #takes an array of invoices (@plumber.working_projects)
   def print_project_list_colored(projects)
     projects.each_index do |i|
@@ -46,7 +50,47 @@ module AsciiInvoicer
     end
   end
 
-  ## pretty version list projects TODO: make prettier
+  #takes an array of invoices (@plumber.working_projects)
+  def print_project_list_csv(projects)
+    projects.each_index do |i|
+      invoice   = projects[i]
+      number    = (i+1).to_s
+      name      = invoice['name']
+      signature = invoice['signature']
+      rnumber   = invoice['rnumber']
+      rnumber   = "R" + rnumber.to_s.rjust(3,'0') if rnumber.class == Fixnum
+      date      = invoice['raw_date']
+      line = "#{rnumber}, #{name}, \"#{signature}\", #{date}"
+      puts line
+    end
+  end
+
+  def print_project_list_plain(projects)
+    projects.each_index do |i|
+      invoice   = projects[i]
+
+      number    = (i+1).to_s
+      number    = number.rjust 4
+      name      = invoice['name'].ljust 34
+      signature = invoice['signature'].ljust 17
+      rnumber   = invoice['rnumber']
+      rnumber   = "R" + rnumber.to_s.rjust(3,'0') if rnumber.class == Fixnum
+      rnumber   = rnumber.to_s.ljust 4
+      date      = invoice['date'].rjust 15
+
+      line = "#{number}. #{name} #{signature} #{rnumber} #{date}"
+      puts line
+    end
+  end
+
+
+  ## hand path to editor
+  def edit_file(path)
+    puts "Opening #{path} in #{$settings.editor}"
+    pid = spawn "#{$settings.editor} #{path}"
+    Process.wait pid
+  end
+
 
   ## creates a  latex file from NAME of the desired TYPE
   def write_tex(name, type)
