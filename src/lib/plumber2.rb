@@ -5,30 +5,30 @@ class ProjectsPlumber
   def initialize(settings)
 
     # expecting to find here
+    #   @settings.path
     #   @settings.storage_dir
     #   @settings.working_dir
     #   @settings.archive_dir
+    #   @settings.template_file
+
     @settings = settings
     @dirs = {}
-    @dirs[:storage] =           @settings.storage_dir
-    @dirs[:working] = File.join @settings.storage_dir, @settings.working_dir
-    @dirs[:archive] = File.join @settings.storage_dir, @settings.archive_dir       
+    @dirs[:storage] = File.join @settings.path, @settings.storage_dir
+    @dirs[:working] = File.join @dirs[:storage], @settings.working_dir
+    @dirs[:archive] = File.join @dirs[:storage], @settings.archive_dir       
 
   end
+
+  # wrapper for puts:w
 
   def logs message
-    puts "    -- PLUMBER -- : #{message}"
-
+    puts "       #{__FILE__} : #{message}"
   end
 
-  ## Checks the existens and creates folder if neccessarry
   # dir can be either :storage, :working or :archive
   def check_dir(dir)
-    if File.exists? "#{@dirs[dir]}"
-      return true
-    else
-      return false
-    end
+    return true if File.exists? "#{@dirs[dir]}"
+    false
   end
 
   # create a dir
@@ -45,9 +45,25 @@ class ProjectsPlumber
   end
   ## If the folder exists and if there is a yml
  
-  def check_and_create
+  ### Project life cycle
+
+  ##
+  # creates new project_dir and project_file
+  #
+  # returns path to project_file
+  def new_project(name)
+    unless check_dir :working
+      logs "missing working directory!"
+      return false
+    end
+    # - check of existing project with the same name
+    # - create project_dir storage_dir/working_dir/name
+    # - copy template_file to project_dir
+    # - return path to project file
   end
-  
+
+
+
   def check_project name
   end
 
@@ -92,11 +108,6 @@ class ProjectsPlumber
 
   ## list projects
   def list_projects folder
-  end
-
-  ### Project life cycle
-  ## creates new project folder and file
-  def new_project(name)
   end
 
   ## Move to archive directory
