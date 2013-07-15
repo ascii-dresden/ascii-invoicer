@@ -1,4 +1,5 @@
-class ProjectsPlumber
+class Old_ProjectsPlumber
+
 
   attr_reader :archived_projects, :working_projects, :dirs, :ordered_dirs
   attr_writer :settings
@@ -36,8 +37,6 @@ class ProjectsPlumber
   end
 
   ## If the folder exists and if there is a yml
- 
-  
   def check_project name
     get_project_file name
     return true if not @settings.project_file.nil? and File.exists?(@settings.project_file) 
@@ -145,7 +144,7 @@ class ProjectsPlumber
   ### Project life cycle
   ## creates new project folder and file
   def new_project(name)
-    check_projects_folder
+    check_projects_folder()
 
     unless File.exists? "#{@settings.working_dir}/#{name}"
       FileUtils.mkdir "#{@settings.working_dir}/#{name}"
