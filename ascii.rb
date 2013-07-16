@@ -122,7 +122,7 @@ class AsciiInvoicer
       date      = date.rjust 15
 
       number    = Paint[number, :bright]
-      name      = Paint[name, [145,145,145], :clean] if invoice['raw_date'].to_date <= Date.today
+      name      = Paint[name, [145,145,145], :clean] if invoice['raw_date'].to_date < Date.today
       name      = Paint[name, [255,0,0], :bright ]   if invoice['raw_date'].to_date - Date.today < 7
       name      = Paint[name, [255,255,0] ]          if invoice['raw_date'].to_date - Date.today < 14
       name      = Paint[name, [0,255,0] ]            if invoice['raw_date'].to_date - Date.today >= 14
