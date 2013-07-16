@@ -10,7 +10,6 @@ FileUtils.rm_rf spec_path if File.exists? spec_path
 describe ProjectsPlumber do
   #this happens before every 'it'
   before do
-
     @settings               = OpenStruct.new
     @settings.path          = $PATH
     #@settings.path         = './'
@@ -122,7 +121,7 @@ describe ProjectsPlumber do
       end
 
       it "creates a new project" do
-        @plumber.new_project("new_project1")
+        @plumber.new_project("new_project1").should be_true
         @plumber.new_project("new_project2").should be_true
       end
 
@@ -143,9 +142,17 @@ describe ProjectsPlumber do
       it "returns path to project folder" do
         File.should exist @plumber.get_project_folder("new_project1")
       end
+
+      it "returns path to archived project folder" do
+        name = "archived project for get_project_folder"
+        @plumber.new_project name
+        @plumber.archive_project name
+        File.should exist @plumber.get_project_folder(name,:archive)
+      end
     end
 
     describe described_class, "#get_project_file_path" do
+
       it "returns false for missing project" do
         @plumber.get_project_file_path("nonexistent_project").should be_false
       end
@@ -154,15 +161,23 @@ describe ProjectsPlumber do
         File.should exist @plumber.get_project_file_path("new_project1")
       end
 
+      it "finds files in the archive" do
+        name = "archived project"
+        @plumber.new_project name
+        @plumber.archive_project name
+        @plumber.get_project_file_path(name, :archive).should be_true
+        File.should exist @plumber.get_project_file_path(name, :archive)
+      end
+
     end
 
-    describe "#list_projects" do
+    describe described_class, "#list_projects" do
     #  it "lists projects" do
     #    @plumber.list_projects.should be_false
     #  end
     end
 
-    describe "#archive_project" do
+    describe described_class, "#archive_project" do
 
       it "moves project to archive" do
         name = "old_project"
@@ -187,49 +202,68 @@ describe ProjectsPlumber do
       end
     end
 
-    describe "#unarchive_project" do
-
+    describe described_class, "#unarchive_project" do
 
       it "moves project from archive to working_dir" do
         name = "reheated_project"
         project = @plumber.new_project name
+        File.should exist project
         @plumber.archive_project(name).should be_true
+        @plumber.unarchive_project(name).should be_true
+      end
+
+      it "moves project from archive to working_dir" do
+        name = "old_project_from_2010"
+        project = @plumber.new_project name
+        @plumber.archive_project(name,2010).should be_true
+        @plumber.unarchive_project(name,2010).should be_true
       end
 
       it "refuses to move non existent project from archive to working_dir" do
         @plumber.archive_project("nonexistent_project").should be_false
       end
 
-      it "moves project to archive, with special year" do
-        name = "reheated_project_from_2010"
+      it "refuses to overwrite project in working from archive" do
+        name = "dont_overwrite me"
         project = @plumber.new_project name
-        @plumber.archive_project(name, 2010).should be_true
-        @plumber.unarchive_project(name, 2010).should be_true
-      end
-
-      it "moves project to archive, with special year and matching prefix" do
-        name = "reheated_project_from_2010"
+        @plumber.archive_project(name).should be_true
         project = @plumber.new_project name
-        @plumber.archive_project(name, 2010, "R026_").should be_true
-        @plumber.unarchive_project(name, 2010, "R026_").should be_true
-      end
-
-      it "moves project to archive, with special year and matching prefix" do
-        name = "reheated_project_from_2011"
-        project = @plumber.new_project name
-        @plumber.archive_project(name, 2010, "R027_").should be_true
-        @plumber.unarchive_project("R027_"+name, 2010, "R027_").should be_true
-      end
-
-      it "moves project to archive, with special year and not matching prefix" do
-        name = "reheated_project_from_2010"
-        project = @plumber.new_project name
-        @plumber.archive_project(name, 2010, "R028_").should be_true
-        @plumber.unarchive_project(name, 2010, "XXXX_").should be_false
+        @plumber.unarchive_project(name).should be_false
       end
 
     end
 
+  end
+  context "generally" do
+
+    it "handles space separated filenames" do
+      name = "   space separated filename   "
+      project = @plumber.new_project name
+      File.should exist project
+      @plumber.archive_project(name).should be_true
+      @plumber.unarchive_project(name).should be_true
+      @plumber.get_project_folder(name).should be_true
+      @plumber.get_project_folder(name.strip).should be_true
+    end
+
+    it "handles dash separated filenames" do
+      name = "dash/separated/filename"
+      project = @plumber.new_project name
+      File.should exist project
+      @plumber.archive_project(name).should be_true
+      @plumber.unarchive_project(name).should be_true
+      @plumber.get_project_folder(name).should be_true
+    end
+
+    it "handles dot separated filenames" do
+      name = "dot.separated.filename"
+      project = @plumber.new_project name
+      File.should exist project
+      @plumber.archive_project(name).should be_true
+      @plumber.unarchive_project(name).should be_true
+      @plumber.get_project_folder(name).should be_true
+    end
 
   end
+
 end

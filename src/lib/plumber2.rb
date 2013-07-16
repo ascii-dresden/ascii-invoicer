@@ -11,12 +11,16 @@ class ProjectsPlumber
     #   @settings.archive_dir
     #   @settings.template_file
     #   @settings.silent = false
+    #   @project_suffix = '.yml'
 
     @settings = settings
     @dirs = {}
     @dirs[:storage] = File.join @settings.path, @settings.storage_dir
     @dirs[:working] = File.join @dirs[:storage], @settings.working_dir
     @dirs[:archive] = File.join @dirs[:storage], @settings.archive_dir       
+
+    @project_suffix = settings.project_suffix
+    @project_suffix = '.yml' if @project_suffix.nil?
 
     @template_path  = File.join @settings.path, @settings.template_file
     @dirs[:template] = @template_path
@@ -54,21 +58,6 @@ class ProjectsPlumber
   end
  
   ##
-  # Path to project folder
-  # If the folder exists
-  # dir can be :working or :archive 
-  #
-  # TODO untested for archives
-  def get_project_folder( name, dir=:working, year='' )
-    year = year.to_s
-    target = File.join @dirs[dir], name if dir == :working
-    target = File.join @dirs[dir], year, name if dir == :archive
-    return target if File.exists? target
-    false
-  end
-
-  
-  ##
   # creates new project_dir and project_file
   def _new_project_folder(name)
 
@@ -102,7 +91,7 @@ class ProjectsPlumber
     # copy template_file to project_dir
     folder = _new_project_folder(name)
     if folder
-      target = File.join folder, name+".yml"
+      target = File.join folder, name+@project_suffix
 
       FileUtils.cp @dirs[:template], target
       return target
@@ -115,19 +104,35 @@ class ProjectsPlumber
 
   ##
   # path to project file
-  # there may only be one .yml file per project folder
+  # there may only be one @project_suffix file per project folder
   #
   # untested
-  def get_project_file_path(name, dir=:working)
-    if get_project_folder name
-      files = Dir.glob File.join get_project_folder(name), "*.yml"
-      fail "ambiguous amount of yml files (#{name})" if files.length != 1
+  def get_project_file_path(name, dir=:working, year=Date.today.year)
+    folder = get_project_folder(name, dir, year)
+    if folder
+      files = Dir.glob File.join folder, "*#{@project_suffix}"
+      fail "ambiguous amount of #{@project_suffix} files (#{name})" if files.length != 1
       return files[0]
     end
     return false
   end
 
 
+  ##
+  # Path to project folder
+  # If the folder exists
+  # dir can be :working or :archive 
+  #
+  # TODO untested for archives
+  def get_project_folder( name, dir=:working, year=Date.today.year )
+    year = year.to_s
+    target = File.join @dirs[dir], name if dir == :working
+    target = File.join @dirs[dir], year, name if dir == :archive
+    return target if File.exists? target
+    false
+  end
+
+  
 
 
 
@@ -169,11 +174,12 @@ class ProjectsPlumber
 
   ##
   #  Move to archive directory
-  def unarchive_project(name, year = Date.today.year, prefix = '')
+  def unarchive_project(name, year = Date.today.year)
     name.strip!
-    return false unless name.start_with? prefix
 
-    cleaned_name = name.deprefix(prefix)
+    path = get_project_file_path(name, :archive, year)
+    cleaned_name = File.basename(path,@project_suffix)
+
     source = get_project_folder name, :archive, year
 
     target = File.join @dirs[:working], cleaned_name
