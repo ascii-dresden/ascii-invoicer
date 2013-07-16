@@ -25,6 +25,7 @@ describe ProjectsPlumber do
   context "with no directories" do
 
     describe "#check_dir" do
+
       it "notices missing storage directory" do
         expect(@plumber.check_dir :storage).to be_false
       end
@@ -234,6 +235,7 @@ describe ProjectsPlumber do
     end
 
   end
+
   context "generally" do
 
     it "handles space separated filenames" do

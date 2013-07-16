@@ -4,7 +4,7 @@ class ProjectsPlumber
 
   def initialize(settings)
 
-    # expecting to find here
+    # expecting to find in settings
     #   @settings.path
     #   @settings.storage_dir
     #   @settings.working_dir
