@@ -1,200 +1,118 @@
 # encoding: utf-8
-require 'pp'
+require 'ostruct'
+
 class Invoicer
 
-  attr_reader :invoiceaw_data, :data, :products, :template_offer, :template_invoice
-  attr_writer :type, :project_name
-  
-  def initialize
-    @defaults = {:tax => 0.19}
-    @type = :none #either invoice or offer
-    langpath = "#{$SCRIPT_PATH}/lib/lang.yml"
-    if File.exists?(langpath)
-      @lang = YAML::load File.open langpath
-    else
-      error "#{langpath} missing"
-    end
-  end
+  attr_reader :project_file
 
+
+  def initialize(settings)
+    # expecting to find in settings
+    #   @settings.template_files= {}
+    #   @settings.template_files[:invoice]
+    #   @settings.template_files[:offer]
+    #
+    
+    @settings = settings
+
+    check_offer_template   = File.exists? @settings.template_files[:offer]
+    check_invoice_template = File.exists? @settings.template_files[:invoice]
+
+    load_templates()
+  end
 
   ## open given .yml and parse into @data
-  def read_file(datafile)
-    @datafile = datafile
-    if File.exists?(datafile)
-      file = File.open(datafile)
+  def load_project(path)
+    @project_file = path
+
+    if File.exists?(path)
       begin
-      @data = YAML::load(file)
+        @raw_project_data = OpenStruct.new YAML::load(File.open(path))
+        @project_data = OpenStruct.new
       rescue
-        error " error reading #{file}"
+        logs "error reading #{path}"
       end
+      
+      #pp @project_data
+      return true
     end
+    return false
   end
 
-
-  # Läd latex Vorlagen
-  def load_templates(hash)
-    @template_offer = File.open(hash[:offer]).read if File.exists?(hash[:offer])
-    @template_invoice = File.open(hash[:invoice]).read if File.exists?(hash[:invoice])
-  end
-
-
-  def match_addressing(keyword, lang)
-    form = @lang["addressing"][lang]["keywords"][keyword]
-    @lang["addressing"][lang]["forms"][form]
-  end
-
-  # Verarbeitet die Produktliste
-  def mine
-
-    begin
-    mine_meta_data()
-    rescue
-      puts "failed to parse #{@datafile} (metadata)"
+  ##
+  # loads template files named in settings
+  def load_templates()
+    offer   = @settings.template_files[:offer]
+    invoice = @settings.template_files[:invoice]
+    if File.exists?(offer) and File.exists?(invoice)
+      @template_offer   = File.open(offer).read
+      @template_invoice = File.open(invoice).read
+      return true
     end
-
-
-    begin
-    mine_products()
-    rescue
-      puts "failed to parse #{@datafile} (products)"
-    end
-
-
+    return false
   end
 
-  def mine_meta_data
+  ##
+  def validate()
+    return read_meta_data()
+  end
 
-    # datum
-    date  =  @data['date'].split('.')
-    @data['raw_date'] = Time.new date[2], date[1], date[0]
-    today = Time.now
+  def parse_project_client()
+    #puts @raw_project_data.client
+  end
 
-    # anrede
-    @data['raw_client'] = @data['client']
-    @data['raw_addressing'] = @data['client'].split("\n")[0].split[0].downcase.strip
-    #pp @data['raw_addressing']
-    @data['lang'] = !@data['lang'].nil? ?  @data['lang'] : "de"
+  def parse_project_date()
+    #reading date
+    @project_data.date    = strpdates(@raw_project_data.date)[0]
+    @project_data.enddate = strpdates(@raw_project_data.date)[1]
+    #puts @project_data
+  end
 
-    @data['addressing'] = match_addressing(@data["raw_addressing"], @data['lang'])
-    @data['client'] = "#{@data['addressing']} #{ @data['client']}"
+  ##
+  def read_meta_data()
+    return false if @raw_project_data.nil?
+    parse_project_client()
+    parse_project_date()
 
-    @data['raw_address'] = @data['address']
-    @data['address'] = @data['raw_address'].each_line.map{|l| l.gsub(/[\n]/, " \\newline " )}.join
 
+    #address
+    #client
+    #addressing
+    #offer_number
+    #invoice_number
+    
 
-    # Angebotsnummer
-    if @data['manumber'].nil? and @type == :offer
-      @data['offer-number'] =  ['A', today.year , "%02d" % today.month , "%02d" % today.mday, '-', @data['anumber']].join 
+    return true
+  end
+
+  ##
+  # *wrapper* for puts()
+  # depends on @settings.silent = true|false
+  def logs message, force = false
+    puts "       #{__FILE__} : #{message}" unless @settings.silent and not force
+  end
+
+  def strpdates(string,pattern = nil)
+    if pattern 
+      return [Date.strptime(string, pattern).to_date]
     else
-      @data['offer-number'] = @data['manumber']
-    end
+      p = string.split('.')
+      p_range = p[0].split('-')
 
+      if p_range.length == 1
+        t = Date.new p[2].to_i, p[1].to_i, p[0].to_i
+        return [t]
 
-    # optional Veranstaltungsname
-    @data['event'] = @data['event'].nil? ? nil : @data['event'] 
+      elsif p_range.length == 2
+        t1 = Date.new p[2].to_i, p[1].to_i, p_range[0].to_i
+        t2 = Date.new p[2].to_i, p[1].to_i, p_range[1].to_i
+        return [t1,t2]
 
-    # optional Rechnungsnummer
-    @data['invoice-number'] = @data['rnumber'].nil? ? '' : 'R'+date[2]+ "-%04d" % @data['rnumber']
-
-  end
-  
-  # Verarbeitet die Produktliste
-  def mine_products
-    @products = []
-    @data['products'].each { |name, s|
-
-      # alles verkauft
-      if s['returned'].nil? and s['sold'].nil? or @type == :offer
-        sold = s['amount'] 
-      # was zurueck bekommen
-      elsif s['sold'].nil?
-        sold = s['amount'] - s['returned'] 
-      # fester wert verkauft
-      elsif s['returned'].nil?
-        sold = s['sold'] 
       else
-        puts name + ' contains both sold and returned'
-        exit
+        fail
       end
-     
-      p = {}
-      p['name'] = name
-      p['sold'] = sold
-      p['price'] = s['price']
-      p['sum'] = (sold * p['price'])
-
-      @products.push p 
-    }
-
-    @data['betreuung'] = @data['hours']['salary'] * @data['hours']['time']
-    @data['netto']     = 0 ; @products.each{|p| @data['netto'] += p['sum']}
-    @data['tax']       = @defaults[:tax] * @data['netto']
-    @data['brutto']    = @data['netto'] + @data['tax']
-    @data['summe']     = @data['betreuung'] + @data['brutto']
-
-    # Werte in Preise Umwandeln
-    @data['netto'] = @data['netto'].euro
-    @data['summe'] = @data['summe'].euro
-    @data['tax']   = @data['tax'].euro
-
-    # Betreuung
-    if @data['betreuung'] > 0
-      @data['betreuung'] = @data['betreuung'].euro
-      betreuung_line = [ @products.length ," & Betreuung (Stunden)& " , @data['hours']['time'].to_s , " & " , @data['hours']['salary'].euro, " & " , @data['betreuung'] ].join + " \\\\\\ \n"
-      #betreuung_line = [ @products.length ," & Service (hour)& " , @data['hours']['time'].to_s , " & " , @data['hours']['salary'].euro, " & " , @data['betreuung'] ].join + " \\\\\\ \n"
-    else
-      betreuung_line = ''
-    end
-
-    @data[''] = tex_product_table + betreuung_line
-  end
-
-  def tex_product_table
-    table = ""
-    @products.each_with_index do |p, i|
-      table += [i.to_s , " & " , p['name'].to_s , " & " , p['sold'].to_s , " & " , p['price'].euro, " & " , p['sum'].euro].join + " \\\\\\ \n"
-    end
-    return table
-  end
-
-  def is_valid
-    puts "IMPLEMENT VALIDITY CHECKS !!"
-    @type == :invoice || :offer and
-    not @name.nil? and @name != ""
-  end
-
-  ## produces an appropriate filename for each type
-  def filename
-    ext = '.tex'
-    case @type
-      when :invoice
-        name = @data['invoice-number']+ext
-      when :offer
-        name = @data['']+ext
     end
   end
 
-  ## fills the template with minded data
-  def create
-    #mine_products # done in mine_data
-    mine()
-    case @type
-      when :invoice
-        template = @template_invoice
-      when :offer
-        template = @template_offer
-    end
 
-    filled = template.each_line.map { |line| 
-      @data.keys.each{ |key|
-       line = line.gsub('$' + key + '$',
-        @data[key].to_s)
-      }
-      line
-    }
-  end
-
-  def dump
-    @data
-  end
 end
