@@ -3,7 +3,7 @@ require 'ostruct'
 
 class Invoicer
 
-  attr_reader :project_file
+  attr_reader :project_file, :project_data
 
 
   def initialize(settings)
@@ -57,23 +57,51 @@ class Invoicer
     return read_meta_data()
   end
 
-  def parse_project_client()
+  ##
+  # takes raw_project_data
+  # manipulates @project_data
+  # returns true or false
+  def parse_project_client(raw_project_data)
     #puts @raw_project_data.client
+    return true
   end
 
-  def parse_project_date()
+  ##
+  # takes raw_project_data
+  # manipulates @project_data
+  # returns true or false
+  def parse_project_date(raw_project_data)
     #reading date
-    @project_data.date    = strpdates(@raw_project_data.date)[0]
-    @project_data.enddate = strpdates(@raw_project_data.date)[1]
-    #puts @project_data
+    begin
+      @project_data.date    = strpdates(raw_project_data.date)[0]
+      @project_data.enddate = strpdates(raw_project_data.date)[1]
+      #puts @project_data
+      return true
+    rescue
+      return false
+    end
+  end
+
+  ##
+  # takes raw_project_data
+  # manipulates @project_data
+  # returns true or false
+  def parse_project_hours(raw_project_data)
+    @project_data.hours = OpenStruct.new raw_project_data.hours
+    sum = 0
+    @project_data.hours.caterers.values.each {|v| sum+=v}
+    @project_data.hours.sum = sum
+    return (sum == @project_data.hours.time)
   end
 
   ##
   def read_meta_data()
     return false if @raw_project_data.nil?
-    parse_project_client()
-    parse_project_date()
+    client = parse_project_client @raw_project_data
+    date   = parse_project_date   @raw_project_data
+    hours  = parse_project_hours  @raw_project_data
 
+    return (date and hours and client)
 
     #address
     #client
@@ -82,7 +110,6 @@ class Invoicer
     #invoice_number
     
 
-    return true
   end
 
   ##
@@ -101,11 +128,13 @@ class Invoicer
 
       if p_range.length == 1
         t = Date.new p[2].to_i, p[1].to_i, p[0].to_i
+        puts t
         return [t]
 
       elsif p_range.length == 2
         t1 = Date.new p[2].to_i, p[1].to_i, p_range[0].to_i
         t2 = Date.new p[2].to_i, p[1].to_i, p_range[1].to_i
+        puts t1, t2
         return [t1,t2]
 
       else

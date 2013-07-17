@@ -16,7 +16,7 @@ describe Invoicer do
     @settings.template_files[:invoice] = "latex/ascii-rechnung.tex"
 
     @test_project_path = File.join File.dirname(__FILE__), "test_projects"
-    @test_projects = (0..0).to_a.map{|n| File.join @test_project_path, n.to_s + '.yml'}
+    @test_projects = (0..1).to_a.map{|n| File.join @test_project_path, n.to_s + '.yml'}
 
     @invoicer = Invoicer.new @settings
   end
@@ -35,13 +35,6 @@ describe Invoicer do
     it "loads project file" do
       File.should exist @test_projects[0]
       @invoicer.load_project @test_projects[0]
-    end
-  end
-
-  describe "#validate" do
-    it "validates meta_data" do
-      @invoicer.load_project @test_projects[0]
-      @invoicer.read_meta_data().should be true
     end
   end
 
@@ -66,8 +59,9 @@ describe Invoicer do
   describe "#validate" do
 
     it "validates the date" do
-      @invoicer.load_project @test_projects[0]
-      @invoicer.validate()
+      @invoicer.load_project @test_projects[1]
+      @invoicer.validate().should be true
+      puts @invoicer.project_data
     end
 
     it "validates products" do
