@@ -1,9 +1,11 @@
 --- 
-# version: 20130606
+version: 20130724
 lang: de
 
 # always include 'Herr' oder 'Frau'
+# defaults to male
 # look at lib/lang.yml for more, add if needed
+# NO FIRSTNAME HERE
 client: | 
   Herr
   name
@@ -84,7 +86,7 @@ hours:
     "Name" : 5 #Stunden
     "Name2": 2 #Stunden
     
-signature:
+signature: |
     Hendrik Sollich
     # Frank Hedecke
 
