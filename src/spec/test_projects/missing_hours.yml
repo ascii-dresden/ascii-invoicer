@@ -1,0 +1,40 @@
+--- 
+version: 20130606
+lang: de
+
+# FEATURES: 
+#   SIMPLE DATE
+#   Email Address
+# FLAWS: none
+#
+# always include 'Herr' oder 'Frau'
+# look at lib/lang.yml for more, add if needed
+client: | 
+  Herr
+  Doe
+
+email: john.doe@example.com
+
+address: | 
+  John Doe
+  Street Number
+  01234 City
+
+event: 
+anumber: 1
+
+# manuelle Angebotsnummer, überschreibt anumber
+manumber: #A20110520 
+
+# rechnungsnummer
+rnumber: 27 
+
+date: 20.07.2013 # bezieht sich auf die veranstaltung selbst
+
+products:
+
+ 
+
+signature:
+  Yours Truely
+

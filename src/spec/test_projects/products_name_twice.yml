@@ -1,0 +1,70 @@
+--- 
+version: 20130606
+lang: de
+
+# FEATURES: 
+#   SIMPLE DATE
+#   Email Address
+# FLAWS: none
+#
+# always include 'Herr' oder 'Frau'
+# look at lib/lang.yml for more, add if needed
+client: | 
+  Herr
+  Doe
+
+email: john.doe@example.com
+
+address: | 
+  John Doe
+  Street Number
+  01234 City
+
+event: 
+anumber: 1
+
+# manuelle Angebotsnummer, überschreibt anumber
+manumber: #A20110520 
+
+# rechnungsnummer
+rnumber: 27 
+
+date: 20.07.2013 # bezieht sich auf die veranstaltung selbst
+
+products:
+  "Kaffee": # 17.5 -> 17.5
+    amount: 7
+    price: 2.5
+    # Kaffee geht nicht zurueck
+  "Mineralwasser": # 4.88 -> 0
+    amount: 8
+    price: 0.61
+    sold: 0
+  "Orangensaft": # 14.56 ->  9.1
+    amount: 8
+    price: 1.82
+    returned: 3
+  "Apfelsaft": # 13.2 -> 4.95
+    amount: 8
+    price: 1.65
+    sold: 3
+  "Apfelsaft": # 13.2 -> 4.95
+    amount: 8
+    price: 1.65
+    sold: 3
+  "Belegte Brötchen": # 0 -> 0
+    amount: 0
+    price: 1.16
+
+
+hours: 
+  time: 7 # deprecated
+  salary: 8.00
+
+  caterers: # not yet implemented
+    "Name" : 5 #Stunden
+    "Name2": 2 #Stunden
+    
+signature: |
+  Yours Truely
+
