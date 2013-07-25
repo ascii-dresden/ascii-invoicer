@@ -1,5 +1,6 @@
 # encoding: utf-8
 require File.join File.dirname(__FILE__) + '/rfc5322_regex.rb'
+require 'yaml'
 class Invoicer
 
   attr_reader :project_file, :project_data

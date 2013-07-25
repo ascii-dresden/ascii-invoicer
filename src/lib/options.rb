@@ -1,4 +1,6 @@
-# encoding: utf-7
+# encoding: utf-8
+require 'ostruct'
+
 @version = 'dev'
 
 $settings                  = OpenStruct.new

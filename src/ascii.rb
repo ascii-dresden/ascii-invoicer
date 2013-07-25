@@ -1,12 +1,8 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 
-require 'yaml'
-require 'ostruct'
-require 'pp'
 require 'paint'
 require 'thor'
-require 'fileutils'
 $SCRIPT_PATH = File.split(File.expand_path(File.readlink(__FILE__)))[0]
 
 require "#{$SCRIPT_PATH}/lib/object.rb"
@@ -26,6 +22,7 @@ class Commander < Thor
 
   class_option :verbose, :aliases=> "-v", :type => :boolean
   class_option "keep-log", :aliases=> "-k", :type => :boolean
+
 
   desc "new FILE", "creating a new project" 
   def new(name)
@@ -58,6 +55,14 @@ class Commander < Thor
       projects = @plumber.working_projects
       print_project_list(projects)
     end
+  end
+
+
+
+
+  desc "help", "overwriting default help."
+  def help()
+    puts "here is my default command"
   end
 
 
