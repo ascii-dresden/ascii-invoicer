@@ -65,9 +65,6 @@ describe Invoicer do
   describe "#validate" do
 
     it "prints the data" do
-      raw = @invoicer.load_project @test_projects['alright']
-      @invoicer.parse_project_date(raw).should be true
-      @invoicer.validate()
       @invoicer.print_data()
     end
     it "validates the date" do

@@ -176,20 +176,34 @@ class Invoicer
   # returns true or false
   def parse_project_hours(raw_project_data)
     @project_data.hours = OpenStruct.new raw_project_data.hours
+
     return false unless @project_data.hours.salary.class == Float
     return false unless @project_data.hours.time
-    return true unless @project_data.hours.caterers
+    return true  unless @project_data.hours.caterers
 
     sum = 0
     salary = @project_data.hours.salary
+
     @project_data.hours.caterers.values.each {|v| sum+=v}
-    @project_data.hours.sum = sum
-    @project_data.hours.sum = sum
-    @project_data.salary = OpenStruct.new
-    @project_data.salary.sum = @project_data.hours.sum * @project_data.hours.salary
-    @project_data.salary.caterers = raw_project_data.hours['caterers']
-    #@project_data.salary.caterers.map!{|k,v| v+1}
+
+    @project_data.hours.sum       = sum
+    @project_data.hours.sum       = sum
+    @project_data.salary          = OpenStruct.new
+    @project_data.salary.sum      = @project_data.hours.sum * @project_data.hours.salary
+    @project_data.salary.caterers = {}
+    raw_project_data.hours['caterers'].each{|k,v| @project_data.salary.caterers[k] = v*salary}
+
+   
     return (sum == @project_data.hours.time)
+  end
+
+  def print_data
+    h= {
+      version:@raw_project_data.version,
+      lang:@raw_project_data.lang,
+      products:@project_data.products
+    }
+    pp h
   end
 
   ##
@@ -197,9 +211,12 @@ class Invoicer
     return false if @raw_project_data.nil?
     @project_data.lang = @raw_project_data.lang.to_sym
 
-    client = parse_project_client @raw_project_data
-    date   = parse_project_date   @raw_project_data
-    hours  = parse_project_hours  @raw_project_data
+    client    = parse_project_client @raw_project_data
+    date      = parse_project_date   @raw_project_data
+    hours     = parse_project_hours  @raw_project_data
+    products  = parse_project_products @raw_project_data
+    signature = parse_project_signature @raw_project_data
+
 
     #return (date and hours and client)
 
