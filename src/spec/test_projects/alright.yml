@@ -64,4 +64,7 @@ hours:
     
 signature: |
   Yours Truely
+ 
+message: | 
+  hiermit möchten wir Ihnen für die gastronomische Betreuung Ihrer Veranstaltung am $date$ folgendes Angebot unterbreiten: 
 ...

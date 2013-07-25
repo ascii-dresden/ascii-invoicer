@@ -1,9 +1,11 @@
 --- 
 version: 20130606
 lang: de
+tax: 1.19
 
 # FEATURES: 
-#   DATE RANGE
+#   SIMPLE DATE
+#   Email Address
 # FLAWS: none
 
 # always include 'Herr' oder 'Frau'
@@ -12,7 +14,7 @@ client: |
   Herr
   Doe
 
-#email: 
+email: john.doeexample.com
 
 address: | 
   John Doe
@@ -53,7 +55,7 @@ products:
 
 
 hours: 
-  time: 7
+  time: 7 # deprecated
   salary: 8.00
 
   caterers: # not yet implemented
@@ -62,4 +64,7 @@ hours:
     
 signature: |
   Yours Truely
+ 
+message: | 
+  hiermit möchten wir Ihnen für die gastronomische Betreuung Ihrer Veranstaltung am $date$ folgendes Angebot unterbreiten: 
 ...

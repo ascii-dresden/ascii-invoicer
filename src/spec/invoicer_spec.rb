@@ -78,6 +78,16 @@ describe Invoicer do
       @invoicer.validate().should be true
     end
 
+    it "validates email addresses" do
+      @invoicer.load_project @test_projects['alright']
+      @invoicer.parse_project_email({'email' => "john.doe@com"}).should be_true
+      @invoicer.parse_project_email({'email' => "john.doeexample.com"}).should be_false
+      @invoicer.parse_project_email({'email' => "john.doe@@example.com"}).should be_false
+      @invoicer.parse_project_email({'email' => ".@.com"}).should be_false
+
+      @invoicer.parse_project_email({'email' => "john.doe@example.com"}).should be_true
+    end
+
     it "validates the date" do
       raw = @invoicer.load_project @test_projects['alright']
       @invoicer.parse_project_date(raw).should be true
@@ -212,8 +222,11 @@ describe Invoicer do
     it "sums up products" do
       raw = @invoicer.load_project @test_projects['alright']
       @invoicer.parse_project_products(raw).should be true
-      #pp @invoicer.project_data['products']
-
+      pp @invoicer.project_data['products']
+      @invoicer.project_data['products']['sums']['offered'].should       === 50.14
+      @invoicer.project_data['products']['sums']['invoiced'].should     === 31.55
+      @invoicer.project_data['products']['sums']['offered_tax'].should   === 59.67
+      @invoicer.project_data['products']['sums']['invoiced_tax'].should === 37.54
     end
 
     #it "validates for invoices" do

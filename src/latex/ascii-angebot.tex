@@ -12,7 +12,7 @@
 \Veranstaltung       {$event$}
 \RechnungsNummer     {} %% bei Angeboten leer lassen
 \Anrede              {$client$, }
-\Gruss               {Mit freundlichen Grüßen}{1cm}
+\Gruss               {$gruss$}{1cm}
 
 %\Anlagen             {Anlagen}
 %\Verteiler           {Verteiler}
@@ -20,8 +20,7 @@
 \begin{document}
 \begin{ascii-brief}
 
-hiermit möchten wir Ihnen für die gastronomische Betreuung Ihrer Veranstaltung am $date$ folgendes
-Angebot unterbreiten: 
+$message$
 
 \begin{center}
 \begin{tabular}{rp{7cm}rrr}

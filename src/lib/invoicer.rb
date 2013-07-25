@@ -1,6 +1,5 @@
 # encoding: utf-8
-require 'ostruct'
-
+require File.join File.dirname(__FILE__) + '/rfc5322_regex.rb'
 class Invoicer
 
   attr_reader :project_file, :project_data
@@ -44,6 +43,8 @@ class Invoicer
       begin
         @raw_project_data = YAML::load(File.open(path))
         @project_data = {}
+        @project_data['lang'] = @raw_project_data['lang'].to_sym
+        @project_data['tax'] = @raw_project_data['tax'] or 1.19
       rescue
         logs "error reading #{path}"
       end
@@ -70,17 +71,15 @@ class Invoicer
   ##
   def validate()
     return false if @raw_project_data.nil?
-    @project_data['lang'] = @raw_project_data['lang'].to_sym
 
     #address
-    #client
-    #addressing
-    #offer_number
-    #invoice_number
     #signature
+    #message
+    #email
 
     
     return false unless parse_project_client    @raw_project_data
+    return false unless parse_project_email     @raw_project_data
     return false unless parse_project_date      @raw_project_data
     return false unless parse_project_numbers   @raw_project_data
     return false unless parse_project_hours     @raw_project_data
@@ -108,6 +107,12 @@ class Invoicer
       @project_data['client']['last_name']
     ].join ' '
     return true
+  end
+
+  def parse_project_email(raw_project_data)
+    return true if raw_project_data['email'].nil?
+    return false unless raw_project_data['email'] =~ $RFC5322
+    @project_data['email'] = raw_project_data['email']
   end
 
   ##
@@ -144,12 +149,20 @@ class Invoicer
   # returns true or false
   def parse_project_products(raw_project_data)
     return false unless @raw_project_data['products']
-    @project_data['products'] = {}
+    tax = @project_data['tax']
+    @project_data['products']                    = {}
+    @project_data['products']['list']            = {}
+    @project_data['products']['sums']            = {}
+    sum_offered      = 0.0
+    sum_invoiced     = 0.0
+    sum_offered_tax  = 0.0
+    sum_invoiced_tax = 0.0
+
     @raw_project_data['products'].each{|p|
       return false unless p[1] # no block within products
 
       name     = p[0]
-      return false if @project_data['products'].keys.include? name
+      return false if @project_data['products']['list'].keys.include? name
 
       amount   = p[1]['amount']
       sold     = p[1]['sold']
@@ -159,20 +172,47 @@ class Invoicer
       return false unless sold.nil? or returned.nil?
 
       if sold
-        final_amount = sold
+        invoiced_amount = sold
       elsif returned
-        final_amount = amount - returned
+        invoiced_amount = amount - returned
       else
-        final_amount = amount
+        invoiced_amount = amount
       end
 
-      sum_offered = p[1]['sum_offered'] = (amount * price).ceil_up()
-      sum_final   = p[1]['sum_final']   = (final_amount * price).ceil_up()
+      product_sum_offered  = p[1]['sum_offered']  = (amount * price).ceil_up()
+      product_sum_invoiced = p[1]['sum_invoiced'] = (invoiced_amount * price).ceil_up()
 
-      #puts "#{name} : #{sum_offered} -> #{sum_final}"
 
-      @project_data['products[name]'] = p[1]
+      sum_offered      += product_sum_offered
+      sum_invoiced     += product_sum_invoiced
+      sum_offered_tax  += product_sum_offered
+      sum_invoiced_tax += product_sum_invoiced
+
+      #puts "#{name} : #{sum_offered} -> #{sum_invoiced}"
+
+      @project_data['products']['list'][name] = p[1]
     }
+
+    sum_offered_tax  = (tax * sum_offered_tax).ceil_up()
+    sum_invoiced_tax = (tax * sum_invoiced_tax).ceil_up()
+
+    sum_offered_tax_only  = (sum_offered_tax  - sum_offered).ceil_up()
+    sum_invoiced_tax_only = (sum_invoiced_tax - sum_invoiced).ceil_up()
+
+    @project_data['products']['sums']['offered']           = sum_offered
+    @project_data['products']['sums']['invoiced']          = sum_invoiced
+    @project_data['products']['sums']['offered_tax']       = sum_offered_tax
+    @project_data['products']['sums']['invoiced_tax']      = sum_invoiced_tax
+    @project_data['products']['sums']['offered_tax_only']  = sum_offered_tax_only
+    @project_data['products']['sums']['invoiced_tax_only'] = sum_invoiced_tax_only
+
+    
+    
+    
+    
+    
+    
+
     return true
   end
 
@@ -216,8 +256,6 @@ class Invoicer
     gender = @gender_matches[sym]
     lang = @raw_project_data['lang'].to_sym
     return @lang_addressing[lang][gender]
-    #gender = @gender_matches[names.first]
-    #return gender
   end
 
   ##
@@ -292,6 +330,7 @@ class Float
     n = n/100
     return n
   end
+
   def to_euro
     a,b = sprintf("%0.2f", self.to_s).split('.')
     a.gsub!(/(\d)(?=(\d{3})+(?!\d))/, '\\1.')
