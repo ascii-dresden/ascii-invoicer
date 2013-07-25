@@ -20,7 +20,8 @@ class Commander < Thor
   #argument :first, :type => :numeric
   map "-l" => :list
 
-  class_option :verbose, :aliases=> "-v", :type => :boolean
+  class_option :file,      :aliases=> "-f", :type => :boolean
+  class_option :verbose,   :aliases=> "-v", :type => :boolean
   class_option "keep-log", :aliases=> "-k", :type => :boolean
 
 
@@ -60,10 +61,24 @@ class Commander < Thor
 
 
 
-  desc "help", "overwriting default help."
-  def help()
-    puts "here is my default command"
+  desc "archive NAME", "Archive a project."
+  def archive(name)
   end
+
+
+
+
+  desc "reopen NAME", "Reopen an archived project."
+  def reopen(name)
+  end
+
+
+
+
+  #desc "help", "overwriting default help."
+  #def help()
+  #  puts "here is my default command"
+  #end
 
 
 
