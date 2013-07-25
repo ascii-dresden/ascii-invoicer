@@ -65,11 +65,12 @@ describe Invoicer do
   describe "#validate" do
 
     it "prints the data" do
-      name = "date_range"
+      name = "alright"
       raw = @invoicer.load_project @test_projects[name]
       @invoicer.parse_project_date(raw).should be true
       @invoicer.validate()
-      @invoicer.print_data()
+      #@invoicer.print_data()
+      puts @invoicer.tex_product_table()
     end
 
     it "validates alright" do
@@ -222,7 +223,7 @@ describe Invoicer do
     it "sums up products" do
       raw = @invoicer.load_project @test_projects['alright']
       @invoicer.parse_project_products(raw).should be true
-      pp @invoicer.project_data['products']
+      #pp @invoicer.project_data['products']
       @invoicer.project_data['products']['sums']['offered'].should       === 50.14
       @invoicer.project_data['products']['sums']['invoiced'].should     === 31.55
       @invoicer.project_data['products']['sums']['offered_tax'].should   === 59.67

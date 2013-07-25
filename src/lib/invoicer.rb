@@ -149,14 +149,14 @@ class Invoicer
   # returns true or false
   def parse_project_products(raw_project_data)
     return false unless @raw_project_data['products']
-    tax = @project_data['tax']
-    @project_data['products']                    = {}
-    @project_data['products']['list']            = {}
-    @project_data['products']['sums']            = {}
-    sum_offered      = 0.0
-    sum_invoiced     = 0.0
-    sum_offered_tax  = 0.0
-    sum_invoiced_tax = 0.0
+    tax                               = @project_data['tax']
+    @project_data['products']         = {}
+    @project_data['products']['list'] = {}
+    @project_data['products']['sums'] = {}
+    sum_offered                       = 0.0
+    sum_invoiced                      = 0.0
+    sum_offered_tax                   = 0.0
+    sum_invoiced_tax                  = 0.0
 
     @raw_project_data['products'].each{|p|
       return false unless p[1] # no block within products
@@ -172,15 +172,18 @@ class Invoicer
       return false unless sold.nil? or returned.nil?
 
       if sold
-        invoiced_amount = sold
+        sold = sold
+        p[1]['returned'] = amount - sold
       elsif returned
-        invoiced_amount = amount - returned
+        sold = amount - returned
+        p[1]['sold'] = sold
       else
-        invoiced_amount = amount
+        sold = amount
+        p[1]['sold'] = amount
       end
 
       product_sum_offered  = p[1]['sum_offered']  = (amount * price).ceil_up()
-      product_sum_invoiced = p[1]['sum_invoiced'] = (invoiced_amount * price).ceil_up()
+      product_sum_invoiced = p[1]['sum_invoiced'] = (sold * price).ceil_up()
 
 
       sum_offered      += product_sum_offered
@@ -193,9 +196,8 @@ class Invoicer
       @project_data['products']['list'][name] = p[1]
     }
 
-    sum_offered_tax  = (tax * sum_offered_tax).ceil_up()
-    sum_invoiced_tax = (tax * sum_invoiced_tax).ceil_up()
-
+    sum_offered_tax       = (tax * sum_offered_tax).ceil_up()
+    sum_invoiced_tax      = (tax * sum_invoiced_tax).ceil_up()
     sum_offered_tax_only  = (sum_offered_tax  - sum_offered).ceil_up()
     sum_invoiced_tax_only = (sum_invoiced_tax - sum_invoiced).ceil_up()
 
@@ -205,14 +207,6 @@ class Invoicer
     @project_data['products']['sums']['invoiced_tax']      = sum_invoiced_tax
     @project_data['products']['sums']['offered_tax_only']  = sum_offered_tax_only
     @project_data['products']['sums']['invoiced_tax_only'] = sum_invoiced_tax_only
-
-    
-    
-    
-    
-    
-    
-
     return true
   end
 
@@ -221,17 +215,6 @@ class Invoicer
   # manipulates @project_data
   # returns true or false
   def parse_project_numbers(raw_project_data)
-    ## Angebotsnummer
-    #if @data['manumber'].nil? and @type == :offer
-    #  @data['offer-number'] =  ['A', today.year , "%02d" % today.month , "%02d" % today.mday, '-', @data['anumber']].join 
-    #else
-    #  @data['offer-number'] = @data['manumber']
-    #end
-
-
-    ## optional Veranstaltungsname
-    #@data['event'] = @data['event'].nil? ? nil : @data['event'] 
-
     year =  @project_data['date'].year
     @project_data['numbers'] ={}
     # optional Rechnungsnummer
@@ -297,6 +280,15 @@ class Invoicer
   # depends on @settings.silent = true|false
   def logs message, force = false
     puts "       #{__FILE__} : #{message}" unless @settings.silent and not force
+  end
+
+  def tex_product_table
+    table = ""
+    @project_data['products']['list'].each_pair do |name, p|
+      table += "#{name.ljust(20)} & #{p['sold']} & #{p['price'].to_euro} & #{p['sum_offered'].to_euro.to_s.rjust(6)} \\\\\ \n"
+      table += "#{name.ljust(20)} & #{p['amount']} & #{p['price'].to_euro} & #{p['sum_invoiced'].to_euro.to_s.rjust(6)} \\\\\ \n"
+    end
+    return table
   end
 
   def strpdates(string,pattern = nil)
