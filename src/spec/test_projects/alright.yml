@@ -1,6 +1,7 @@
 --- 
 version: 20130606
 lang: de
+tax: 1.19
 
 # FEATURES: 
 #   SIMPLE DATE
@@ -63,4 +64,4 @@ hours:
     
 signature: |
   Yours Truely
-
+...

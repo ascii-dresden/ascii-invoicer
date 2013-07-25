@@ -11,3 +11,5 @@ values.tex
 *.yml
 Gemfile.lock
 stats
+doc
+tmp

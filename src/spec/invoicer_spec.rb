@@ -65,18 +65,27 @@ describe Invoicer do
   describe "#validate" do
 
     it "prints the data" do
-      raw = @invoicer.load_project @test_projects['alright']
+      name = "date_range"
+      raw = @invoicer.load_project @test_projects[name]
       @invoicer.parse_project_date(raw).should be true
       @invoicer.validate()
       @invoicer.print_data()
     end
+
+    it "validates alright" do
+      File.should exist @test_projects['alright']
+      @invoicer.load_project @test_projects['alright']
+      @invoicer.validate().should be true
+    end
+
     it "validates the date" do
       raw = @invoicer.load_project @test_projects['alright']
       @invoicer.parse_project_date(raw).should be true
-      @invoicer.project_data.date.should === Date.new(2013,7,20)
+      @invoicer.project_data['date'].should === Date.new(2013,7,20)
 
       File.should exist @test_projects['missing_date']
-      @invoicer2.load_project @test_projects['missing_date']
+      raw = @invoicer2.load_project @test_projects['missing_date']
+      @invoicer2.parse_project_date(raw).should be false
       @invoicer2.validate().should be false
 
       File.should exist @test_projects['broken_date']
@@ -84,19 +93,28 @@ describe Invoicer do
       @invoicer3.parse_project_date(raw).should be false
     end
 
-    it "validates the date ranges" do
+    it "validates date ranges" do
       File.should exist @test_projects['date_range']
-      @invoicer.load_project @test_projects['date_range']
+      raw = @invoicer2.load_project @test_projects['date_range']
+      @invoicer2.parse_project_date(raw).should be true
+      @invoicer2.project_data['date'].should === Date.new(2013,7,20)
+      @invoicer2.project_data['date_end'].should === Date.new(2013,7,26)
+    end
+
+    it "validates numbers" do
+      File.should exist @test_projects['alright']
+      raw = @invoicer.load_project @test_projects['alright']
       @invoicer.validate().should be true
-      @invoicer.project_data.date.should === Date.new(2013,7,20)
-      @invoicer.project_data.date_end.should === Date.new(2013,7,26)
+      @invoicer.project_data['numbers']['offer'].should === Date.today.strftime("A%Y%m%d-1")
+      @invoicer.project_data['numbers']['invoice_long'].should === "R2013-027"
+      @invoicer.project_data['numbers']['invoice_short'].should === "R027"
     end
 
     it "validates client" do
       raw = @invoicer.load_project @test_projects['alright']
       @invoicer.parse_project_client(raw).should be true
-      @invoicer.project_data.client.last_name.should === 'Doe'
-      @invoicer.project_data.client.addressing.should === 'Sehr geehrter Herr Doe'
+      @invoicer.project_data['client']['last_name'].should === 'Doe'
+      @invoicer.project_data['client']['addressing'].should === 'Sehr geehrter Herr Doe'
     end
 
     it "validates missing client" do
@@ -111,48 +129,48 @@ describe Invoicer do
       name3 = 'client_long_title3'
       name4 = 'client_female'
       File.should exist @test_projects[name]
-      @invoicer.load_project @test_projects[name]
-      @invoicer.validate().should be true
-      @invoicer.project_data.client.last_name.should === 'Doe'
-      @invoicer.project_data.client.addressing.should === 'Sehr geehrter Professor Dr. Dr. Doe'
+      raw = @invoicer.load_project @test_projects[name]
+      @invoicer.parse_project_client(raw).should be true
+      @invoicer.project_data['client']['last_name'].should === 'Doe'
+      @invoicer.project_data['client']['addressing'].should === 'Sehr geehrter Professor Dr. Dr. Doe'
 
       File.should exist @test_projects[name2]
-      @invoicer2.load_project @test_projects[name2]
-      @invoicer2.validate().should be true
-      @invoicer2.project_data.client.last_name.should === 'Doe'
-      @invoicer2.project_data.client.addressing.should === 'Sehr geehrte Frau Professor Dr. Dr. Doe'
+      raw = @invoicer2.load_project @test_projects[name2]
+      @invoicer2.parse_project_client(raw).should be true
+      @invoicer2.project_data['client']['last_name'].should === 'Doe'
+      @invoicer2.project_data['client']['addressing'].should === 'Sehr geehrte Frau Professor Dr. Dr. Doe'
 
       File.should exist @test_projects[name3]
-      @invoicer3.load_project @test_projects[name3]
-      @invoicer3.validate().should be true
-      @invoicer3.project_data.client.last_name.should === 'Doe'
-      @invoicer3.project_data.client.addressing.should === 'Sehr geehrter Herr Professor Dr. Dr. Doe'
+      raw = @invoicer3.load_project @test_projects[name3]
+      @invoicer3.parse_project_client(raw).should be true
+      @invoicer3.project_data['client']['last_name'].should === 'Doe'
+      @invoicer3.project_data['client']['addressing'].should === 'Sehr geehrter Herr Professor Dr. Dr. Doe'
 
       File.should exist @test_projects[name4]
-      @invoicer4.load_project @test_projects[name4]
-      @invoicer4.validate().should be true
-      @invoicer4.project_data.client.last_name.should === 'Doe'
-      @invoicer4.project_data.client.addressing.should === 'Sehr geehrte Frau Doe'
+      raw = @invoicer4.load_project @test_projects[name4]
+      @invoicer4.parse_project_client(raw).should be true
+      @invoicer4.project_data['client']['last_name'].should === 'Doe'
+      @invoicer4.project_data['client']['addressing'].should === 'Sehr geehrte Frau Doe'
     end
 
     it "validates caterer" do
       raw = @invoicer.load_project @test_projects['alright']
       @invoicer.parse_project_signature(raw).should be true
-      @invoicer.project_data.caterer.should === 'Yours Truely'
+      @invoicer.project_data['caterer'].should === 'Yours Truely'
 
       raw = @invoicer2.load_project @test_projects['signature_long']
       @invoicer2.parse_project_signature(raw).should be true
-      @invoicer2.project_data.caterer.should === 'Hendrik Sollich'
+      @invoicer2.project_data['caterer'].should === 'Hendrik Sollich'
     end
 
     it "validates signature" do
       raw = @invoicer.load_project @test_projects['alright']
       @invoicer.parse_project_signature(raw).should be true
-      @invoicer.project_data.signature.should === 'Yours Truely'
+      @invoicer.project_data['signature'].should === 'Yours Truely'
 
       raw = @invoicer2.load_project @test_projects['signature_long']
       @invoicer2.parse_project_signature(raw).should be true
-      @invoicer2.project_data.signature.should === "Yours Truely\nHendrik Sollich"
+      @invoicer2.project_data['signature'].should === "Yours Truely\nHendrik Sollich"
     end
 
     it "validates hours" do
@@ -194,7 +212,7 @@ describe Invoicer do
     it "sums up products" do
       raw = @invoicer.load_project @test_projects['alright']
       @invoicer.parse_project_products(raw).should be true
-      #pp @invoicer.project_data.products
+      #pp @invoicer.project_data['products']
 
     end
 
