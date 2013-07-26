@@ -4,7 +4,6 @@ require 'ostruct'
 @version = 'dev'
 
 $settings                  = OpenStruct.new
-$settings.projectname      = nil # leave this way !!
 
 $settings.path             = './'
 $settings.script_path      = $SCRIPT_PATH + '/'
@@ -12,9 +11,9 @@ $settings.script_path      = $SCRIPT_PATH + '/'
 $settings.editor           = 'vim'
 $settings.latex            = 'pdflatex'
 
-$settings.storage_dir        = "#{$settings.path}caterings/"
+$settings.storage_dir      = "#{$settings.path}caterings/"
 $settings.working_dir      = "#{$settings.storage_dir}open/"
-$settings.archive_dir         = "#{$settings.storage_dir}done/"
+$settings.archive_dir      = "#{$settings.storage_dir}done/"
 
 $settings.template_dir     = "#{$settings.script_path}templates/"
 $settings.template_yml     = "#{$settings.template_dir}vorlage.yaml"

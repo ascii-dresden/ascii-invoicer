@@ -1,3 +1,6 @@
+require 'fileutils'
+
+
 class ProjectsPlumber
 
   attr_reader :dirs
@@ -15,14 +18,14 @@ class ProjectsPlumber
 
     @settings = settings
     @dirs = {}
-    @dirs[:storage] = File.join @settings.path, @settings.storage_dir
-    @dirs[:working] = File.join @dirs[:storage], @settings.working_dir
-    @dirs[:archive] = File.join @dirs[:storage], @settings.archive_dir       
+    @dirs[:storage] = File.join @settings['path'], @settings['dirs']['storage']
+    @dirs[:working] = File.join @dirs[:storage], @settings['dirs']['working']
+    @dirs[:archive] = File.join @dirs[:storage], @settings['dirs']['archive']
 
-    @project_suffix = settings.project_suffix
+    @project_suffix = @settings['project_suffix']
     @project_suffix = '.yml' if @project_suffix.nil?
 
-    @template_path  = File.join @settings.path, @settings.template_file
+    @template_path  = File.join @settings['path'], @settings['templates']['project']
     @dirs[:template] = @template_path
 
   end
@@ -32,7 +35,7 @@ class ProjectsPlumber
   # depends on @settings.silent = true|false
 
   def logs message, force = false
-    puts "       #{__FILE__} : #{message}" unless @settings.silent and not force
+    puts "#{__FILE__}: #{message}" if @settings['verbose'] or force
   end
 
   ##
@@ -53,6 +56,7 @@ class ProjectsPlumber
         logs "Created \"#{dir.to_s}\" Directory (#{@dirs[dir]})"
         return true
       end
+      logs "no storage dir"
     end
     false
   end
@@ -60,7 +64,6 @@ class ProjectsPlumber
   ##
   # creates new project_dir and project_file
   def _new_project_folder(name)
-
     unless check_dir(:working)
       logs(File.exists? @dirs[:working])
       logs "missing working directory!"
@@ -82,8 +85,8 @@ class ProjectsPlumber
   ##
   # creates new project_dir and project_file
   # returns path to project_file
-  def new_project(name)
-    name.strip!
+  def new_project(_name)
+    name = _name.strip()
     name.sub!(/^\./,'') # removes hidden_file_dot '.' from the begging
     name.gsub!(/\//,'_') 
     name.gsub!(/\//,'_') 
@@ -159,6 +162,10 @@ class ProjectsPlumber
   #  Move to archive directory
   #  @name 
   def archive_project(name, year = Date.today.year, prefix = '')
+    name.strip!
+    name.sub!(/^\./,'') # removes hidden_file_dot '.' from the begging
+    name.gsub!(/\//,'_') 
+    name.gsub!(/\//,'_') 
     year_folder = File.join @dirs[:archive], year.to_s
     FileUtils.mkdir year_folder unless File.exists? year_folder
 

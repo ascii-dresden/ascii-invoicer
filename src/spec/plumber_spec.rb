@@ -1,25 +1,20 @@
+require 'pp'
 require 'ostruct'
 require 'fileutils'
 require File.dirname(__FILE__) + '/spec_helper'
 
 $PATH = File.join ENV['HOME'] ,'Desktop','ram'
-spec_path = File.join $PATH, 'spec_projects'
 
-FileUtils.rm_rf spec_path if File.exists? spec_path
+$SETTINGS = YAML::load(File.open(File.join File.dirname(__FILE__), "/settings.yml"))
+$SETTINGS['path'] = $PATH
+reset_path = File.join $PATH, $SETTINGS['dirs']['storage']
+FileUtils.rm_rf reset_path if File.exists? reset_path
 
 describe ProjectsPlumber do
   #this happens before every 'it'
   before do
-    @settings               = OpenStruct.new
-    @settings.path          = $PATH
-    #@settings.path         = './'
-    @settings.storage_dir   = "spec_projects/"
-    @settings.working_dir   = "working/"
-    @settings.archive_dir   = "archive/"
-    @settings.template_file = "templates/vorlage.yml"
-    @settings.silent        = true
-
-    @plumber = described_class.new @settings
+    #$SETTINGS['path']                 = $PATH
+    @plumber = described_class.new $SETTINGS
   end
 
   context "with no directories" do

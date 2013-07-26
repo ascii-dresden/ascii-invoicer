@@ -1,16 +1,32 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 
-require 'paint'
+require 'pp'
 require 'thor'
-$SCRIPT_PATH = File.split(File.expand_path(File.readlink(__FILE__)))[0]
+require 'paint'
+require 'yaml'
 
-require "#{$SCRIPT_PATH}/lib/object.rb"
+$SCRIPT_PATH = File.split(File.expand_path(File.readlink(__FILE__)))[0]
+$SETTINGS = YAML::load(File.open("#{$SCRIPT_PATH}/settings.yml"))
+$SETTINGS['path'] = $SCRIPT_PATH
+
 require "#{$SCRIPT_PATH}/lib/invoicer.rb"
 require "#{$SCRIPT_PATH}/lib/minizen.rb"
 require "#{$SCRIPT_PATH}/lib/options.rb"
 require "#{$SCRIPT_PATH}/lib/plumber.rb"
 require "#{$SCRIPT_PATH}/lib/ascii_invoicer.rb"
+
+
+# bootstraping
+@plumber = ProjectsPlumber.new $SETTINGS
+@plumber.create_dir :storage unless @plumber.check_dir :storage
+@plumber.create_dir :working unless @plumber.check_dir :working
+@plumber.create_dir :archive unless @plumber.check_dir :archive
+
+
+
+#pp $SETTINGS
+
 
 class Commander < Thor
   include Thor::Actions
@@ -23,13 +39,14 @@ class Commander < Thor
   class_option :file,      :aliases=> "-f", :type => :boolean
   class_option :verbose,   :aliases=> "-v", :type => :boolean
   class_option "keep-log", :aliases=> "-k", :type => :boolean
+  class_option "colors",   :aliases=> "-c", :type => :boolean
 
 
-  desc "new FILE", "creating a new project" 
+  desc "new NAME", "creating a new project" 
   def new(name)
-    @plumber = ProjectsPlumber.new $settings
+    @plumber = ProjectsPlumber.new $SETTINGS
+    pp @plumber.new_project name
     puts "creating a new project name #{name}"
-    edit_file @plumber.new_project name
   end
 
 
