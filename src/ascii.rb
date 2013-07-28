@@ -7,12 +7,11 @@ require 'paint'
 require 'yaml'
 
 $SCRIPT_PATH = File.split(File.expand_path(File.readlink(__FILE__)))[0]
-$SETTINGS = YAML::load(File.open("#{$SCRIPT_PATH}/settings.yml"))
-$SETTINGS['path'] = $SCRIPT_PATH
+$SETTINGS = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
+#$SETTINGS['path'] = $SCRIPT_PATH
 
 require "#{$SCRIPT_PATH}/lib/invoicer.rb"
 require "#{$SCRIPT_PATH}/lib/minizen.rb"
-require "#{$SCRIPT_PATH}/lib/options.rb"
 require "#{$SCRIPT_PATH}/lib/plumber.rb"
 require "#{$SCRIPT_PATH}/lib/ascii_invoicer.rb"
 
@@ -45,102 +44,38 @@ class Commander < Thor
   desc "new NAME", "creating a new project" 
   def new(name)
     @plumber = ProjectsPlumber.new $SETTINGS
-    pp @plumber.new_project name
-    puts "creating a new project name #{name}"
-  end
-
-
-
-
-  desc "list", "List current Projects."
-  method_option :archives,
-    :type=>:string, :aliases => "-a",
-    :lazy_default=> Date.today.year.to_s,
-    :required => false,
-    :desc => "List archived Projects"
-
-  def list
-    unless options[:archives]
-      @plumber = ProjectsPlumber.new $settings
-      projects = @plumber.working_projects
-      #print_project_list_colored(projects)
-      print_project_list_colored(projects)
+    if @plumber.new_project name
+      puts "creating a new project name #{name}"
     else
-      $settings.archive_year = options[:archives]
-      $settings.read_archive = true
-      
-      @plumber = ProjectsPlumber.new $settings
-      projects = @plumber.working_projects
-      print_project_list(projects)
+      #puts "Project #{name} already exists"
+      edit_file @plumber.get_project_file_path name
     end
   end
 
 
 
 
-  desc "archive NAME", "Archive a project."
-  def archive(name)
-  end
-
-
-
-
-  desc "reopen NAME", "Reopen an archived project."
-  def reopen(name)
-  end
-
-
-
-
-  #desc "help", "overwriting default help."
-  #def help()
-  #  puts "here is my default command"
+  #desc "list", "List current Projects."
+  #method_option :archives,
+  #  :type=>:string, :aliases => "-a",
+  #  :lazy_default=> Date.today.year.to_s,
+  #  :required => false,
+  #  :desc => "List archived Projects"
+  #def list
+  #  unless options[:archives]
+  #    @plumber = ProjectsPlumber.new $SETTINGS
+  #    projects = @plumber.working_projects
+  #    #print_project_list_colored(projects)
+  #    print_project_list_colored(projects)
+  #  else
+  #    $SETTINGS.archive_year = options[:archives]
+  #    $SETTINGS.read_archive = true
+  #    
+  #    @plumber = ProjectsPlumber.new $SETTINGS
+  #    projects = @plumber.working_projects
+  #    print_project_list(projects)
+  #  end
   #end
-
-
-
-
-  desc "show NAME", "Show information about the project."
-  def show(name)
-    @plumber = ProjectsPlumber.new $settings
-
-    project = @plumber.pick_project name
-    file    = @plumber.get_project_file project
-    data    = @plumber.open_project file
-    puts "\"#{data['event']}\":".ljust(30) + "#{data['summe'].rjust 8}"
-    puts "MORE TO COME"
-  end
-
-
-
-
-  desc "edit NAME", "Edit project file."
-  def edit(name)
-    # TODO implement edit --archive
-    @plumber = ProjectsPlumber.new $settings
-    project = @plumber.pick_project name
-    edit_file @plumber.get_project_file_path project
-  end
-
-
-
-
-  desc "offer NAME", "Create an offer from project file."
-  def offer(name)
-    # TODO implement offer --archive
-    @plumber = ProjectsPlumber.new $settings
-    puts @plumber.pick_project name
-  end
-
-
-
-
-  desc "invoice NAME", "Create an invoice from project file."
-  def invoice(name)
-    # TODO implement invoice --archive
-    @plumber = ProjectsPlumber.new $settings
-    puts @plumber.pick_project name
-  end
 
 
 
@@ -148,7 +83,7 @@ class Commander < Thor
   desc "archive NAME", "Move project to archive."
   def archive(name)
     # TODO implement archive Project
-    @plumber = ProjectsPlumber.new $settings
+    @PLUMBER = ProjectsPlumber.new $SETTINGS
 
     if yes? "Sicher? [Yes|No]"
       puts @plumber.pick_project name
@@ -161,11 +96,71 @@ class Commander < Thor
 
 
 
-  desc "reopen NAME", "Opposite of \"archive\"."
-  def reopen(name)
-    puts @plumber.pick_project name
-    puts "NOT YET IMPLEMENTED"
-  end
+  #desc "reopen NAME", "Reopen an archived project."
+  #def reopen(name)
+  #end
+
+
+
+
+  #desc "help", "overwriting default help."
+  #def help()
+  #  puts "here is my default command"
+  #end
+
+
+
+
+  #desc "show NAME", "Show information about the project."
+  #def show(name)
+  #  @plumber = ProjectsPlumber.new $SETTINGS
+
+  #  project = @plumber.pick_project name
+  #  file    = @plumber.get_project_file project
+  #  data    = @plumber.open_project file
+  #  puts "\"#{data['event']}\":".ljust(30) + "#{data['summe'].rjust 8}"
+  #  puts "MORE TO COME"
+  #end
+
+
+
+
+  #desc "edit NAME", "Edit project file."
+  #def edit(name)
+  #  # TODO implement edit --archive
+  #  @plumber = ProjectsPlumber.new $SETTINGS
+  #  project = @plumber.pick_project name
+  #  edit_file @plumber.get_project_file_path project
+  #end
+
+
+
+
+  #desc "offer NAME", "Create an offer from project file."
+  #def offer(name)
+  #  # TODO implement offer --archive
+  #  @plumber = ProjectsPlumber.new $SETTINGS
+  #  puts @plumber.pick_project name
+  #end
+
+
+
+
+  #desc "invoice NAME", "Create an invoice from project file."
+  #def invoice(name)
+  #  # TODO implement invoice --archive
+  #  @plumber = ProjectsPlumber.new $SETTINGS
+  #  puts @plumber.pick_project name
+  #end
+
+
+
+
+  #desc "reopen NAME", "Opposite of \"archive\"."
+  #def reopen(name)
+  #  puts @plumber.pick_project name
+  #  puts "NOT YET IMPLEMENTED"
+  #end
 
 end
 

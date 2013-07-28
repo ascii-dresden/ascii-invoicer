@@ -86,11 +86,14 @@ module AsciiInvoicer
 
   ## hand path to editor
   def edit_file(path)
-    puts "Opening #{path} in #{$settings.editor}"
-    pid = spawn "#{$settings.editor} #{path}"
+    logs "Opening #{path} in #{$SETTINGS['editor']}"
+    pid = spawn "#{$SETTINGS['editor']} #{path}"
     Process.wait pid
   end
 
+  def logs message, force = false
+    puts "#{__FILE__}: #{message}" if $SETTINGS['verbose'] or force
+  end
 
   ## creates a  latex file from NAME of the desired TYPE
   def write_tex(name, type)

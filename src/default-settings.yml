@@ -1,0 +1,15 @@
+path: './'
+verbose: true
+editor: vim
+latex: pdflatex
+colors: false # NOT YET IMPLEMENTED
+
+dirs:
+  storage: caterings
+  working: working
+  archive: archive
+
+templates:
+  project: src/templates/blank.yml
+  invoice: src/latex/ascii-rechnung.tex
+  offer:   src/latex/ascii-angebot.tex

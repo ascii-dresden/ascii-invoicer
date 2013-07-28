@@ -97,6 +97,7 @@ class ProjectsPlumber
       target = File.join folder, name+@project_suffix
 
       FileUtils.cp @dirs[:template], target
+      logs "#{folder} created"
       return target
     else
       return false
