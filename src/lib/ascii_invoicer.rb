@@ -8,7 +8,13 @@ module AsciiInvoicer
       invoicer.load_project path
       invoicer.validate()
       invoice = invoicer.project_data
-      pp invoice['caterer']
+      pp [
+        invoice['valid'],
+        invoice['name'],
+        invoice['caterer'],
+        invoice['signature'],
+      ]
+      pp invoicer.parse_errors unless invoice['valid']
       projects.push invoice
     end
 

@@ -3,17 +3,13 @@ require 'ostruct'
 require 'fileutils'
 require File.dirname(__FILE__) + '/spec_helper'
 
-$PATH = File.join ENV['HOME'] ,'Desktop','ram'
-
 $SETTINGS = YAML::load(File.open(File.join File.dirname(__FILE__), "/settings.yml"))
-$SETTINGS['path'] = $PATH
-reset_path = File.join $PATH, $SETTINGS['dirs']['storage']
+reset_path = File.join $SETTINGS['path'], $SETTINGS['dirs']['storage']
 FileUtils.rm_rf reset_path if File.exists? reset_path
 
 describe ProjectsPlumber do
   #this happens before every 'it'
   before do
-    #$SETTINGS['path']                 = $PATH
     @plumber = described_class.new $SETTINGS
   end
 

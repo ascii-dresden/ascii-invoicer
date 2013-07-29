@@ -9,11 +9,10 @@ describe Invoicer do
   # it detects duplicate entries
 
   before do
-    @settings                          = OpenStruct.new
-    @settings.path                     = './'
-    @settings.template_files           = {}
-    @settings.template_files[:offer]   = "latex/ascii-angebot.tex"
-    @settings.template_files[:invoice] = "latex/ascii-rechnung.tex"
+    @settings                         = {}
+    @settings['templates']            = {}
+    @settings['templates']['offer']   = "latex/ascii-angebot.tex"
+    @settings['templates']['invoice'] = "latex/ascii-rechnung.tex"
 
     @test_project_path = File.join File.dirname(__FILE__), "test_projects"
     #@test_projects = (0..1).to_a.map{|n| File.join @test_project_path, n.to_s + '.yml'}
@@ -30,8 +29,8 @@ describe Invoicer do
   describe "#initialize" do
 
     it "loads template files" do
-      File.should exist @settings.template_files[:offer]
-      File.should exist @settings.template_files[:invoice]
+      File.should exist @settings['templates']['offer']
+      File.should exist @settings['templates']['invoice']
       @invoicer.load_templates().should be true
     end
   end
@@ -172,6 +171,11 @@ describe Invoicer do
       raw = @invoicer2.load_project @test_projects['signature_long']
       @invoicer2.parse_project_signature(raw).should be true
       @invoicer2.project_data['caterer'].should === 'Hendrik Sollich'
+
+      raw = @invoicer3.load_project @test_projects['old_signature']
+      @invoicer3.parse_project_signature(raw).should be true
+      pp @invoicer3.raw_project_data['signature']
+      @invoicer3.project_data['caterer'].should === 'Yours Truely'
     end
 
     it "validates signature" do

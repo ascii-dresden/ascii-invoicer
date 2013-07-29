@@ -3,7 +3,7 @@ require File.join File.dirname(__FILE__) + '/rfc5322_regex.rb'
 require 'yaml'
 class Invoicer
 
-  attr_reader :project_file, :project_data
+  attr_reader :project_file, :project_data, :raw_project_data, :parse_errors
 
   def initialize(settings)
     # expecting to find in settings
@@ -12,6 +12,7 @@ class Invoicer
     #   @settings['templates']['offer']
     
     @settings = settings
+    @parse_errors = []
 
     check_offer_template   = File.exists? @settings['templates']['offer']
     check_invoice_template = File.exists? @settings['templates']['invoice']
@@ -44,9 +45,10 @@ class Invoicer
       begin
         @raw_project_data = YAML::load(File.open(path))
         @project_data = {}
+        @project_data['valid'] = true
         @project_data['lang'] = @raw_project_data['lang'].to_sym
         @project_data['tax'] = @raw_project_data['tax']? @raw_project_data['tax'] : 1.19
-        @project_data['name'] = File.basename path, '.'+@settings['project_file_extension']
+        @project_data['name'] = File.basename(path, '.'+@settings['project_file_extension'])
       rescue
         logs "error reading #{path}"
       end
@@ -70,8 +72,23 @@ class Invoicer
     return false
   end
 
+  def perror(msg, strikt = true)
+    error = "parse error: #{msg}" 
+    if strikt
+      STDERR.puts(error)
+      exit 1
+    else
+      @parse_errors.push error
+      @project_data['valid'] = false
+      return false
+    end
+  end
+
   ##
-  def validate()
+  # run validate() to initiate all parser functions.
+  # If strikt = true the programm fails, otherise it returns false,
+  # which collects @parse_errors[]
+  def validate(strikt = false)
     return false if @raw_project_data.nil?
 
     #address
@@ -79,14 +96,14 @@ class Invoicer
     #message
     #email
 
-    
-    return false unless parse_project_client    @raw_project_data
-    return false unless parse_project_email     @raw_project_data
-    return false unless parse_project_date      @raw_project_data
-    return false unless parse_project_numbers   @raw_project_data
-    return false unless parse_project_hours     @raw_project_data
-    return false unless parse_project_products  @raw_project_data
-    return false unless parse_project_signature @raw_project_data
+    return perror("client"   ,strikt) unless parse_project_client    @raw_project_data
+    return perror("email"    ,strikt) unless parse_project_email     @raw_project_data
+    return perror("date"     ,strikt) unless parse_project_date      @raw_project_data
+    return perror("signature",strikt) unless parse_project_signature @raw_project_data
+    return perror("numbers"  ,strikt) unless parse_project_numbers   @raw_project_data
+    return perror("hours"    ,strikt) unless parse_project_hours     @raw_project_data
+    return perror("products" ,strikt) unless parse_project_products  @raw_project_data
+
     return true
   end
 
@@ -139,9 +156,18 @@ class Invoicer
   # manipulates @project_data
   # returns true or false
   def parse_project_signature(raw_project_data)
-    return false unless @raw_project_data['signature']
-    @project_data['signature'] = @raw_project_data['signature'].chop
-    @project_data['caterer'] = @project_data['signature'].split("\n").last
+    return false if @raw_project_data['signature'].nil?
+    @project_data['raw_sig'] = @raw_project_data['signature']
+    lines = @raw_project_data['signature'].split("\n").to_a
+
+    if lines.length > 1
+      @project_data['caterer'] = lines.last
+      @project_data['signature'] = lines.join "\n"
+      pp lines.join "\n"
+    else
+      @project_data['caterer'] = lines.first
+      @project_data['signature'] = @project_data['caterer']
+    end
     return true
   end
 

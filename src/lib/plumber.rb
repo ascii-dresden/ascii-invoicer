@@ -14,16 +14,18 @@ class ProjectsPlumber
     #   @settings.archive_dir
     #   @settings.template_file
     #   @settings.silent = false
-    #   @project_suffix = '.yml'
+    #   @settings['project_file_extension'] = '.yml'
 
     @settings = settings
     @dirs = {}
-    @dirs[:storage] = File.join @settings['dirs']['storage']
+    if @settings['path']
+      @dirs[:storage] = File.join @settings['path'], @settings['dirs']['storage']
+    else
+      @dirs[:storage] = File.join @settings['dirs']['storage']
+    end
+
     @dirs[:working] = File.join @dirs[:storage], @settings['dirs']['working']
     @dirs[:archive] = File.join @dirs[:storage], @settings['dirs']['archive']
-
-    @project_suffix = @settings['project_suffix']
-    @project_suffix = '.yml' if @project_suffix.nil?
 
     @template_path  = File.join @settings['templates']['project']
     @dirs[:template] = @template_path
@@ -94,7 +96,7 @@ class ProjectsPlumber
     # copy template_file to project_dir
     folder = _new_project_folder(name)
     if folder
-      target = File.join folder, name+@project_suffix
+      target = File.join folder, name+@settings['project_file_extension']
 
       FileUtils.cp @dirs[:template], target
       logs "#{folder} created"
@@ -108,14 +110,14 @@ class ProjectsPlumber
 
   ##
   # path to project file
-  # there may only be one @project_suffix file per project folder
+  # there may only be one @settings['project_file_extension'] file per project folder
   #
   # untested
   def get_project_file_path(name, dir=:working, year=Date.today.year)
     folder = get_project_folder(name, dir, year)
     if folder
-      files = Dir.glob File.join folder, "*#{@project_suffix}"
-      fail "ambiguous amount of #{@project_suffix} files (#{name})" if files.length != 1
+      files = Dir.glob File.join folder, "*#{@settings['project_file_extension']}"
+      fail "ambiguous amount of #{@settings['project_file_extension']} files (#{name})" if files.length != 1
       return files[0]
     end
     return false
@@ -186,7 +188,7 @@ class ProjectsPlumber
     name.strip!
 
     path = get_project_file_path(name, :archive, year)
-    cleaned_name = File.basename(path,@project_suffix)
+    cleaned_name = File.basename(path,@settings['project_file_extension'])
 
     source = get_project_folder name, :archive, year
 

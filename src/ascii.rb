@@ -21,13 +21,6 @@ $local_settings = YAML::load(File.open("settings.yml")) if File.exists? "setting
 @plumber.create_dir :working unless @plumber.check_dir :working
 @plumber.create_dir :archive unless @plumber.check_dir :archive
 
-# turning settings paths into absolute paths
-$SETTINGS['templates'].each_pair do |name,file|
-  path = File.join $SCRIPT_PATH, file
-  $SETTINGS['templates'][name] = path
-  error "\"#{path}\" not found" unless File.exists? path
-end
-
 # loading $SETTINGS and local_settings
 def overwrite_settings(default, custom)
   default.each do |k,v|
