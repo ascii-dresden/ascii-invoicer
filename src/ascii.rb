@@ -5,21 +5,16 @@ require 'pp'
 require 'thor'
 require 'paint'
 require 'yaml'
+require 'csv'
 
 $SCRIPT_PATH = File.split(File.expand_path(File.readlink(__FILE__)))[0]
-require "#{$SCRIPT_PATH}/lib/invoicer.rb"
+require "#{$SCRIPT_PATH}/lib/InvoiceProject.rb"
 require "#{$SCRIPT_PATH}/lib/minizen.rb"
-require "#{$SCRIPT_PATH}/lib/plumber.rb"
+require "#{$SCRIPT_PATH}/lib/ProjectPlumber.rb"
 require "#{$SCRIPT_PATH}/lib/ascii_invoicer.rb"
 
 $SETTINGS = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
 $local_settings = YAML::load(File.open("settings.yml")) if File.exists? "settings.yml"
-
-# bootstraping
-@plumber = ProjectsPlumber.new $SETTINGS
-@plumber.create_dir :storage unless @plumber.check_dir :storage
-@plumber.create_dir :working unless @plumber.check_dir :working
-@plumber.create_dir :archive unless @plumber.check_dir :archive
 
 # loading $SETTINGS and local_settings
 def overwrite_settings(default, custom)
@@ -32,89 +27,122 @@ def overwrite_settings(default, custom)
   end
 end
 
-if $local_settings
-  overwrite_settings $SETTINGS, $local_settings
-end
+overwrite_settings $SETTINGS, $local_settings if $local_settings
 
 
+# bootstraping
+@plumber = ProjectsPlumber.new $SETTINGS
+@plumber.create_dir :storage unless @plumber.check_dir :storage
+@plumber.create_dir :working unless @plumber.check_dir :working
+@plumber.create_dir :archive unless @plumber.check_dir :archive
+error "template not found!\n#{@plumber.dirs[:template]}"   unless @plumber.check_dir :template
+
+
+
+
+
+# here coms thor
 class Commander < Thor
   include Thor::Actions
-  include AsciiInvoicer
+  include AsciiInvoiceProject
 
-  package_name "ascii invoicer"
+  package_name "ascii project"
   #argument :first, :type => :numeric
   map "-l" => :list
 
   class_option :file,      :aliases=> "-f", :type => :boolean
   class_option :verbose,   :aliases=> "-v", :type => :boolean
-  class_option "keep-log", :aliases=> "-k", :type => :boolean
-  class_option "colors",   :aliases=> "-c", :type => :boolean
+  #class_option "keep-log", :aliases=> "-k", :type => :boolean
 
 
-  desc "new NAME", "creating a new project" 
-  def new(name)
-    @plumber = ProjectsPlumber.new $SETTINGS
-    if @plumber.new_project name
-      puts "creating a new project name #{name}"
-      edit_file @plumber.get_project_file_path name
-    else
-      #puts "Project #{name} already exists"
-      edit_file @plumber.get_project_file_path name
-    end
-  end
+  #desc "new NAME", "creating a new project" 
+  #def new(name)
+  #  @plumber = ProjectsPlumber.new $SETTINGS
+  #  if @plumber.new_project name
+  #    puts "creating a new project name #{name}"
+  #    edit_file @plumber.get_project_file_path name
+  #  else
+  #    #puts "Project #{name} already exists"
+  #    edit_file @plumber.get_project_file_path name
+  #  end
+  #end
 
 
   desc "settings", "view Settings"
   def settings
-    pp $SETTINGS
-    pp $local_settings
+    puts $SETTINGS.to_yaml
   end
 
 
-  #desc "edit NAME", "Edit project file."
-  #def edit(name)
+  #desc "edit index", "Edit project file."
+  #method_option :archives,
+  #  :type=>:numeric, :aliases => "-a",
+  #  :lazy_default=> Date.today.year,
+  #  :required => false,
+  #  :desc => "list archived projects"
+  #def edit(index)
   #  # TODO implement edit --archive
+  #  path = pick_project index
+  #  edit_file path if path
+  #end
+
+  #def method_missing(arguments)
+  #  edit arguments.to_s if arguments
+  #end
+
+
+  #desc "list", "List current Projects."
+  #  method_option :archives,
+  #    :type=>:numeric, :aliases => "-a",
+  #    :lazy_default=> Date.today.year,
+  #    :required => false,
+  #    :desc => "list archived projects"
+  #  method_option :csv, :type=>:boolean,
+  #    :lazy_default=> true, :required => false,
+  #    :desc => "output as csv"
+  #  method_option :yaml, :type=>:boolean,
+  #    :lazy_default=> true, :required => false,
+  #    :desc => "output as yaml"
+  #def list
   #  @plumber = ProjectsPlumber.new $SETTINGS
-  #  project = @plumber.pick_project name
-  #  pp project
-  #  #edit_file @plumber.get_project_file_path project
+  #  unless options[:archives]
+  #    paths = @plumber.list_projects
+  #  else
+  #    paths = @plumber.list_projects :archive, options[:archives]
+  #  end
+  #  print_project_list paths, options
   #end
 
 
 
 
-  desc "list", "List current Projects."
-  method_option :archives,
-    :type=>:numeric, :aliases => "-a",
-    :lazy_default=> Date.today.year,
-    :required => false,
-    :desc => "List archived Projects"
-  def list
-    @plumber = ProjectsPlumber.new $SETTINGS
-    unless options[:archives]
-      projects = @plumber.list_projects
-      print_project_list projects
-    else
-      projects = @plumber.list_projects :archive, options[:archives]
-      pp projects
-    end
-  end
+  #desc "archive NAME", "Move project to archive."
+  #def archive(index)
+  #  # TODO implement archive Project
+  #  path = pick_project index
+  #  plumber = ProjectsPlumber.new $SETTINGS
+  #  project = InvoiceProject.new $SETTINGS
+  #  project.load_project path
+  #  project.validate
+  #  data = project.data
+  #  year = data['date'].year
+  #  prefix= data['numbers']['invoice_short'].to_s + "_"
+  #  name = data['name']
 
 
+  #  error "\"#{name}\" contains errors\n(#{data['parse_errors'].join(',')})" ;exit unless data['valid']
+  #  error "\"#{name}\" has no invoice number"; exit
 
+  #  puts "Selected: #{ path}"
 
-  desc "archive NAME", "Move project to archive."
-  def archive(name)
-    # TODO implement archive Project
-    @PLUMBER = ProjectsPlumber.new $SETTINGS
+  #  if yes? "Do you want to move \"#{prefix}#{name}\" into the archives of #{year}? (yes|No)"
+  #    new_path = plumber.archive_project name, year, rnum
+  #    puts new_path
 
-    if yes? "Sicher? [Yes|No]"
-      puts @plumber.pick_project name
-      puts "NOT YET IMPLEMENTED"
-    else
-      puts "ok, so not"
-    end
-  end
+  #  else
+  #    puts "ok, so not"
+  #  end
+  #end
 
 
 

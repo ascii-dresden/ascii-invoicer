@@ -21,7 +21,7 @@ def display(msg, newline=true)
 end
 
 def error(msg)
-  STDERR.puts(msg)
+  STDERR.puts("ERROR: #{msg}")
   exit 1
 end
 

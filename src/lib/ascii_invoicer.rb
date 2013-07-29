@@ -1,110 +1,118 @@
-module AsciiInvoicer
+# encoding: utf-8
+module AsciiInvoiceProject
   ## Use Option parser or leave it if only one argument is given
 
-  def print_project_list(paths)
+  def project_list_by_date(paths)
     projects = []
     paths.each do |path|
-      invoicer = Invoicer.new $SETTINGS
-      invoicer.load_project path
-      invoicer.validate()
-      invoice = invoicer.project_data
-      pp [
-        invoice['valid'],
-        invoice['name'],
-        invoice['caterer'],
-        invoice['signature'],
-      ]
-      pp invoicer.parse_errors unless invoice['valid']
-      projects.push invoice
+      project = InvoiceProject.new $SETTINGS
+      project.parse_project path
+      projects.push project
     end
-
-    #print_project_list_plain projects
+    projects.sort_by! { |project| project.get(:date) }
+    return projects
   end
 
-  #takes an array of invoices (@plumber.working_projects)
-  def print_project_list_colored(projects)
-    projects.each_index do |i|
-      invoice   = projects[i]
+  def print_project_list(paths, options = {})
+    projects = project_list_by_date paths
 
-
-      number    = (i+1).to_s
-      name      = invoice['name']
-      signature = invoice['signature']
-      rnumber   = invoice['rnumber']
-      rnumber   = "R" + rnumber.to_s.rjust(3,'0') if rnumber.class == Fixnum
-      date      = invoice['date']
-
-      number    = number.rjust 4
-      name      = name.ljust 34
-      signature = signature.ljust 17
-      rnumber   = rnumber.to_s.ljust 4
-      date      = date.rjust 15
-
-      number    = Paint[number, :bright]
-      name      = Paint[name, [145,145,145], :clean] if invoice['raw_date'].to_date <= Date.today
-      name      = Paint[name, [255,0,0], :bright ]   if invoice['raw_date'].to_date - Date.today < 7
-      name      = Paint[name, [255,255,0] ]          if invoice['raw_date'].to_date - Date.today < 14
-      name      = Paint[name, [0,255,0] ]            if invoice['raw_date'].to_date - Date.today >= 14
-      signature = signature
-      rnumber   = rnumber
-      date      = date
-
-      line = "#{number}. #{name} #{signature} #{rnumber} #{date}"
-
-
-
-      puts line
-      #unless projects[i+1].nil?
-      #  if invoice['raw_date'] <= Time.now and projects[i+1]['raw_date'] > Time.now
-      #    padding = Paint.unpaint(number).length + 3
-      #    plain_line = Paint.unpaint line
-      #    divider = ''.rjust(padding).ljust(plain_line.length-padding, '█')
-      #    puts divider
-      #  end
-      #end
-      #puts "R#{invoice['rnumber'].to_s}, #{invoice['name']}, #{invoice['signature']}, #{invoice['date']}"
-    end
-  end
-
-  #takes an array of invoices (@plumber.working_projects)
-  def print_project_list_csv(projects)
-    projects.each_index do |i|
-      invoice   = projects[i]
-      number    = (i+1).to_s
-      name      = invoice['name']
-      signature = invoice['signature']
-      rnumber   = invoice['rnumber']
-      rnumber   = "R" + rnumber.to_s.rjust(3,'0') if rnumber.class == Fixnum
-      date      = invoice['raw_date']
-      line = "#{rnumber}, #{name}, \"#{signature}\", #{date}"
-      puts line
+    if options[:csv] 
+      print_project_list_csv projects
+    elsif options[:yaml] 
+      print_project_list_yaml projects
+    else
+      print_project_list_plain projects
     end
   end
 
   def print_project_list_plain(projects)
     projects.each_index do |i|
-      invoice   = projects[i]
+      project   = projects[i]
 
       number    = (i+1).to_s
       number    = number.rjust 4
-      name      = invoice['name'].ljust 34
-      signature = invoice['signature'].ljust 20
-      rnumber   = invoice['rnumber']
-      rnumber   = "R" + rnumber.to_s.rjust(3,'0') if rnumber.class == Fixnum
-      rnumber   = rnumber.to_s.ljust 4
-      date      = invoice['date'].to_s.rjust 15
+      name      = project.get(:name).ljust 34
+      signature = project.get(:caterer).ljust 20
+      rnumber   = project.get(:numbers)['invoice_short'].to_s.ljust 4
+      date      = project.get(:date).strftime("%d.%m.%Y").rjust 15
+      #errors = project.get(:valid)? "": Paint[" ✗",:red]+"(#{project.errors).join(', ')})"
+      errors    = project.errors
 
-      line = "#{number}. #{name} #{signature} #{rnumber} #{date}"
+      line = "#{number}. #{name} #{signature} #{rnumber} #{date} #{errors}"
       puts line
     end
   end
 
+  #takes an array of invoices (@plumber.working_projects)
+  def print_project_list_yaml(projects)
+    projects.each do |p|
+      puts p.to_yaml
+      puts "...\n\n"
+  end
+  end
 
+  #takes an array of invoices (@plumber.working_projects)
+  def print_project_list_csv(projects)
+    header = [
+      'date', 'invoice_long', 'invoice_short', 'offer', 'event', 'name', 'caterer', 'time', 'invoiced sum',
+    ]
+    puts header.to_csv
+    projects.each do |p|
+      line = [
+        p['date'],
+        p['numbers']['invoice_long'],
+        p['numbers']['invoice_short'],
+        p['numbers']['offer'],
+        p['event'],
+        p['name'],
+        p['caterer'],
+        p['hours']['time'].to_s + 'h',
+        p['sums'],
+      ]
+      puts line.to_csv
+    end
+  end
+
+  def pick_project(index)
+    plumber = ProjectsPlumber.new $SETTINGS
+    if options[:archives]
+      paths = plumber.list_projects :archive, options[:archives]
+    else
+      paths = plumber.list_projects
+    end
+    iindex = index.to_i - 1
+    if iindex > -1
+      projects = project_list_by_date(paths)
+      if iindex <= projects.length - 1
+        return projects[iindex]['path']
+
+      else error "Invalid index!"
+      end
+
+    else
+      projects = @plumber.list_project_names
+      if projects.include? index
+        return @plumber.get_project_file_path index
+
+      else error "Invalid name!"
+      end
+    end
+  end
+
+  
   ## hand path to editor
   def edit_file(path)
     logs "Opening #{path} in #{$SETTINGS['editor']}"
     pid = spawn "#{$SETTINGS['editor']} #{path}"
     Process.wait pid
+    project = InvoiceProject.new $SETTINGS
+    project.parse_project path
+    project.validate()
+    error "WARNING: the file you just edited contains errors! (#{project.data['parse_errors']})" unless project.data['valid']
+    unless no? "would you like to edit it again? [y|N]"
+      edit_file path
+    end
+
   end
 
   def logs message, force = false
@@ -117,35 +125,35 @@ module AsciiInvoicer
     path    = @plumber.get_project_file name
     pfolder = @plumber.get_project_folder name
 
-    invoicer = Invoicer.new
-    invoicer.load_templates :invoice => @options.template_invoice , :offer => @options.template_offer
-    invoicer.read_file path
+    project = InvoiceProject.new
+    project.load_templates :project => @options.template_invoice , :offer => @options.template_offer
+    project.read_file path
 
-    invoicer.type = type
-    invoicer.project_name = name
+    project.type = type
+    project.project_name = name
     if name.nil? or name.size == 0 
-      if invoicer.dump['event'].nil? or invoicer.dump['event'].size == 0
+      if project.dump['event'].nil? or project.dump['event'].size == 0
         name = path.tr '/', '_'
         puts name
       else
-        name = invoicer.dump['event']
+        name = project.dump['event']
         puts "name taken from event \"#{name}\""
       end
     end
 
-    if invoicer.is_valid or true
-      tex = invoicer.create
+    if project.is_valid or true
+      tex = project.create
 
-      d = invoicer.dump
+      d = project.dump
 
       # datei namen
       case type
-      when :invoice
+      when :project
         datestr = d['raw_date'].strftime("%Y-%m-%d")
         filename = "R#{d['rnumber'].to_s.rjust 3, "0"} #{name} #{datestr}.tex"
         file = "#{pfolder}"+filename
       when :offer
-        #datestr = d['raw_date'].strftime("%y%m%d") # date of invoice
+        #datestr = d['raw_date'].strftime("%y%m%d") # date of project
         datestr = Date.today.strftime("%y%m%d") # current date
         filename = "#{datestr} Angebot #{name}.tex"
         file = "#{pfolder}"+filename
@@ -169,7 +177,7 @@ module AsciiInvoicer
         FileUtils.rm filename.gsub('.tex','.aux')
       end
     else
-      puts "invoice is not valid"
+      puts "project is not valid"
     end
   end
 end

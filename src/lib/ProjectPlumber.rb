@@ -6,29 +6,20 @@ class ProjectsPlumber
   attr_reader :dirs
 
   def initialize(settings)
-
-    # expecting to find in settings
-    #   @settings.path
-    #   @settings.storage_dir
-    #   @settings.working_dir
-    #   @settings.archive_dir
-    #   @settings.template_file
-    #   @settings.silent = false
-    #   @settings['project_file_extension'] = '.yml'
+    @LIB_PATH = File.split(File.expand_path(__FILE__))[0]
 
     @settings = settings
     @dirs = {}
     if @settings['path']
-      @dirs[:storage] = File.join @settings['path'], @settings['dirs']['storage']
+      @dirs[:storage]  = File.join @settings['path'], @settings['dirs']['storage']
+      @dirs[:template] = File.join @settings['path'], @settings['templates']['project']
     else
-      @dirs[:storage] = File.join @settings['dirs']['storage']
+      @dirs[:storage]  = File.join @settings['dirs']['storage']
+      @dirs[:template] = File.join $SCRIPT_PATH, @settings['templates']['project'] # FIXME remove $SCRIPT_PATH from libs
     end
 
     @dirs[:working] = File.join @dirs[:storage], @settings['dirs']['working']
     @dirs[:archive] = File.join @dirs[:storage], @settings['dirs']['archive']
-
-    @template_path  = File.join @settings['templates']['project']
-    @dirs[:template] = @template_path
 
   end
 
@@ -43,9 +34,19 @@ class ProjectsPlumber
   ##
   # Checks the existens of one of the three basic dirs.
   # dir can be either :storage, :working or :archive
+  # and also :template
   def check_dir(dir)
     return true if File.exists? "#{@dirs[dir]}"
     false
+  end
+
+  ##
+  # Checks the existens of every thing required
+  def check_dirs
+    check_dir :storage and
+    check_dir :working and
+    check_dir :archive and
+    check_dir :template
   end
 
   ##
@@ -144,18 +145,30 @@ class ProjectsPlumber
   ##
   # list projects
   # lists project files
+  def list_project_names(dir = :working, year=Date.today.year)
+    return unless check_dir(dir)
+    if dir == :working
+      paths = Dir.glob File.join @dirs[dir], "/*"
+      names = paths.map {|path| File.basename path }
+    elsif dir == :archive
+      paths = Dir.glob File.join @dirs[dir], year.to_s, "/*"
+      names = paths.map {|path| File.basename path, :archive, year }
+    else
+      error "unknown path #{dir}"
+    end
+  end
+
+  ##
+  # list projects
+  # lists project files
   def list_projects(dir = :working, year=Date.today.year)
     return unless check_dir(dir)
     if dir == :working
       paths = Dir.glob File.join @dirs[dir], "/*"
-      names = paths.map {|path|
-        get_project_file_path File.basename path
-      }
+      names = paths.map {|path| get_project_file_path File.basename path }
     elsif dir == :archive
       paths = Dir.glob File.join @dirs[dir], year.to_s, "/*"
-      names = paths.map {|path|
-        get_project_file_path (File.basename path), :archive, year
-      }
+      names = paths.map {|path| get_project_file_path (File.basename path), :archive, year }
     else
       error "unknown path #{dir}"
     end

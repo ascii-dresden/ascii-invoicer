@@ -1,4 +1,5 @@
+editor: kwrite
 dirs:
-  storage: caterings-orig
-  working: open
-  archive: done
+  #storage: caterings-orig
+  #working: open
+  #archive: done

@@ -14,5 +14,7 @@ templates:
   offer:   latex/ascii-angebot.tex
 
 #careful here
-project_file_extension: yml
+project_file_extension: .yml
 path:     #nil
+default_lang: de
+default_tax: 0.19
