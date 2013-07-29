@@ -8,6 +8,7 @@ require 'yaml'
 
 $SCRIPT_PATH = File.split(File.expand_path(File.readlink(__FILE__)))[0]
 $SETTINGS = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
+$local_settings = YAML::load(File.open("settings.yml")) if File.exists? "settings.yml"
 #$SETTINGS['path'] = $SCRIPT_PATH
 
 require "#{$SCRIPT_PATH}/lib/invoicer.rb"
@@ -24,7 +25,20 @@ require "#{$SCRIPT_PATH}/lib/ascii_invoicer.rb"
 
 
 
-#pp $SETTINGS
+# $SETTINGS
+def overwrite_settings(default, custom)
+  default.each do |k,v|
+    if custom[k].class == Hash
+      overwrite_settings default[k], custom[k]
+    else
+      default[k] = custom[k] unless custom[k].nil?
+    end
+  end
+end
+
+if $local_settings
+  overwrite_settings $SETTINGS, $local_settings
+end
 
 
 class Commander < Thor
@@ -53,6 +67,11 @@ class Commander < Thor
   end
 
 
+  desc "settings", "view Settings"
+  def settings
+    pp $SETTINGS
+    pp $local_settings
+  end
 
 
   #desc "list", "List current Projects."
