@@ -18,14 +18,14 @@ class ProjectsPlumber
 
     @settings = settings
     @dirs = {}
-    @dirs[:storage] = File.join @settings['path'], @settings['dirs']['storage']
+    @dirs[:storage] = File.join @settings['dirs']['storage']
     @dirs[:working] = File.join @dirs[:storage], @settings['dirs']['working']
     @dirs[:archive] = File.join @dirs[:storage], @settings['dirs']['archive']
 
     @project_suffix = @settings['project_suffix']
     @project_suffix = '.yml' if @project_suffix.nil?
 
-    @template_path  = File.join @settings['path'], @settings['templates']['project']
+    @template_path  = File.join @settings['templates']['project']
     @dirs[:template] = @template_path
 
   end
@@ -136,27 +136,27 @@ class ProjectsPlumber
     false
   end
 
-  
-
-
-
-
-
-
-  ##
-  # turn index or name into path
-  #
-  # untested
-  def pick_project input, dir = :working
-  end
 
 
 
   ##
   # list projects
-  def list_projects(dir = :working)
+  # lists project files
+  def list_projects(dir = :working, year=Date.today.year)
     return unless check_dir(dir)
-    #TODO FIXME XXX
+    if dir == :working
+      paths = Dir.glob File.join @dirs[dir], "/*"
+      names = paths.map {|path|
+        get_project_file_path File.basename path
+      }
+    elsif dir == :archive
+      paths = Dir.glob File.join @dirs[dir], year.to_s, "/*"
+      names = paths.map {|path|
+        get_project_file_path (File.basename path), :archive, year
+      }
+    else
+      error "unknown path #{dir}"
+    end
   end
 
   ##

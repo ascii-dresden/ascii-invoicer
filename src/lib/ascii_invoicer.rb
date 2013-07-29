@@ -1,8 +1,18 @@
 module AsciiInvoicer
   ## Use Option parser or leave it if only one argument is given
 
-  def print_project_list(projects)
-    print_project_list_plain projects
+  def print_project_list(paths)
+    projects = []
+    paths.each do |path|
+      invoicer = Invoicer.new $SETTINGS
+      invoicer.load_project path
+      invoicer.validate()
+      invoice = invoicer.project_data
+      pp invoice['caterer']
+      projects.push invoice
+    end
+
+    #print_project_list_plain projects
   end
 
   #takes an array of invoices (@plumber.working_projects)
@@ -72,11 +82,11 @@ module AsciiInvoicer
       number    = (i+1).to_s
       number    = number.rjust 4
       name      = invoice['name'].ljust 34
-      signature = invoice['signature'].ljust 17
+      signature = invoice['signature'].ljust 20
       rnumber   = invoice['rnumber']
       rnumber   = "R" + rnumber.to_s.rjust(3,'0') if rnumber.class == Fixnum
       rnumber   = rnumber.to_s.ljust 4
-      date      = invoice['date'].rjust 15
+      date      = invoice['date'].to_s.rjust 15
 
       line = "#{number}. #{name} #{signature} #{rnumber} #{date}"
       puts line

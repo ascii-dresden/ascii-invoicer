@@ -7,14 +7,14 @@ class Invoicer
 
   def initialize(settings)
     # expecting to find in settings
-    #   @settings.template_files= {}
-    #   @settings.template_files[:invoice]
-    #   @settings.template_files[:offer]
+    #   @settings['templates']= {}
+    #   @settings['templates']['invoice']
+    #   @settings['templates']['offer']
     
     @settings = settings
 
-    check_offer_template   = File.exists? @settings.template_files[:offer]
-    check_invoice_template = File.exists? @settings.template_files[:invoice]
+    check_offer_template   = File.exists? @settings['templates']['offer']
+    check_invoice_template = File.exists? @settings['templates']['invoice']
 
     load_templates()
     @gender_matches = {
@@ -45,7 +45,8 @@ class Invoicer
         @raw_project_data = YAML::load(File.open(path))
         @project_data = {}
         @project_data['lang'] = @raw_project_data['lang'].to_sym
-        @project_data['tax'] = @raw_project_data['tax'] or 1.19
+        @project_data['tax'] = @raw_project_data['tax']? @raw_project_data['tax'] : 1.19
+        @project_data['name'] = File.basename path, '.'+@settings['project_file_extension']
       rescue
         logs "error reading #{path}"
       end
@@ -59,8 +60,8 @@ class Invoicer
   ##
   # loads template files named in settings
   def load_templates()
-    offer   = @settings.template_files[:offer]
-    invoice = @settings.template_files[:invoice]
+    offer   = @settings['templates']['offer']
+    invoice = @settings['templates']['invoice']
     if File.exists?(offer) and File.exists?(invoice)
       @template_offer   = File.open(offer).read
       @template_invoice = File.open(invoice).read
@@ -272,15 +273,19 @@ class Invoicer
     return (sum == @project_data['hours']['time'])
   end
 
-  def print_data()
-    pp @project_data
+  def print_data(key = nil)
+    if key
+      pp @project_data[key.to_s]
+    else
+      pp @project_data
+    end
   end
 
   ##
   # *wrapper* for puts()
-  # depends on @settings.silent = true|false
+  # depends on settings['verbose']= true|false
   def logs message, force = false
-    puts "       #{__FILE__} : #{message}" unless @settings.silent and not force
+    puts "       #{__FILE__} : #{message}" if @settings['verbose'] or force
   end
 
   def tex_product_table

@@ -7,15 +7,13 @@ require 'paint'
 require 'yaml'
 
 $SCRIPT_PATH = File.split(File.expand_path(File.readlink(__FILE__)))[0]
-$SETTINGS = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
-$local_settings = YAML::load(File.open("settings.yml")) if File.exists? "settings.yml"
-#$SETTINGS['path'] = $SCRIPT_PATH
-
 require "#{$SCRIPT_PATH}/lib/invoicer.rb"
 require "#{$SCRIPT_PATH}/lib/minizen.rb"
 require "#{$SCRIPT_PATH}/lib/plumber.rb"
 require "#{$SCRIPT_PATH}/lib/ascii_invoicer.rb"
 
+$SETTINGS = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
+$local_settings = YAML::load(File.open("settings.yml")) if File.exists? "settings.yml"
 
 # bootstraping
 @plumber = ProjectsPlumber.new $SETTINGS
@@ -23,9 +21,14 @@ require "#{$SCRIPT_PATH}/lib/ascii_invoicer.rb"
 @plumber.create_dir :working unless @plumber.check_dir :working
 @plumber.create_dir :archive unless @plumber.check_dir :archive
 
+# turning settings paths into absolute paths
+$SETTINGS['templates'].each_pair do |name,file|
+  path = File.join $SCRIPT_PATH, file
+  $SETTINGS['templates'][name] = path
+  error "\"#{path}\" not found" unless File.exists? path
+end
 
-
-# $SETTINGS
+# loading $SETTINGS and local_settings
 def overwrite_settings(default, custom)
   default.each do |k,v|
     if custom[k].class == Hash
@@ -60,6 +63,7 @@ class Commander < Thor
     @plumber = ProjectsPlumber.new $SETTINGS
     if @plumber.new_project name
       puts "creating a new project name #{name}"
+      edit_file @plumber.get_project_file_path name
     else
       #puts "Project #{name} already exists"
       edit_file @plumber.get_project_file_path name
@@ -74,27 +78,34 @@ class Commander < Thor
   end
 
 
-  #desc "list", "List current Projects."
-  #method_option :archives,
-  #  :type=>:string, :aliases => "-a",
-  #  :lazy_default=> Date.today.year.to_s,
-  #  :required => false,
-  #  :desc => "List archived Projects"
-  #def list
-  #  unless options[:archives]
-  #    @plumber = ProjectsPlumber.new $SETTINGS
-  #    projects = @plumber.working_projects
-  #    #print_project_list_colored(projects)
-  #    print_project_list_colored(projects)
-  #  else
-  #    $SETTINGS.archive_year = options[:archives]
-  #    $SETTINGS.read_archive = true
-  #    
-  #    @plumber = ProjectsPlumber.new $SETTINGS
-  #    projects = @plumber.working_projects
-  #    print_project_list(projects)
-  #  end
+  #desc "edit NAME", "Edit project file."
+  #def edit(name)
+  #  # TODO implement edit --archive
+  #  @plumber = ProjectsPlumber.new $SETTINGS
+  #  project = @plumber.pick_project name
+  #  pp project
+  #  #edit_file @plumber.get_project_file_path project
   #end
+
+
+
+
+  desc "list", "List current Projects."
+  method_option :archives,
+    :type=>:numeric, :aliases => "-a",
+    :lazy_default=> Date.today.year,
+    :required => false,
+    :desc => "List archived Projects"
+  def list
+    @plumber = ProjectsPlumber.new $SETTINGS
+    unless options[:archives]
+      projects = @plumber.list_projects
+      print_project_list projects
+    else
+      projects = @plumber.list_projects :archive, options[:archives]
+      pp projects
+    end
+  end
 
 
 
@@ -139,17 +150,6 @@ class Commander < Thor
   #  data    = @plumber.open_project file
   #  puts "\"#{data['event']}\":".ljust(30) + "#{data['summe'].rjust 8}"
   #  puts "MORE TO COME"
-  #end
-
-
-
-
-  #desc "edit NAME", "Edit project file."
-  #def edit(name)
-  #  # TODO implement edit --archive
-  #  @plumber = ProjectsPlumber.new $SETTINGS
-  #  project = @plumber.pick_project name
-  #  edit_file @plumber.get_project_file_path project
   #end
 
 

@@ -1,7 +1,7 @@
-verbose:  true
-editor:   vim
-latex:    pdflatex
-colors:   false # NOT YET IMPLEMENTED
+verbose:  false
+#editor:  vim
+#latex:   pdflatex
+#colors:  false # NOT YET IMPLEMENTED
 
 dirs:
   storage: caterings
@@ -12,6 +12,3 @@ templates:
   project: templates/blank.yml
   invoice: latex/ascii-rechnung.tex
   offer:   latex/ascii-angebot.tex
-
-#careful here
-project_file_extension: yml
