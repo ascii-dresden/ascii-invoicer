@@ -91,27 +91,27 @@ class Commander < Thor
   #end
 
 
-  #desc "list", "List current Projects."
-  #  method_option :archives,
-  #    :type=>:numeric, :aliases => "-a",
-  #    :lazy_default=> Date.today.year,
-  #    :required => false,
-  #    :desc => "list archived projects"
-  #  method_option :csv, :type=>:boolean,
-  #    :lazy_default=> true, :required => false,
-  #    :desc => "output as csv"
-  #  method_option :yaml, :type=>:boolean,
-  #    :lazy_default=> true, :required => false,
-  #    :desc => "output as yaml"
-  #def list
-  #  @plumber = ProjectsPlumber.new $SETTINGS
-  #  unless options[:archives]
-  #    paths = @plumber.list_projects
-  #  else
-  #    paths = @plumber.list_projects :archive, options[:archives]
-  #  end
-  #  print_project_list paths, options
-  #end
+  desc "list", "List current Projects."
+    method_option :archives,
+      :type=>:numeric, :aliases => "-a",
+      :lazy_default=> Date.today.year,
+      :required => false,
+      :desc => "list archived projects"
+    #method_option :csv, :type=>:boolean,
+    #  :lazy_default=> true, :required => false,
+    #  :desc => "output as csv"
+    #method_option :yaml, :type=>:boolean,
+    #  :lazy_default=> true, :required => false,
+    #  :desc => "output as yaml"
+  def list
+    @plumber = ProjectsPlumber.new $SETTINGS
+    unless options[:archives]
+      paths = @plumber.list_projects
+    else
+      paths = @plumber.list_projects :archive, options[:archives]
+    end
+    print_project_list paths, options
+  end
 
 
 

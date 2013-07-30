@@ -6,10 +6,11 @@ module AsciiInvoiceProject
     projects = []
     paths.each do |path|
       project = InvoiceProject.new $SETTINGS
-      project.parse_project path
+      project.open path
+      project.validate :display
       projects.push project
     end
-    projects.sort_by! { |project| project.get(:date) }
+    projects.sort_by! { |project| project.data[:date] }
     return projects
   end
 
@@ -31,11 +32,11 @@ module AsciiInvoiceProject
 
       number    = (i+1).to_s
       number    = number.rjust 4
-      name      = project.get(:name).ljust 34
-      signature = project.get(:caterer).ljust 20
-      rnumber   = project.get(:numbers)['invoice_short'].to_s.ljust 4
-      date      = project.get(:date).strftime("%d.%m.%Y").rjust 15
-      #errors = project.get(:valid)? "": Paint[" ✗",:red]+"(#{project.errors).join(', ')})"
+      name      = project.data[:name].ljust 34
+      signature = project.data[:manager].ljust 20
+      rnumber   = ""#project.data[:numbers]['invoice_short'].to_s.ljust 4
+      date      = project.data[:date].strftime("%d.%m.%Y").rjust 15
+      #errors = project.data[:valid]? "": Paint[" ✗",:red]+"(#{project.errors).join(', ')})"
       errors    = project.errors
 
       line = "#{number}. #{name} #{signature} #{rnumber} #{date} #{errors}"
@@ -106,7 +107,7 @@ module AsciiInvoiceProject
     pid = spawn "#{$SETTINGS['editor']} #{path}"
     Process.wait pid
     project = InvoiceProject.new $SETTINGS
-    project.parse_project path
+    project.open path
     project.validate()
     error "WARNING: the file you just edited contains errors! (#{project.data['parse_errors']})" unless project.data['valid']
     unless no? "would you like to edit it again? [y|N]"

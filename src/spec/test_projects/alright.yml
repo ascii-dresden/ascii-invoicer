@@ -21,7 +21,7 @@ address: |
   Street Number
   01234 City
 
-event: 
+event: "alright event"
 anumber: 1
 
 # manuelle Angebotsnummer, überschreibt anumber
@@ -55,15 +55,15 @@ products:
 
 
 hours: 
-  time: 7 # deprecated
+  time: 7.6 # deprecated
   salary: 8.00
 
   caterers: # not yet implemented
     "Name" : 5 #Stunden
-    "Name2": 2 #Stunden
+    "Name2": 2.6 #Stunden
     
 signature: |
-  Yours Truely
+  Manager Bob
  
 message: | 
   hiermit möchten wir Ihnen für die gastronomische Betreuung Ihrer Veranstaltung am $date$ folgendes Angebot unterbreiten: 

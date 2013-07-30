@@ -63,7 +63,7 @@ hours:
     "Name2": 2 #Stunden
     
 signature: |
-  Yours Truely
+  Manager Bob
  
 message: | 
   hiermit möchten wir Ihnen für die gastronomische Betreuung Ihrer Veranstaltung am $date$ folgendes Angebot unterbreiten: 

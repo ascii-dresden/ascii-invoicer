@@ -6,18 +6,27 @@ require 'pp'
 
 $SETTINGS = YAML::load(File.open("default-settings.yml"))
 
-project = InvoiceProject.new $SETTINGS
-name = "alright"
-#name = "products_empty"
-#name = "products_missing`"
-#name = "products_soldandreturned"
-project.parse_project "./spec/test_projects/#{name}.yml"
-project.read(:products).each {|name, product| product.sum_up()}
-pp project.get_cost :offer
-pp project.get_cost :invoice
+names =[
+  #"date_range",
+  "alright",
+  "hours_missmatching",
+  #"products_empty",
+  #"products_missing",
+  #"products_soldandreturned"
+]
+
+for name in names do
+  project = InvoiceProject.new $SETTINGS, "./spec/test_projects/#{name}.yml"
+  project.validate :display
+  pp project.data
+  #puts project.data.to_yaml
+  puts; puts
+end
 
 
+#project.read(:products).each {|name, product| product.sum_up()}
+#pp project.get_cost :offer
+#pp project.get_cost :invoice
 
 
-puts
-pp [:errors, project.errors]
+pp [:errors, project.errors] unless project.errors.length == 0
