@@ -215,6 +215,14 @@ describe ProjectsPlumber do
         @plumber.archive_project("nonexistent_project").should be_false
       end
 
+      it "refuses to overwrite project already in archive" do
+        name = "previously archived"
+        project = @plumber.new_project name
+        @plumber.archive_project(name).should be_true
+        project = @plumber.new_project name
+        @plumber.archive_project(name).should be_false
+      end
+
       it "refuses to overwrite project in working from archive" do
         name = "dont_overwrite me"
         project = @plumber.new_project name

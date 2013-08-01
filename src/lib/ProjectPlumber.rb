@@ -20,7 +20,6 @@ class ProjectsPlumber
 
     @dirs[:working] = File.join @dirs[:storage], @settings['dirs']['working']
     @dirs[:archive] = File.join @dirs[:storage], @settings['dirs']['archive']
-
   end
 
   ##
@@ -133,14 +132,11 @@ class ProjectsPlumber
   # TODO untested for archives
   def get_project_folder( name, dir=:working, year=Date.today.year )
     year = year.to_s
-    target = File.join @dirs[dir], name if dir == :working
+    target = File.join @dirs[dir], name       if dir == :working
     target = File.join @dirs[dir], year, name if dir == :archive
     return target if File.exists? target
     false
   end
-
-
-
 
   ##
   # list projects
@@ -152,7 +148,11 @@ class ProjectsPlumber
       names = paths.map {|path| File.basename path }
     elsif dir == :archive
       paths = Dir.glob File.join @dirs[dir], year.to_s, "/*"
-      names = paths.map {|path| File.basename path, :archive, year }
+      names = paths.map {|path|
+        file_path = get_project_file_path (File.basename path), :archive, year
+        name = File.basename file_path, @settings['project_file_extension']
+      }
+      return names
     else
       error "unknown path #{dir}"
     end
@@ -189,8 +189,9 @@ class ProjectsPlumber
     target = File.join year_folder, name.prepend(prefix)
 
     return false unless project_folder
+    return false if list_project_names(:archive, year).include? name
 
-    logs "moving: #{project_folder} to #{target}" if target and project_folder
+    puts "moving: #{project_folder} to #{target}" if target and project_folder
     FileUtils.mv project_folder, target
     return target
   end
@@ -216,7 +217,6 @@ class ProjectsPlumber
     else
       return false
     end
-
   end
 
 

@@ -1,4 +1,4 @@
-verbose:  true
+verbose:  false
 editor:   vim
 latex:    pdflatex
 colors:   false # NOT YET IMPLEMENTED

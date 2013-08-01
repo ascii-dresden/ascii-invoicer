@@ -1,15 +1,10 @@
 TODO enable working from another path
-TODO pick another editor
 TODO output folder
 TODO add "canceled flag"
-TODO add "can be archived check"
 
 TODO change management of yml-files in folder so that yaml can have different names (maybe for versioning or multiple offers)
 
 TODO display summary who owns how many projects ( open, closed, per time)
 TODO add watch mode
 TODO introduce git functionality
-TODO better CLI output (summ, csv)
-TODO rake like commands
-TODO write tests
 TODO inotify

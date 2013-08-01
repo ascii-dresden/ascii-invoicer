@@ -1,4 +1,4 @@
-editor: kwrite
+editor: vim
 dirs:
   #storage: caterings-orig
   #working: open

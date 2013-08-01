@@ -1,21 +1,55 @@
 # encoding: utf-8
 module InvoiceParsers
 
-  def parse_name
-    return File.basename @path, @settings['project_file_extension']
-  end
-
   def parse_simple key
     return fail_at key unless @raw_data[key.to_s]
     return @raw_data[key.to_s]
   end
 
   ##
-  def parse_products
-    return fail_at :products unless @raw_data['products']
-    tax_value = @data[:tax]
-    products  = {}
+  def parse_cost(choice = nil)
+    parse :products
+    cost_invoice = 0.0
+    cost_offer   = 0.0
 
+    @data[:products].each { |name,product|
+      cost_invoice += product.cost_invoice
+      cost_offer   += product.cost_offer
+    }
+    return cost_invoice if choice == :invoice
+    return cost_offer   if choice == :offer
+  end
+
+  ##
+  def parse_tax(choice = nil)
+    cost_sym = "cost_#{choice}".to_sym
+    @data[cost_sym] = parse cost_sym
+    @data[:tax] = parse :tax
+
+    return (@data[cost_sym] * @data[:tax]).ceil_up()
+  end
+
+  def parse_total(choice = nil)
+    cost_sym = "cost_#{choice}".to_sym
+    tax_sym  = "tax_#{choice}".to_sym
+
+    @data[cost_sym] = parse cost_sym
+    @data[tax_sym]  = parse tax_sym
+    @data[:salary_total] = parse :salary_total
+
+    if @data[tax_sym] and @data[cost_sym] and @data[:salary_total]
+      return @data[tax_sym] + @data[cost_sym] + @data[:salary_total]
+    end
+    false
+  end
+
+  ##
+  def parse_products(choice = nil)
+    return fail_at :products unless @raw_data['products']
+    parse :tax, choice
+    tax_value = @data[:tax]
+
+    products  = {}
     @raw_data['products'].each { |p|
       name = p[0]
       hash = p[1]
@@ -28,28 +62,37 @@ module InvoiceParsers
   end
 
   ##
-  def parse_numbers()
-    unless @data[:date]
+  def parse_numbers(choice = nil)
+    unless @data[:date] or @raw_data['manumber']
       parse :date
       return fail_at :offer_number unless @data[:date]
     end
     year =  @data[:date].year
     numbers ={}
 
-    # optional invoice_number
-    if @raw_data['rnumber'].nil? 
-      invoice_number = ''
-      fail_at :invoice_number
-    else
-      numbers[:invoice_long] = "R#{year}-%03d" % @raw_data['rnumber']
-      numbers[:invoice_long] = "R#{year}-%03d" % @raw_data['rnumber']
-      numbers[:invoice_short] = "R%03d" % @raw_data['rnumber']
-    end
-
-    if @raw_data['anumber'].nil?
-      numbers[:offer] = @raw_data['manumber']
-    else
-      numbers[:offer] = Date.today.strftime "A%Y%m%d-" + @raw_data['anumber'].to_s
+    if choice == :invoice or
+        choice == :invoice_short or
+        choice == :invoice_long
+      # optional invoice_number
+      if @raw_data['rnumber'].nil? 
+        invoice_number = ''
+        return fail_at :invoice_number
+      else
+        numbers[:invoice_long] = "R#{year}-%03d" % @raw_data['rnumber']
+        numbers[:invoice_long] = "R#{year}-%03d" % @raw_data['rnumber']
+        numbers[:invoice_short] = "R%03d" % @raw_data['rnumber']
+      end
+      return numbers[:invoice_long]  if choice == :invoice_long
+      return numbers[:invoice_short] if choice == :invoice or choice == :invoice_short
+    elsif choice == :offer
+      if @raw_data['anumber'].nil?  and @raw_data['manumber'].nil?
+        return fail_at :offer_number
+      elsif @raw_data['anumber'].nil?
+        numbers[:offer] = @raw_data['manumber']
+      else
+        numbers[:offer] = Date.today.strftime "A%Y%m%d-" + @raw_data['anumber'].to_s
+      end
+      return numbers[:offer]         if choice == :offer
     end
     return numbers
   end
@@ -119,7 +162,7 @@ module InvoiceParsers
 
 
   ##
-  def parse_hours()
+  def parse_hours(choice = :hours)
     hours            = {}
     hours[:time]     = @raw_data['hours']['time'].to_f
     hours[:salary]   = @raw_data['hours']['salary']
@@ -134,12 +177,16 @@ module InvoiceParsers
     salary = @raw_data['hours']['salary']
     salary_total   = salary * hours[:time]
 
-    return fail_at :hours  unless hours
-    return fail_at :time   unless hours[:time]
+    return fail_at :hours     unless hours
+    return fail_at :time      unless hours[:time]
     return fail_at :time_each unless hours[:time] == hours[:time_each]
-    return fail_at :salary unless salary_total.class == Float
+    return fail_at :salary    unless salary_total.class == Float
 
-    return hours
+    return hours[:time]     if choice == :time
+    return hours[:salary]   if choice == :salary
+    return salary_total     if choice == :salary_total
+    return hours[:caterers] if choice == :caterers
+    return hours            if choice == :hours
   end
 
 end
