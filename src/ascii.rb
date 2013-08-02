@@ -8,8 +8,8 @@ require 'thor'
 require 'paint'
 
 $SCRIPT_PATH = File.split(File.expand_path(File.readlink(__FILE__)))[0]
+require "#{$SCRIPT_PATH}/lib/tweaks.rb"
 require "#{$SCRIPT_PATH}/lib/InvoiceProject.rb"
-require "#{$SCRIPT_PATH}/lib/minizen.rb"
 require "#{$SCRIPT_PATH}/lib/ProjectPlumber.rb"
 require "#{$SCRIPT_PATH}/lib/module_ascii_invoicer.rb"
 require "#{$SCRIPT_PATH}/lib/textboxes.rb"
@@ -17,6 +17,7 @@ require "#{$SCRIPT_PATH}/lib/clitables.rb"
 
 $SETTINGS = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
 $local_settings = YAML::load(File.open("settings.yml")) if File.exists? "settings.yml"
+$SETTINGS['script_path'] = $SCRIPT_PATH
 
 # loading $SETTINGS and local_settings
 def overwrite_settings(default, custom)
@@ -32,12 +33,13 @@ end
 overwrite_settings $SETTINGS, $local_settings if $local_settings
 
 
+
 # bootstraping
-@plumber = ProjectsPlumber.new $SETTINGS
-@plumber.create_dir :storage unless @plumber.check_dir :storage
-@plumber.create_dir :working unless @plumber.check_dir :working
-@plumber.create_dir :archive unless @plumber.check_dir :archive
-error "template not found!\n#{@plumber.dirs[:template]}"   unless @plumber.check_dir :template
+plumber = ProjectsPlumber.new $SETTINGS
+plumber.create_dir :storage unless plumber.check_dir :storage
+plumber.create_dir :working unless plumber.check_dir :working
+plumber.create_dir :archive unless plumber.check_dir :archive
+error "template not found!\n#{plumber.dirs[:template]}"   unless plumber.check_dir :template
 
 
 
@@ -54,7 +56,8 @@ class Commander < Thor
 
   class_option :file,      :aliases=> "-f", :type => :string
   class_option :verbose,   :aliases=> "-v", :type => :boolean
-  class_option :editor,    :aliases=> "-e", :type => :string
+  class_option :editor,                     :type => :string
+  class_option :check,                      :type => :boolean
   #class_option "keep-log", :aliases=> "-k", :type => :boolean
 
 
@@ -65,20 +68,15 @@ class Commander < Thor
     :required => false,
     :desc => "do not edit a new file after creation"
   def new(name)
-    @plumber = ProjectsPlumber.new $SETTINGS
-    if @plumber.new_project name
+    plumber = ProjectsPlumber.new $SETTINGS
+
+    if plumber.new_project name
       puts "creating a new project name #{name}"
-      edit_file @plumber.get_project_file_path name
+      edit_file plumber.get_project_file_path name
     else
       #puts "Project #{name} already exists"
-      edit_file @plumber.get_project_file_path name unless options[:dont_edit]
+      edit_file plumber.get_project_file_path name unless options[:dont_edit]
     end
-  end
-
-
-  desc "settings", "view Settings"
-  def settings
-    puts $SETTINGS.to_yaml
   end
 
 
@@ -98,11 +96,6 @@ class Commander < Thor
     end
   end
 
-  #def method_missing(arguments)
-  #  edit arguments.to_s if arguments
-  #end
-
-
   desc "list", "List current Projects."
     method_option :archives,
       :type=>:numeric, :aliases => "-a",
@@ -118,6 +111,7 @@ class Commander < Thor
 
   def list
     plumber = ProjectsPlumber.new $SETTINGS
+
     unless options[:archives]
       paths = plumber.list_projects
     else
@@ -134,7 +128,7 @@ class Commander < Thor
       projects = open_projects paths, :full , :date
       print_project_list_verbose projects
     else
-      projects = open_projects paths, :display, :date
+      projects = open_projects paths, :list, :date
       print_project_list_plain projects
     end
   end
@@ -192,20 +186,30 @@ class Commander < Thor
   end
 
 
-  #desc "offer NAME", "Create an offer from project file."
-  #def offer(name)
-  # TODO implement offer --archive
-  #  @plumber = ProjectsPlumber.new $SETTINGS
-  #  puts @pick_project name
-  #end
+  desc "offer NAME", "Create an offer from project file."
+  def offer(name)
+   # TODO implement offer --archive
+    project = InvoiceProject.new $SETTINGS, pick_project(name)
+    project.validate :offer
+    project.create_tex :offer, options[:check]
+
+  end
 
 
-  #desc "invoice NAME", "Create an invoice from project file."
-  #def invoice(name)
-  # TODO implement invoice --archive
-  #  @plumber = ProjectsPlumber.new $SETTINGS
-  #  puts @pick_project name
-  #end
+  desc "invoice NAME", "Create an invoice from project file."
+  def invoice(name)
+    # TODO implement invoice --archive
+    project = InvoiceProject.new $SETTINGS, pick_project(name)
+    project.validate :invoice
+    project.create_tex :invoice, options[:check]
+  end
+
+  desc "settings", "view Settings"
+  def settings
+    #puts $SETTINGS.to_yaml
+    pp $SETTINGS
+  end
+
 
 
 

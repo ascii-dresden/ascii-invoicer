@@ -19,6 +19,16 @@ class TextBox
     @padding_vertical   = 0
   end
 
+  def header= line
+    @width = max @width, line.length
+    @header = line
+  end
+
+  def footer= line
+    @width = max @width, line.length
+    @footer = line
+  end
+
   def add_line line
     @width = max @width, line.length
     @lines.push line

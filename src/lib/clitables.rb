@@ -1,4 +1,6 @@
 # encoding: utf-8
+require 'paint'
+
 class CliTable < TextBox
   #TODO colspan
   #TODO rowspan
@@ -19,7 +21,7 @@ class CliTable < TextBox
       column = row[i]
       @column_widths.push 0      unless i < @column_widths.length
       @column_alignments.push :l unless i < @column_alignments.length
-      @column_widths[i] = max @column_widths[i], column.length
+      @column_widths[i] = max @column_widths[i], Paint.unpaint(column).length
     }
 
     @rows.push row
@@ -58,7 +60,7 @@ class CliTable < TextBox
   def join_columns columns
     string = ""
     string << columns.join(vborder)
-    @width = max @width, string.length
+    @width = max @width, Paint.unpaint(string).length
     return string
   end
 

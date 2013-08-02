@@ -2,7 +2,7 @@
 module AsciiInvoicer
   ## Use Option parser or leave it if only one argument is given
 
-  def open_projects(paths, validation = :display, sort = :date)
+  def open_projects(paths, validation = :list, sort = :date)
     projects = []
     paths.each do |path|
       project = InvoiceProject.new $SETTINGS
@@ -23,10 +23,11 @@ module AsciiInvoicer
         (i+1).to_s+".", 
         p.data[:name], 
         p.data[:manager], 
+        p.data[:invoice_number], 
         p.data[:date].strftime("%d.%m.%Y"), 
       ]
     end
-    table.column_alignments = [:r, :l, :l, :r]
+    table.column_alignments = [:r, :l, :l]
     puts table.build
   end
 
@@ -42,7 +43,7 @@ module AsciiInvoicer
         p.data[:manager],
         p.data[:invoice_number],
         p.data[:date].strftime("%d.%m.%Y"),
-        p.data[:valid]? "": Paint[" ✗",:red]
+        p.data[:valid].to_s,
       ]
     end
     table.set_alignment(1, :r)

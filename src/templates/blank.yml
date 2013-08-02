@@ -1,6 +1,6 @@
 
 --- 
-version: 20130725
+version: 20130802
 
 # always include 'Herr' oder 'Frau'
 # defaults to male
@@ -71,11 +71,10 @@ hours:
     
 signature: |
     Mit freundlichen Grüßen
-    Hauptcaterer Schmidt
+#   Hauptcaterer Schmidt
 #   Nebencaterer Schulze
 
-message: |
-  hiermit möchten wir Ihnen für die gastronomische Betreuung Ihrer Veranstaltung am $date$ folgendes Angebot unterbreiten: 
+#messages: # read default-settings.yml on how to overwrite
 
 lang: de
 tax: 0.19

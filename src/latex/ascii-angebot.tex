@@ -1,18 +1,18 @@
-\documentclass[11pt,utf8]{latex/ascii-brief}
-\input{latex/values}
+\documentclass[11pt,utf8]{$script_path$/latex/ascii-brief}
+\input{$script_path$/latex/ascii-include}
 
-\Unterschrift        {$signature$}
+\Unterschrift        {$manager$}
 \Postvermerk         {}
 \Adresse             {$address$}
 
 \Betreff             {Angebot} %% [Angebot|Rechnung]
 
 \Datum               {\today}
-\AngebotManuel       {$offer-number$} %% Manuel ueberschreibbar ansonsten automatisch heute
+\AngebotManuel       {$offer_number$} %% Manuel ueberschreibbar ansonsten automatisch heute
 \Veranstaltung       {$event$}
 \RechnungsNummer     {} %% bei Angeboten leer lassen
 \Anrede              {$client$, }
-\Gruss               {$gruss$}{1cm}
+\Gruss               {$signature$}{1cm}
 
 %\Anlagen             {Anlagen}
 %\Verteiler           {Verteiler}
@@ -20,20 +20,22 @@
 \begin{document}
 \begin{ascii-brief}
 
-$message$
+$message_offer_1$
 
 \begin{center}
 \begin{tabular}{rp{7cm}rrr}
 \textbf{Nr.} & \textbf{Bezeichnung}&    \textbf{Menge}    &    \textbf{EP}&    \textbf{Preis}    \\
 \midrule
-$$
+$tex_table_offer$
 \bottomrule[1pt]
-\multicolumn{4}{r}{Netto MwSt. 19\%} & $netto$     \\
-\multicolumn{4}{r}{+MwSt. 19\%}      & $tax$       \\
-\multicolumn{4}{r}{MwSt 0\%}         & $betreuung$ \\
-\multicolumn{4}{r}{Gesamtpreis}      & $summe$     \\
+\multicolumn{4}{r}{Netto MwSt. 19\%} & $costs_offer$  \\
+\multicolumn{4}{r}{+MwSt. 19\%}      & $taxes_offer$  \\
+\multicolumn{4}{r}{MwSt 0\%}         & $salary_total$ \\
+\multicolumn{4}{r}{Gesamtpreis}      & $total_offer$  \\
 \end{tabular}
 \end{center}
+
+$message_offer_2$
 
 \end{ascii-brief}
 \end{document}

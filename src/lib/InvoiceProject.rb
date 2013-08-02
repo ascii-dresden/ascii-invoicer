@@ -17,7 +17,6 @@ class InvoiceProject
 
     #fail_at :template_offer   unless File.exists? @settings['templates']['offer']
     #fail_at :template_invoice unless File.exists? @settings['templates']['invoice']
-    #load_templates()
 
     @gender_matches = {
       :herr => :male,
@@ -36,50 +35,61 @@ class InvoiceProject
       }, }
 
     @requirements = {
-      :display => [
-                    :tax, :date, :manager, :name
+      :list    => [ :tax, :date, :manager, :name, :offer_number, :invoice_number
+                  ],
+      :offer   => [ :tax, :date, :manager, :name, :hours, :time, :salary_total, 
+                    :event, :signature,
+                    :costs_offer, :taxes_offer, :total_offer,
+                    :offer_number,
+                    :address, :messages, :client,
+                    :tex_table_offer, :caterers,
+                    :script_path
+                  ],
+      :invoice => [ :tax, :date, :manager, :name, :hours, :time, :salary_total, 
+                    :event, :signature,
+                    :costs_invoice, :taxes_invoice, :total_invoice,
+                    :offer_number, :invoice_number, :invoice_number_long,
+                    :address, :messages, :client,
+                    :tex_table_invoice, :caterers,
+                    :script_path
+                  ],
+      :full    => [ :tax, :date, :manager, :name, :hours, :time, :salary_total, 
+                    :address, :messages, :event, :signature, :offer_number, :costs,
+                    :costs_offer, :taxes_offer, :total_offer,
+                    :costs_invoice, :taxes_invoice, :total_invoice,
+                    :offer_number, :invoice_number, :invoice_number_long,
+                    :tex_table, :caterers,
+                  ],
+      :export  => [ :tax, :date, :manager, :name, :hours, :time, :salary_total, 
+                    :address, :event, :offer_number, :costs,
+                    :invoice_number, :invoice_number_long, :caterers,
       ],
-      :offer   => [
-                    :tax, :date, :manager, :name,
-                    :hours, :time, :salary_total, 
-                    :address, :message, :event, :signature,
-                    :offer_number, :costs,
-                    :caterers
-                  ],
-      :invoice => [
-                    :tax, :date, :manager, :name,
-                    :hours, :time, :salary_total, 
-                    :address, :message, :event, :signature,
-                    :offer_number, :costs,
-                    :invoice_number, :invoice_number_long,
-                    :caterers
-                  ],
-      :full    => [ 
-                    :tax, :date, :manager, :name,
-                    :hours, :time, :salary_total, 
-                    :address, :message, :event, :signature,
-                    :offer_number, :costs,
-                    :invoice_number, :invoice_number_long,
-                    :caterers
-                  ],
     }
 
-    # TODO turn blub_invoice or blub_offer into blub(:offer)
-    # TODO allow for alternatives
+    # TODO allow for alternative parser_matches
     @parser_matches = {
-      #:key                => [parser,            parameters]
-      :date_end            => [:parse_date,       :end],
-      :manager             => [:parse_signature,  :manager],
-      :offer_number        => [:parse_numbers,    :offer],
-      :invoice_number      => [:parse_numbers,    :invoice],
-      :invoice_number_long => [:parse_numbers,    :invoice_long],
-      :address             => [:parse_simple,     :address],
-      :message             => [:parse_simple,     :message],
-      :event               => [:parse_simple,     :event],
-      :tax                 => [:parse_simple,     :tax ],
-      :time                => [:parse_hours,      :time],
-      :caterers            => [:parse_hours,      :caterers],
-      :salary_total        => [:parse_hours,      :salary_total],
+      #:key                => [parser,            parameters    ]
+      :date_end            => [:parse_date,       :end          ] ,
+      :manager             => [:parse_signature,  :manager      ] ,
+      :offer_number        => [:parse_numbers,    :offer        ] ,
+      :invoice_number      => [:parse_numbers,    :invoice      ] ,
+      :invoice_number_long => [:parse_numbers,    :invoice_long ] ,
+      :address             => [:parse_simple,     :address      ] ,
+      :event               => [:parse_simple,     :event        ] ,
+      :tax                 => [:parse_simple,     :tax          ] ,
+
+      :costs_offer         => [:parse_costs,      :offer        ] ,
+      :costs_invoice       => [:parse_costs,      :invoice      ] ,
+      :taxes_offer         => [:parse_taxes,      :offer        ] ,
+      :taxes_invoice       => [:parse_taxes,      :invoice      ] ,
+      :total_offer         => [:parse_total,      :offer        ] ,
+      :total_invoice       => [:parse_total,      :invoice      ] ,
+
+      :tex_table_invoice   => [:parse_tex_table,  :invoice      ] ,
+      :tex_table_offer     => [:parse_tex_table,  :offer        ] ,
+      :time                => [:parse_hours,      :time         ] ,
+      :caterers            => [:parse_hours,      :caterers     ] ,
+      :salary_total        => [:parse_hours,      :salary_total ] ,
     }
 
     @parser_matches.each {|k,v| 
@@ -122,6 +132,7 @@ class InvoiceProject
   # run validate() to initiate all parser functions.
   # If strikt = true the programm fails, otherise it returns false,
   def validate(type)
+    return true if @data[:type] == type and @data[:valid]
     @data[:type] = type
     @valid_for = {}
     @requirements[type].each { |req| parse req }
@@ -131,12 +142,13 @@ class InvoiceProject
         @valid_for[type] = false unless @data[req] 
       }
     }
+    return true if @data[:valid]
+    false
   end
 
 
   ## little parse function
   def parse(key, parser = "parse_#{key}", parameter = nil)
-    #pp "parsing: #{key}"
     return @data[key] if @data[key]
     begin
       parser = method parser
@@ -174,15 +186,6 @@ class InvoiceProject
   # depends on settings['verbose']= true|false
   def logs message, force = false
     puts "       #{__FILE__} : #{message}" if @settings['verbose'] or force
-  end
-
-  def tex_product_table
-    table = ""
-    @data[:products].each do |name, p|
-      table += "#{name.ljust(20)} & #{p['sold']} & #{p['price'].to_euro} & #{p['sum_offered'].to_euro.to_s.rjust(6)} \\\\\ \n"
-      table += "#{name.ljust(20)} & #{p['amount']} & #{p['price'].to_euro} & #{p['sum_invoiced'].to_euro.to_s.rjust(6)} \\\\\ \n"
-    end
-    return table
   end
 
   def client_addressing
@@ -226,19 +229,47 @@ class InvoiceProject
   ##
   # loads template files named in settings
   def load_templates()
-    offer   = @settings['templates']['offer']
-    invoice = @settings['templates']['invoice']
+    offer   = File.join $SETTINGS['script_path'], $SETTINGS['templates']['offer']
+    invoice = File.join $SETTINGS['script_path'], $SETTINGS['templates']['invoice']
     if File.exists?(offer) and File.exists?(invoice)
-      @template_offer   = File.open(offer).read
       @template_invoice = File.open(invoice).read
+      @template_offer   = File.open(offer).read
       return true
     end
     return false
   end
+
+  ## fills the template with minded data
+  def create_tex choice, check = false
+    return fail_at :create_tex unless parse :products
+    return fail_at :templates unless load_templates()
+
+    template = @template_invoice if choice == :invoice
+    template = @template_offer   if choice == :offer
+
+    table = CliTable.new 
+    table.header = "Template matches"
+
+    template.each_line { |line| 
+      if check
+        scans = line.scan /\$([^$]*)\$/
+        if scans.length > 0
+          findings = scans.map{|s| not @data[s[0].to_sym].nil? and not @data[s[0].to_sym] == false  }
+          table.add_row [scans.flatten.join(", "), findings.join(','),]
+        end
+
+      else
+        @data.keys.each{ |key| line = line.gsub('$' + key.to_s + '$', @data[key].to_s) }
+        puts line
+      end
+    }
+
+    puts table if check
+  end
 end
 
 class InvoiceProduct
-  attr_reader :name, :hash, :tax, :valid, :returned, :cost_invoice, :cost_offer, :tax_invoice, :tax_offer
+  attr_reader :name, :hash, :tax, :valid, :returned, :cost_invoice, :cost_offer, :tax_invoice, :tax_offer, :price
 
   def initialize(name, hash, tax_value)
     @name = name
@@ -270,34 +301,23 @@ class InvoiceProduct
     calculate()
   end
 
+  def amount choice
+    return @sold   if choice == :invoice
+    return @amount if choice == :offer
+    return -1
+  end
+
+  def cost choice
+    return cost_invoice.to_euro if choice == :invoice
+    return cost_offer.to_euro   if choice == :offer
+    return -1.to_euro
+  end
+
   def calculate()
     @cost_invoice = (@sold   * @price).ceil_up()
     @cost_offer   = (@amount * @price).ceil_up()
 
     @tax_invoice  = (@cost_invoice * @tax_value).ceil_up()
     @tax_offer    = (@cost_offer   * @tax_value).ceil_up()
-  end
-end
-
-class Object
-  def ceil_up
-    return self unless self.class == Float
-    n = self
-    n = n*100
-    n = n.round().to_f()
-    n = n/100
-    return n
-  end
-
-  def to_euro(rj = -1)
-    return self unless self.class == Float
-    a,b = sprintf("%0.2f", self.to_s).split('.')
-    a.gsub!(/(\d)(?=(\d{3})+(?!\d))/, '\\1.')
-    if rj > 0
-    "#{a},#{b}€".rjust rj
-    else
-    "#{a},#{b}€"
-    end
-
   end
 end

@@ -1,29 +1,54 @@
 # encoding: utf-8
 module InvoiceParsers
 
+  def parse_script_path
+    return @settings['script_path']
+  end
   ##
-  def parse_costs
-    return fail_at :costs unless parse :tax
-    return fail_at :costs unless parse :products
-    return fail_at :costs unless parse :salary_total
+  def parse_costs(choice = nil)
+    return fail_at :costs                 unless parse :tax
+    return fail_at :costs                 unless parse :products
+    return fail_at :costs                 unless parse :salary_total
+
     costs = {}
-    costs[:cost_invoice] = 0.0
-    costs[:cost_offer]   = 0.0
-    costs[:tax_invoice]  = 0.0
-    costs[:tax_offer]    = 0.0
+    costs[:costs_invoice] = 0.0
+    costs[:costs_offer]   = 0.0
+    costs[:taxes_invoice] = 0.0
+    costs[:taxes_offer]   = 0.0
 
     @data[:products].each { |name,product|
-      costs[:cost_invoice] += product.cost_invoice
-      costs[:cost_offer]   += product.cost_offer
-      costs[:tax_invoice]  += product.tax_invoice  
-      costs[:tax_offer]    += product.tax_offer    
+      costs[:costs_invoice] += product.cost_invoice
+      costs[:costs_offer]   += product.cost_offer
+      costs[:taxes_invoice] += product.tax_invoice
+      costs[:taxes_offer]   += product.tax_offer
     }
-    costs[:total_invoice] = (costs[:cost_invoice] + costs[:tax_invoice]).ceil_up()
-    costs[:total_offer]   = (costs[:cost_offer]   + costs[:tax_offer]).ceil_up()
+    costs[:total_invoice] = (costs[:costs_invoice] + costs[:taxes_invoice]).ceil_up()
+    costs[:total_offer]   = (costs[:costs_offer]   + costs[:taxes_offer]).ceil_up()
 
+    return costs[:costs_invoice] if choice == :invoice
+    return costs[:costs_offer]   if choice == :offer
     return costs
-
     false
+  end
+
+  def parse_total choice = nil
+    return fail_at :total unless choice
+    return fail_at "costs_#{choice.to_s}" unless parse :costs
+    return fail_at "costs_#{choice.to_s}" unless parse :costs, choice
+
+    return @data[:costs][:total_invoice] if choice == :invoice
+    return @data[:costs][:total_offer]   if choice == :offer
+    return false
+  end
+
+  def parse_taxes choice = nil
+    return fail_at :taxes unless choice
+    return fail_at "taxes_#{choice.to_s}" unless parse :costs
+    return fail_at "taxes_#{choice.to_s}" unless parse :costs, choice
+
+    return @data[:costs][:taxes_invoice] if choice == :invoice
+    return @data[:costs][:taxes_offer]   if choice == :offer
+    return false
   end
 
   ##
@@ -42,6 +67,15 @@ module InvoiceParsers
     }
 
     return products
+  end
+
+  def parse_tex_table(choice = :offer)
+    return fail_at :products_tex unless parse :products
+    table = ""
+    @data[:products].each do |name, p|
+      table += "#{name.ljust(20)} & #{p.amount(choice)} & #{p.price} & #{p.cost(choice).rjust(6)} \\\\\ \n"
+    end
+    return table
   end
 
   ##
@@ -97,6 +131,15 @@ module InvoiceParsers
      client[:last_name]
     ].join ' '
     return client
+  end
+
+  def parse_messages
+    return fail_at "message_#{choice.to_s}" unless parse :messages, :parse_simple, :messages
+    # TODO muss man ja nicht übertreiben
+    @data[:message_invoice_1] = @data[:messages]['invoice'][0]
+    @data[:message_invoice_2] = @data[:messages]['invoice'][1]
+    @data[:message_offer_1]   = @data[:messages]['offer'][0]
+    @data[:message_offer_2]   = @data[:messages]['offer'][1]
   end
 
   ##
