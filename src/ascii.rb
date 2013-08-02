@@ -147,7 +147,7 @@ class Commander < Thor
     project.validate :full
     #data = project.data
     if options[:verbose]
-      pp project.data.keep_if{|k,v| k != :products}
+      pp project.data#.keep_if{|k,v| k != :products}
     else
       costbox project
     end

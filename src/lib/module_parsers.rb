@@ -1,52 +1,35 @@
 # encoding: utf-8
 module InvoiceParsers
 
-  def parse_simple key
-    return fail_at key unless @raw_data[key.to_s]
-    return @raw_data[key.to_s]
-  end
-
   ##
-  def parse_cost(choice = nil)
-    parse :products
-    cost_invoice = 0.0
-    cost_offer   = 0.0
+  def parse_costs
+    return fail_at :costs unless parse :tax
+    return fail_at :costs unless parse :products
+    return fail_at :costs unless parse :salary_total
+    costs = {}
+    costs[:cost_invoice] = 0.0
+    costs[:cost_offer]   = 0.0
+    costs[:tax_invoice]  = 0.0
+    costs[:tax_offer]    = 0.0
 
     @data[:products].each { |name,product|
-      cost_invoice += product.cost_invoice
-      cost_offer   += product.cost_offer
+      costs[:cost_invoice] += product.cost_invoice
+      costs[:cost_offer]   += product.cost_offer
+      costs[:tax_invoice]  += product.tax_invoice  
+      costs[:tax_offer]    += product.tax_offer    
     }
-    return cost_invoice if choice == :invoice
-    return cost_offer   if choice == :offer
-  end
+    costs[:total_invoice] = (costs[:cost_invoice] + costs[:tax_invoice]).ceil_up()
+    costs[:total_offer]   = (costs[:cost_offer]   + costs[:tax_offer]).ceil_up()
 
-  ##
-  def parse_tax(choice = nil)
-    cost_sym = "cost_#{choice}".to_sym
-    @data[cost_sym] = parse cost_sym
-    @data[:tax] = parse :tax
+    return costs
 
-    return (@data[cost_sym] * @data[:tax]).ceil_up()
-  end
-
-  def parse_total(choice = nil)
-    cost_sym = "cost_#{choice}".to_sym
-    tax_sym  = "tax_#{choice}".to_sym
-
-    @data[cost_sym] = parse cost_sym
-    @data[tax_sym]  = parse tax_sym
-    @data[:salary_total] = parse :salary_total
-
-    if @data[tax_sym] and @data[cost_sym] and @data[:salary_total]
-      return @data[tax_sym] + @data[cost_sym] + @data[:salary_total]
-    end
     false
   end
 
   ##
   def parse_products(choice = nil)
     return fail_at :products unless @raw_data['products']
-    parse :tax, choice
+    return fail_at :products unless parse :tax
     tax_value = @data[:tax]
 
     products  = {}

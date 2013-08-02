@@ -3,7 +3,6 @@ require File.join File.dirname(__FILE__) + '/rfc5322_regex.rb'
 require File.join File.dirname(__FILE__) + '/module_parsers.rb'
 require 'yaml'
 class InvoiceProject
-
   attr_reader :path , :data, :raw_data, :errors, :valid_for
   attr_writer :raw_data, :errors
 
@@ -38,43 +37,30 @@ class InvoiceProject
 
     @requirements = {
       :display => [
-                    :date, :manager, :name
+                    :tax, :date, :manager, :name
       ],
       :offer   => [
-                    :date, :manager, :name,
+                    :tax, :date, :manager, :name,
                     :hours, :time, :salary_total, 
                     :address, :message, :event, :signature,
-                    :offer_number, :tax_offer, :cost_offer,
-                    :caterers, :total_offer
+                    :offer_number, :costs,
+                    :caterers
                   ],
       :invoice => [
-                    :date, :manager, :name,
+                    :tax, :date, :manager, :name,
                     :hours, :time, :salary_total, 
                     :address, :message, :event, :signature,
-                    :offer_number, :tax_offer, :cost_offer,
+                    :offer_number, :costs,
                     :invoice_number, :invoice_number_long,
-                    :tax_invoice, :cost_invoice,
-                    :caterers, :total_invoice
-                  ],
-      :export =>  [
-                    :date, :manager, :name,
-                    :hours, :time, :salary_total, 
-                    :address, :event,
-                    :offer_number, :tax_offer, :cost_offer,
-                    :invoice_number, :invoice_number_long,
-                    :tax_invoice, :cost_invoice,
-                    :caterers, :total_invoice,
-                    :tax 
+                    :caterers
                   ],
       :full    => [ 
-                    :date, :manager, :name,
+                    :tax, :date, :manager, :name,
                     :hours, :time, :salary_total, 
                     :address, :message, :event, :signature,
-                    :offer_number, :tax_offer, :cost_offer,
+                    :offer_number, :costs,
                     :invoice_number, :invoice_number_long,
-                    :tax_invoice, :cost_invoice,
-                    :caterers, :total_offer, :total_invoice,
-                    :tax 
+                    :caterers
                   ],
     }
 
@@ -94,19 +80,13 @@ class InvoiceProject
       :time                => [:parse_hours,      :time],
       :caterers            => [:parse_hours,      :caterers],
       :salary_total        => [:parse_hours,      :salary_total],
-      :cost_offer          => [:parse_cost,       :offer],
-      :cost_invoice        => [:parse_cost,       :invoice],
-      :tax_offer           => [:parse_tax,        :offer],
-      :tax_invoice         => [:parse_tax,        :invoice],
-      :total_offer         => [:parse_total,      :offer],
-      :total_invoice       => [:parse_total,      :invoice],
     }
 
     @parser_matches.each {|k,v| 
       begin 
         m = method v[0] 
       rescue
-        puts "ERROR in parser_matches: #{v[0]} is no method}"
+        puts "ERROR in parser_matches: #{v[0]} is no method"
         exit
       end
       }
@@ -180,6 +160,15 @@ class InvoiceProject
     return @data[key]
   end
 
+  def parse_simple key
+    raw     = @raw_data[key.to_s]
+    default = $SETTINGS["default_#{key.to_s}"]
+    return raw     if raw
+    return default if default
+    return fail_at key
+  end
+
+
   ##
   # *wrapper* for puts()
   # depends on settings['verbose']= true|false
@@ -246,11 +235,9 @@ class InvoiceProject
     end
     return false
   end
-
 end
 
 class InvoiceProduct
-
   attr_reader :name, :hash, :tax, :valid, :returned, :cost_invoice, :cost_offer, :tax_invoice, :tax_offer
 
   def initialize(name, hash, tax_value)
@@ -290,7 +277,6 @@ class InvoiceProduct
     @tax_invoice  = (@cost_invoice * @tax_value).ceil_up()
     @tax_offer    = (@cost_offer   * @tax_value).ceil_up()
   end
-
 end
 
 class Object
