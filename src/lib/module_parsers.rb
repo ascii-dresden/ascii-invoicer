@@ -73,7 +73,10 @@ module InvoiceParsers
     return fail_at :products_tex unless parse :products
     table = ""
     @data[:products].each do |name, p|
-      table += "#{name.ljust(20)} & #{p.amount(choice)} & #{p.price} & #{p.cost(choice).rjust(6)} \\\\\ \n"
+      table += "#{name.ljust(20)} 
+      & #{p.amount(choice)} 
+      & #{p.price.to_euro} 
+      & #{p.cost(choice).to_euro} \\\\\ \n"
     end
     return table
   end

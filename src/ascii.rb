@@ -60,7 +60,6 @@ class Commander < Thor
   class_option :check,                      :type => :boolean
   #class_option "keep-log", :aliases=> "-k", :type => :boolean
 
-
   desc "new NAME", "creating a new project" 
   method_option :dont_edit,
     :type=>:boolean, :aliases => "-d",
@@ -86,10 +85,14 @@ class Commander < Thor
     :lazy_default=> Date.today.year,
     :required => false,
     :desc => "list archived projects"
-  def edit(index)
+  def edit(index=nil)
     # TODO implement edit --archive
     plumber = ProjectsPlumber.new $SETTINGS
-    path = pick_project index
+    if options[:file]
+      path = options[:file]
+    else
+      path = pick_project index
+    end
     if path
       edit_file path, options[:editor] if options[:editor]
       edit_file path
@@ -122,10 +125,10 @@ class Commander < Thor
       projects = open_projects paths, :invoice, :date
       print_project_list_csv projects
     elsif options[:yaml] 
-      projects = open_projects paths, :full , :date
+      projects = open_projects paths, :export , :date
       print_project_list_yaml projects
     elsif options[:verbose] 
-      projects = open_projects paths, :full , :date
+      projects = open_projects paths, :export , :date
       print_project_list_verbose projects
     else
       projects = open_projects paths, :list, :date
@@ -136,8 +139,13 @@ class Commander < Thor
 
 
   desc "display NAME", "Shows information about a Project in different ways."
-  def display name
-    project = InvoiceProject.new $SETTINGS, pick_project(name)
+  def display(index=nil)
+    if options[:file]
+      path = options[:file]
+    else
+      path = pick_project index
+    end
+    project = InvoiceProject.new $SETTINGS, path
     project.validate :full
     #data = project.data
     if options[:verbose]
@@ -181,27 +189,46 @@ class Commander < Thor
     project = InvoiceProject.new $SETTINGS, pick_project(name,year)
     name = project.data[:name]
     unless plumber.unarchive_project name, year
-      error "Can't unarchive #{name}"
+      error "Can't unarchive #{name}, checks names of current projects for duplicates!"
     end
   end
 
 
   desc "offer NAME", "Create an offer from project file."
-  def offer(name)
+  def offer(index=nil)
    # TODO implement offer --archive
-    project = InvoiceProject.new $SETTINGS, pick_project(name)
+    if options[:file]
+      path = options[:file]
+    else
+      path = pick_project index
+    end
+    project = InvoiceProject.new $SETTINGS, path
     project.validate :offer
+    if project.valid_for :offer
     project.create_tex :offer, options[:check]
-
+    else
+      error "#{project.name} is not ready for creating an offer!"
+    end
   end
 
 
   desc "invoice NAME", "Create an invoice from project file."
-  def invoice(name)
+  def invoice(index=nil)
     # TODO implement invoice --archive
-    project = InvoiceProject.new $SETTINGS, pick_project(name)
+    if options[:file]
+      path = options[:file]
+    else
+      path = pick_project index
+    end
+    project = InvoiceProject.new $SETTINGS, path
+ 
     project.validate :invoice
     project.create_tex :invoice, options[:check]
+    if project.valid_for :invoice
+    project.create_tex :invoice, options[:check]
+    else
+      error "#{project.name} is not ready for creating an invoice!"
+    end
   end
 
   desc "settings", "view Settings"
@@ -209,7 +236,6 @@ class Commander < Thor
     #puts $SETTINGS.to_yaml
     pp $SETTINGS
   end
-
 
 
 
