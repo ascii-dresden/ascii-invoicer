@@ -111,7 +111,7 @@ class InvoiceProject
       begin
         @raw_data        = YAML::load(File.open(project_path))
       rescue
-        logs "error reading #{project_path}"
+        error "error reading #{project_path}"
       end
 
       @data[:valid] = true
@@ -243,7 +243,7 @@ class InvoiceProject
 
   def export_filename choice, ext=""
     offer_number = @data[:offer_number]
-    invoice_number = @data[:invoice_number]
+    invoice_number = @data[:invoice_number_long]
     name = @data[:name]
     date = @data[:date].strftime "%Y-%m-%d"
 
@@ -264,31 +264,48 @@ class InvoiceProject
     return fail_at :create_tex unless parse :products
     return fail_at :templates unless load_templates()
 
-    puts $SETTINGS['path']
-    puts $SETTINGS['script_path']
-    puts export_filename choice, "tex"
-    return
+    unless @valid_for[choice] or check
+      error "Cannot create an \"#{choice.to_s}\" from #{@data[:name]}. (#{@errors.join ','})"
+    end
 
     template = @template_invoice if choice == :invoice
     template = @template_offer   if choice == :offer
 
     table = CliTable.new 
     table.header = "Template matches"
-
-    template.each_line { |line| 
-      if check
+    if check
+      template.each_line { |line| 
         scans = line.scan /\$([^$]*)\$/
         if scans.length > 0
           findings = scans.map{|s| not @data[s[0].to_sym].nil? and not @data[s[0].to_sym] == false  }
           table.add_row [scans.flatten.join(", "), findings.join(','),]
         end
-      else
-        @data.keys.each{ |key| line = line.gsub('$' + key.to_s + '$', @data[key].to_s) }
-        puts line
-      end
+      }
+      puts table
+      return
+    end
+
+    file_content = []
+    template.each_line { |line| 
+      @data.keys.each{ |key| line = line.gsub('$' + key.to_s + '$', @data[key].to_s) }
+      file_content.push line
     }
 
-    puts table if check
+    filename = export_filename choice, "tex"
+    output_path = File.join @project_folder , filename
+    puts file_content
+ 
+    #write_array_to_file file_content, output_path
+
+  end
+
+  def write_array_to_file file_content, path
+    file = File.new path, "w"
+    file_content.each do |line|
+      file.write line
+    end
+    file.close
+    puts "file written: #{path}"
   end
 end
 
