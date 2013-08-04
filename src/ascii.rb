@@ -33,6 +33,8 @@ end
 
 overwrite_settings $SETTINGS, $local_settings if $local_settings
 
+error "settings:editor is an elaborate string: \"#{$SETTINGS['editor']}\"!\nDANGEROUS!" if $SETTINGS['editor'].include? " "
+error "settings:latex is an elaborate string: \"#{$SETTINGS['editor']}\"!\nDANGEROUS!" if $SETTINGS['latex'].include? " "
 
 
 # bootstraping
@@ -64,7 +66,6 @@ class Commander < Thor
   class_option :editor,                     :type => :string
   class_option :check,                      :type => :boolean
   #class_option "keep-log", :aliases=> "-k", :type => :boolean
-
 
   desc "new NAME", "creating a new project" 
   method_option :dont_edit,

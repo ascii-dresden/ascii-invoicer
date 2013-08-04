@@ -37,18 +37,18 @@ class InvoiceProject
     @requirements = {
       :list    => [ :tax, :date, :manager, :name, :offer_number, :invoice_number ],
       :offer   => [ :tax, :date, :manager, :name, :hours, :time, :salary_total, 
-                    :event, :signature,
                     :costs_offer, :taxes_offer, :total_offer,
                     :offer_number,
                     :address, :messages, :client,
+                    :event, :signature, :addressing,
                     :tex_table_offer, :caterers,
                     :script_path
                   ],
       :invoice => [ :tax, :date, :manager, :name, :hours, :time, :salary_total, 
-                    :event, :signature,
                     :costs_invoice, :taxes_invoice, :total_invoice,
                     :offer_number, :invoice_number, :invoice_number_long,
                     :address, :messages, :client,
+                    :event, :signature, :addressing,
                     :tex_table_invoice, :caterers,
                     :script_path
                   ],
@@ -186,15 +186,8 @@ class InvoiceProject
   # *wrapper* for puts()
   # depends on settings['verbose']= true|false
   def logs message, force = false
-    puts "       #{__FILE__} : #{message}" if @settings['verbose'] or force
-  end
-
-  def client_addressing
-    names = @raw_data['client'].split("\n")
-    type = names.first.downcase.to_sym
-    gender = @gender_matches[type]
-    lang = @data[:lang].to_sym
-    return @lang_addressing[lang][gender]
+    #puts "       #{__FILE__} : #{message}" if @settings['verbose'] or force
+    puts "INVOICER: #{message}" if @settings['verbose'] or force
   end
 
   def strpdates(string,pattern = nil)
@@ -287,25 +280,45 @@ class InvoiceProject
 
     file_content = []
     template.each_line { |line| 
-      @data.keys.each{ |key| line = line.gsub('$' + key.to_s + '$', @data[key].to_s) }
+      @data.keys.each{ |key|
+        replacement = (@data[key].to_s).gsub "\n"," \\newline "
+        line = line.gsub('$' + key.to_s + '$', replacement)
+      }
       file_content.push line
     }
 
     filename = export_filename choice, "tex"
     output_path = File.join @project_folder , filename
-    puts file_content
  
-    #write_array_to_file file_content, output_path
+    #puts file_content
+    write_array_to_file file_content, output_path
+
+    logs "Rendering #{output_path} with #{@settings['latex']}"
+    silencer = @settings['verbose'] ? "" : "> /dev/null" 
+
+    #TODO output directory is not generic
+    system "#{@settings['latex']} \"#{output_path}\" -output-directory . #{silencer}"
+
+    unless @settings['keep_log']
+      log = filename.gsub('.tex','.log')
+      aux = filename.gsub('.tex','.aux')
+      FileUtils.rm log if File.exists? log
+      FileUtils.rm aux if File.exists? aux
+    end
 
   end
 
   def write_array_to_file file_content, path
+    begin
     file = File.new path, "w"
     file_content.each do |line|
       file.write line
     end
     file.close
-    puts "file written: #{path}"
+    logs "file written: #{path}"
+    rescue
+      error "Unable to write into #{path}"
+    end
   end
 end
 

@@ -72,8 +72,10 @@ module InvoiceParsers
   def parse_tex_table(choice = :offer)
     return fail_at :products_tex unless parse :products
     table = ""
+    number = 0
     @data[:products].each do |name, p|
-      table += "#{name.ljust(20)} & #{p.amount(choice)} & #{p.price} & #{p.cost(choice).rjust(6)} \\\\\ \n"
+      number += 1
+      table += "#{number} & #{name} & #{p.amount(choice)} & #{p.price} & #{p.cost(choice)} \\\\\\ "
     end
     return table
   end
@@ -115,6 +117,12 @@ module InvoiceParsers
   end
 
   ##
+  def parse_addressing()
+    return fail_at :client unless parse :client
+    return @data[:client][:addressing]
+  end
+
+  ##
   def parse_client()
     return fail_at :client unless @raw_data['client']
 
@@ -132,6 +140,15 @@ module InvoiceParsers
     ].join ' '
     return client
   end
+
+  def client_addressing
+    names = @raw_data['client'].split("\n")
+    type = names.first.downcase.to_sym
+    gender = @gender_matches[type]
+    lang = @data[:lang].to_sym
+    return @lang_addressing[lang][gender]
+  end
+
 
   def parse_messages
     return fail_at "message_#{choice.to_s}" unless parse :messages, :parse_simple, :messages
