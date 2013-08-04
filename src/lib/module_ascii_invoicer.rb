@@ -62,24 +62,25 @@ module AsciiInvoicer
   def costbox project 
     data = project.data
 
-    ci   = data[:cost_invoice  ].to_euro(7)
-    ti   = data[:tax_invoice   ].to_euro(7)
-    co   = data[:cost_offer    ].to_euro(7)
-    to   = data[:tax_offer     ].to_euro(7)
+    ci   = data[:costs_invoice ].to_euro(7)
+    ti   = data[:taxes_invoice ].to_euro(7)
+    co   = data[:costs_offer   ].to_euro(7)
+    to   = data[:taxes_offer   ].to_euro(7)
     toto = data[:total_offer   ].to_euro(7)
     toti = data[:total_invoice ].to_euro(7)
     st   = data[:salary_total  ].to_euro(7)
 
-    box = CliTable.new
+    box = TextBox.new
     box.padding_horizontal = 3
-    box.header = "Project: #{data[:name]}    \"#{data[:event]}\""
+    box.header = "Project: #{data[:event]}"
 
     box.add_line  "Kosten       : #{co} -> #{ci}"
     box.add_line  "MWST         : #{to} -> #{ti}"
     box.add_line  "Gehalt Total : #{st}"
-    box.add_line  "               ------------------"
+    box.add_line  "           ------------------"
     box.add_line  "total        : #{toto} -> #{toti}"
-    box.footer = "Errors: #{project.errors.length} (#{ project.errors.join ',' })"
+    box.footer = "Errors: #{project.errors.length} (#{ project.errors.join ',' })" if project.errors.length >0
+
     puts box
   end
 
@@ -119,9 +120,7 @@ module AsciiInvoicer
       unsorted_paths = plumber.list_projects
     end
     projects = open_projects unsorted_paths
-    projects.each {|p|
-      names.push p.data[:name]
-      paths.push p.data[:project_path]
+    projects.each {|p| names.push p.data[:name]; paths.push p.data[:project_path]
     }
 
 

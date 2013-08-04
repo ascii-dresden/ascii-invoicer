@@ -1,6 +1,7 @@
 # encoding: utf-8
 class TextBox
   attr_writer :header, :footer, :padding_horizontal, :padding_vertical, :top, :bottom, :splitter, :border_vertical, :border_horizontal, :borders
+  attr_reader :width
 
   def initialize()
     @top               = [ "┌", "┐", "┬" ]
