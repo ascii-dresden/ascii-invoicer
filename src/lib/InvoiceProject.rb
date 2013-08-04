@@ -36,28 +36,31 @@ class InvoiceProject
 
     @requirements = {
       :list    => [ :tax, :date, :manager, :name, :offer_number, :invoice_number ],
+
       :offer   => [ :tax, :date, :manager, :name, :hours, :time, :salary_total, 
                     :costs_offer, :taxes_offer, :total_offer,
                     :offer_number,
-                    :address, :messages, :client,
+                    :address, :messages,
                     :event, :signature, :addressing,
-                    :tex_table_offer, :caterers,
+                    :tex_table_offer,
                     :script_path
                   ],
       :invoice => [ :tax, :date, :manager, :name, :hours, :time, :salary_total, 
                     :costs_invoice, :taxes_invoice, :total_invoice,
                     :offer_number, :invoice_number, :invoice_number_long,
-                    :address, :messages, :client,
+                    :address, :messages,
                     :event, :signature, :addressing,
-                    :tex_table_invoice, :caterers,
+                    :tex_table_invoice,
                     :script_path
                   ],
       :full    => [ :tax, :date, :manager, :name, :hours, :time, :salary_total, 
-                    :address, :messages, :event, :signature, :offer_number, :costs,
                     :costs_offer, :taxes_offer, :total_offer,
                     :costs_invoice, :taxes_invoice, :total_invoice,
                     :offer_number, :invoice_number, :invoice_number_long,
-                    :tex_table, :caterers,
+                    :address, :messages,
+                    :event, :signature, :addressing,
+                    :tex_table_offer, :tex_table_invoice,
+                    :caterers, :script_path
                   ],
       :export  => [ :tax, :date, :manager, :name, :hours, :time, :salary_total, 
                     :address, :event, :offer_number, :costs,
@@ -133,16 +136,19 @@ class InvoiceProject
   ##
   # run validate() to initiate all parser functions.
   # If strikt = true the programm fails, otherise it returns false,
-  def validate(type)
+  def validate(type, print = false)
     return true if @data[:type] == type and @data[:valid]
     @data[:type] = type
     @valid_for = {}
     @requirements[type].each { |req| parse req }
     @requirements.each { |type, requirements|
       @valid_for[type] = true
+      puts type.to_s if print
       requirements.each { |req|
+        puts "   " + (!@data[req].nil?).to_s + req.to_s.ljust(15) + "(#{ @data[req].to_s.each_line.first.to_s.each_line.first })" if print
         @valid_for[type] = false unless @data[req] 
       }
+      puts if print
     }
     return true if @data[:valid]
     false
@@ -305,7 +311,6 @@ class InvoiceProject
       FileUtils.rm log if File.exists? log
       FileUtils.rm aux if File.exists? aux
     end
-
   end
 
   def write_array_to_file file_content, path

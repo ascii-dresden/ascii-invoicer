@@ -145,11 +145,14 @@ class Commander < Thor
   def display index
     path = pick_project(index)
     project = InvoiceProject.new $SETTINGS, path
-    project.validate :list
     #data = project.data
     if options[:verbose]
-      pp project.data#.keep_if{|k,v| k != :products}
+      project.validate :full, true
+      #pp project.data#.keep_if{|k,v| k != :products}
+      puts project.valid_for
+      puts project.errors
     else
+      project.validate :list
       costbox project
     end
   end

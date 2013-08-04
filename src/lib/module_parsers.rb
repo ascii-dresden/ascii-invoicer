@@ -4,6 +4,7 @@ module InvoiceParsers
   def parse_script_path
     return @settings['script_path']
   end
+ 
   ##
   def parse_costs(choice = nil)
     return fail_at :costs                 unless parse :tax
@@ -212,17 +213,14 @@ module InvoiceParsers
     hours[:caterers] = @raw_data['hours']['caterers']
     hours[:time_each] = 0.0
 
-    hours[:caterers].each { |name,time|
-      hours[:time_each] += time
-
-    }
+    hours[:caterers].each { |name,time| hours[:time_each] += time } if hours[:caterers]
 
     salary = @raw_data['hours']['salary']
     salary_total   = salary * hours[:time]
 
     return fail_at :hours     unless hours
     return fail_at :time      unless hours[:time]
-    return fail_at :time_each unless hours[:time] == hours[:time_each]
+    return fail_at :time_each unless hours[:time_each] and hours[:time] == hours[:time_each]
     return fail_at :salary    unless salary_total.class == Float
 
     return hours[:time]     if choice == :time

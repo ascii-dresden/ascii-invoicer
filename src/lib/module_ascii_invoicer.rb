@@ -21,7 +21,7 @@ module AsciiInvoicer
       p  = projects[i]
       table.add_row [
         (i+1).to_s+".", 
-        p.data[:name], 
+        p.data[:name].ljust(35), 
         p.data[:manager], 
         p.data[:invoice_number], 
         p.data[:date].strftime("%d.%m.%Y"), 
@@ -46,7 +46,7 @@ module AsciiInvoicer
         p.data[:valid].to_s,
       ]
     end
-    table.set_alignment(1, :r)
+    table.set_alignment(0, :r)
     table.set_alignment(5, :r)
     puts table
   end
@@ -80,9 +80,9 @@ module AsciiInvoicer
     box.add_line  "               ------------------"
     box.add_line  "total        : #{toto} -> #{toti}"
     box.footer = "Errors: #{project.errors.length} (#{ project.errors.join ',' })"
-
-    puts box.build()
+    puts box
   end
+
   #takes an array of invoices (@plumber.working_projects)
   def print_project_list_csv(projects)
     header = [
