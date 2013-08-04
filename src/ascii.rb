@@ -15,8 +15,9 @@ require "#{$SCRIPT_PATH}/lib/module_ascii_invoicer.rb"
 require "#{$SCRIPT_PATH}/lib/textboxes.rb"
 require "#{$SCRIPT_PATH}/lib/clitables.rb"
 
-$SETTINGS = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
-$local_settings = YAML::load(File.open("settings.yml")) if File.exists? "settings.yml"
+$SETTINGS                = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
+$local_settings          = YAML::load(File.open("settings.yml")) if File.exists? "settings.yml"
+$SETTINGS['path']        = File.expand_path File.split(__FILE__)[0]
 $SETTINGS['script_path'] = $SCRIPT_PATH
 
 # loading $SETTINGS and local_settings
@@ -53,6 +54,10 @@ class Commander < Thor
   package_name "ascii project"
   #argument :first, :type => :numeric
   map "-l" => :list
+  #map "-a" => :list ARCHIVES #XXX
+  map "-d" => :display
+  map "-i" => :invoice
+  map "-o" => :offer
 
   class_option :file,      :aliases=> "-f", :type => :string
   class_option :verbose,   :aliases=> "-v", :type => :boolean
@@ -136,9 +141,10 @@ class Commander < Thor
 
 
   desc "display NAME", "Shows information about a Project in different ways."
-  def display name
-    project = InvoiceProject.new $SETTINGS, pick_project(name)
-    project.validate :full
+  def display index
+    path = pick_project(index)
+    project = InvoiceProject.new $SETTINGS, path
+    project.validate :list
     #data = project.data
     if options[:verbose]
       pp project.data#.keep_if{|k,v| k != :products}
@@ -209,10 +215,6 @@ class Commander < Thor
     #puts $SETTINGS.to_yaml
     pp $SETTINGS
   end
-
-
-
-
 end
 
 Commander.start

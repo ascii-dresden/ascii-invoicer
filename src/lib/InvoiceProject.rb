@@ -3,17 +3,17 @@ require File.join File.dirname(__FILE__) + '/rfc5322_regex.rb'
 require File.join File.dirname(__FILE__) + '/module_parsers.rb'
 require 'yaml'
 class InvoiceProject
-  attr_reader :path , :data, :raw_data, :errors, :valid_for
+  attr_reader :project_path, :project_folder, :data, :raw_data, :errors, :valid_for
   attr_writer :raw_data, :errors
 
   include InvoiceParsers
 
-  def initialize(settings, path = nil)
+  def initialize(settings, project_path = nil)
     @settings = settings
     @errors   = []
     @data     = {}
 
-    open(path) unless path.nil?
+    open(project_path) unless project_path.nil?
 
     #fail_at :template_offer   unless File.exists? @settings['templates']['offer']
     #fail_at :template_invoice unless File.exists? @settings['templates']['invoice']
@@ -35,8 +35,7 @@ class InvoiceProject
       }, }
 
     @requirements = {
-      :list    => [ :tax, :date, :manager, :name, :offer_number, :invoice_number
-                  ],
+      :list    => [ :tax, :date, :manager, :name, :offer_number, :invoice_number ],
       :offer   => [ :tax, :date, :manager, :name, :hours, :time, :salary_total, 
                     :event, :signature,
                     :costs_offer, :taxes_offer, :total_offer,
@@ -103,27 +102,30 @@ class InvoiceProject
   end
 
   ## open given .yml and parse into @data
-  def open(path)
-    @path = path
+  def open(project_path)
+    #puts "opening \"#{project_path}\""
+    @project_path = project_path
+    @project_folder = File.split(project_path)[0]
 
-    if File.exists?(path)
+    if File.exists?(project_path)
       begin
-        @raw_data        = YAML::load(File.open(path))
+        @raw_data        = YAML::load(File.open(project_path))
       rescue
-        logs "error reading #{path}"
+        logs "error reading #{project_path}"
       end
 
       @data[:valid] = true
-      @data[:path]  = path
-      @data[:name]  = File.basename File.split(@path)[0]
-      #@data[:tax]  = @raw_data['tax']?  @raw_data['tax']  : @settings['default_tax']
+      @data[:project_path]  = project_path
+      @data[:name]  = File.basename File.split(@project_path)[0]
 
       @data[:lang]  = @raw_data['lang']? @raw_data['lang'] : @settings['default_lang']
       @data[:lang]  = @data[:lang].to_sym
 
 
       return @raw_data
-    else fail_at :path
+    else
+      fail_at :project_path
+      error "FILE \"#{project_path}\" does not exist!"
     end
     return false
   end
@@ -146,8 +148,8 @@ class InvoiceProject
     false
   end
 
-
-  ## little parse function
+  ##
+  # little parse function
   def parse(key, parser = "parse_#{key}", parameter = nil)
     return @data[key] if @data[key]
     begin
@@ -179,7 +181,6 @@ class InvoiceProject
     return default if default
     return fail_at key
   end
-
 
   ##
   # *wrapper* for puts()
@@ -239,10 +240,34 @@ class InvoiceProject
     return false
   end
 
-  ## fills the template with minded data
+
+  def export_filename choice, ext=""
+    offer_number = @data[:offer_number]
+    invoice_number = @data[:invoice_number]
+    name = @data[:name]
+    date = @data[:date].strftime "%Y-%m-%d"
+
+    ext = '.' + ext unless ext.length > 0 and ext.start_with? '.'
+
+    if choice == :invoice
+      "#{invoice_number} #{name} #{date}#{ext}"
+    elsif choice == :offer
+      "#{offer_number} #{name}#{ext}"
+    else
+      return false
+    end
+  end
+
+  ##
+  # fills the template with minded data
   def create_tex choice, check = false
     return fail_at :create_tex unless parse :products
     return fail_at :templates unless load_templates()
+
+    puts $SETTINGS['path']
+    puts $SETTINGS['script_path']
+    puts export_filename choice, "tex"
+    return
 
     template = @template_invoice if choice == :invoice
     template = @template_offer   if choice == :offer
@@ -257,7 +282,6 @@ class InvoiceProject
           findings = scans.map{|s| not @data[s[0].to_sym].nil? and not @data[s[0].to_sym] == false  }
           table.add_row [scans.flatten.join(", "), findings.join(','),]
         end
-
       else
         @data.keys.each{ |key| line = line.gsub('$' + key.to_s + '$', @data[key].to_s) }
         puts line

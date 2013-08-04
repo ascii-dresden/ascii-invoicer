@@ -6,20 +6,13 @@ class ProjectsPlumber
   attr_reader :dirs
 
   def initialize(settings)
-    @LIB_PATH = File.split(File.expand_path(__FILE__))[0]
-
     @settings = settings
     @dirs = {}
-    if @settings['path']
-      @dirs[:storage]  = File.join @settings['path'], @settings['dirs']['storage']
-      @dirs[:template] = File.join @settings['path'], @settings['templates']['project']
-    else
-      @dirs[:storage]  = File.join @settings['dirs']['storage']
-      @dirs[:template] = File.join $SCRIPT_PATH, @settings['templates']['project'] # FIXME remove $SCRIPT_PATH from libs
-    end
 
-    @dirs[:working] = File.join @dirs[:storage], @settings['dirs']['working']
-    @dirs[:archive] = File.join @dirs[:storage], @settings['dirs']['archive']
+    @dirs[:template] = File.join @settings['script_path'], @settings['templates']['project']
+    @dirs[:storage]  = File.join @settings['path'], @settings['dirs']['storage']
+    @dirs[:working]  = File.join @dirs[:storage], @settings['dirs']['working']
+    @dirs[:archive]  = File.join @dirs[:storage], @settings['dirs']['archive']
   end
 
   ##

@@ -86,22 +86,21 @@ module AsciiInvoicer
   #takes an array of invoices (@plumber.working_projects)
   def print_project_list_csv(projects)
     header = [
-      'date', 'invoice_long', 'invoice_short', 'offer', 'event', 'name', 'path', 'caterer', 'time', 'invoiced sum', 'valid'
+      'date', 'invoice_long', 'offer', 'event', 'name', 'path', 'manager', 'time', 'invoiced sum', 'valid'
     ]
     puts header.to_csv
     projects.each do |p|
       line = [
         p.data[:date],
         p.data[:invoice_number_long],
-        p.data[:invoice_number],
         p.data[:offer_number],
         p.data[:event],
         p.data[:name],
-        p.data[:path],
-        p.data[:caterer],
+        p.data[:project_path],
+        p.data[:manager],
         p.data[:time].to_s + 'h',
-        p.data[:cost_invoice],
-        p.data[:tax_invoice],
+        p.data[:costs_invoice],
+        p.data[:total_invoice],
       ]
       line.map! {|v| v ? v : "..." } # wow, that looks cryptic
       puts line.to_csv
@@ -120,7 +119,11 @@ module AsciiInvoicer
       unsorted_paths = plumber.list_projects
     end
     projects = open_projects unsorted_paths
-    projects.each {|p| names.push p.data[:name]; paths.push p.data[:path] }
+    projects.each {|p|
+      names.push p.data[:name]
+      paths.push p.data[:project_path]
+    }
+
 
     if index == 0 and names.include? selection
       return paths[names.index selection]
