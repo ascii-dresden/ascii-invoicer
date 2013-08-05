@@ -131,7 +131,7 @@ class Commander < Thor
     end
 
     if options[:csv] 
-      projects = open_projects paths, :invoice, :date
+      projects = open_projects paths, :export, :date
       print_project_list_csv projects
     elsif options[:yaml] 
       projects = open_projects paths, :export , :date

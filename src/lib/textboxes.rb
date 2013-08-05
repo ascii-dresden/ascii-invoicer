@@ -1,4 +1,6 @@
 # encoding: utf-8
+require 'paint'
+
 class TextBox
   attr_writer :header, :footer, :padding_horizontal, :padding_vertical, :top, :bottom, :splitter, :border_vertical, :border_horizontal, :borders
   attr_reader :width
@@ -21,17 +23,17 @@ class TextBox
   end
 
   def header= line
-    @width = max @width, line.length
+    @width = max @width, Paint.unpaint(line).length
     @header = line
   end
 
   def footer= line
-    @width = max @width, line.length
+    @width = max @width, Paint.unpaint(line).length
     @footer = line
   end
 
   def add_line line
-    @width = max @width, line.length
+    @width = max @width, Paint.unpaint(line).length
     @lines.push line
   end
 

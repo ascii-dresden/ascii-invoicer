@@ -65,7 +65,7 @@ class InvoiceProject
                     :tex_table_offer, :tex_table_invoice,
                     :caterers, :script_path
                   ],
-      :export  => [ :tax, :date, :manager, :name, :hours, :time, :salary_total, 
+      :export  => [ :tax, :date, :manager, :name, :hours, :time, :salary_total, :salary,
                     :address, :event, :offer_number, :costs,
                     :invoice_number, :invoice_number_long, :caterers,
       ],

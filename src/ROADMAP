@@ -1,8 +1,5 @@
-TODO enable working from another path
 TODO output folder
 TODO add "canceled flag"
-
-TODO change management of yml-files in folder so that yaml can have different names (maybe for versioning or multiple offers)
 
 TODO display summary who owns how many projects ( open, closed, per time)
 TODO add watch mode

@@ -62,12 +62,12 @@ products:
     price: 1.16
 
 hours: 
-  time: 7
+  time: 0
   salary: 8.00
 
-  caterers: # not yet implemented
-    "Name" : 5 #Stunden
-    "Name2": 2 #Stunden
+#  caterers:
+#    "Name" : 5 #Stunden
+#    "Name2": 2 #Stunden
     
 signature: |
     Mit freundlichen Grüßen
@@ -78,6 +78,6 @@ signature: |
 
 lang: de
 tax: 0.19
-canceled: false
+canceled: false # not yet implemented
 
 ...

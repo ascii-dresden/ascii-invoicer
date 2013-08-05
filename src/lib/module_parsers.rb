@@ -79,7 +79,7 @@ module InvoiceParsers
       table += "#{number} & #{name} & #{p.amount(choice)} & #{p.price} & #{p.cost(choice)} \\\\\\\\" #TODO put price.to_euro into the InvoiceProduct
     end
 
-    table += [ number+1 ," & Betreuung (Stunden)& " , @data[:time] , " & " , @data[:salary], " & " , @data[:salary_total] ].join + " \\\\\\" if @data[:time] > 0
+    table += [ number+1 ," & Betreuung (Stunden)& " , @data[:time] , " & " , @data[:salary], " & " , @data[:salary_total] ].join + " \\\\\\" if @data[:time] and @data[:time] > 0
     return table
   end
 
@@ -221,15 +221,28 @@ module InvoiceParsers
     #salary_total   = Euro.new salary_total
 
     return fail_at :hours     unless hours
-    return fail_at :time      unless hours[:time]
-    return fail_at :time_each unless hours[:time_each] and hours[:time] == hours[:time_each]
-    return fail_at :salary    unless salary_total.class == Euro
 
-    return hours[:time]     if choice == :time
-    return hours[:salary]   if choice == :salary
-    return hours[:caterers] if choice == :caterers
-    return salary_total     if choice == :salary_total
-    return hours            if choice == :hours
+    if choice == :time
+      return fail_at :time      unless hours[:time]
+      return hours[:time]
+    end
+    if choice == :time_each
+    return fail_at :time_each unless hours[:time_each] and hours[:time] == hours[:time_each]
+      return hours[:time_each]
+    end
+    if choice == :salary
+    return fail_at :salary    unless salary_total.class == Euro
+      return hours[:salary]
+    end
+    if choice == :caterers
+      return hours[:caterers]
+    end
+    if choice == :salary_total
+      return salary_total
+    end
+    if choice == :hours
+      return hours
+    end
   end
 
 end
