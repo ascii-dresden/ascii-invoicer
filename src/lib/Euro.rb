@@ -15,7 +15,8 @@ class Euro
   end
 
   def == v
-    v.to_f == @value
+    return v.to_f == @value unless v.class == FalseClass or v.class == TrueClass
+    return false
   end
 
   def to_f

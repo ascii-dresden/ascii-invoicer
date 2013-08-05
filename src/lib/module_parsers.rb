@@ -199,7 +199,7 @@ module InvoiceParsers
       return lines.join "\n" if choice == :signature
     else
       return lines.first     if choice == :manager
-      return @raw_data["signature"] if choice == :signature
+      return @settings["default_signature"] if choice == :signature
     end
     return fail_at :signature,:manager
   end

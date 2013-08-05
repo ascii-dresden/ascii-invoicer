@@ -37,7 +37,7 @@ class InvoiceProject
     @requirements = {
       :list    => [ :tax, :date, :manager, :name, :offer_number, :invoice_number ],
 
-      :offer   => [ :tax, :date, :manager, :name, :hours, :time, :salary_total, 
+      :offer   => [ :tax, :date, :raw_date, :manager, :name, :hours, :time, :salary_total, 
                     :costs_offer, :taxes_offer, :total_offer,
                     :offer_number,
                     :address, :messages,
@@ -45,7 +45,7 @@ class InvoiceProject
                     :tex_table_offer,
                     :script_path
                   ],
-      :invoice => [ :tax, :date, :manager, :name, :hours, :time, :salary_total, 
+      :invoice => [ :tax, :date, :raw_date, :manager, :name, :hours, :time, :salary_total, 
                     :costs_invoice, :taxes_invoice, :total_invoice,
                     :offer_number, :invoice_number, :invoice_number_long,
                     :address, :messages,
@@ -53,7 +53,7 @@ class InvoiceProject
                     :tex_table_invoice,
                     :script_path
                   ],
-      :full    => [ :tax, :date, :manager, :name, :hours, :time, :salary_total, 
+      :full    => [ :tax, :date, :raw_date,:manager, :name, :hours, :time, :salary_total, 
                     :costs_offer, :taxes_offer, :total_offer,
                     :costs_invoice, :taxes_invoice, :total_invoice,
                     :offer_number, :invoice_number, :invoice_number_long,
@@ -79,6 +79,7 @@ class InvoiceProject
       :address             => [:parse_simple,     :address      ] ,
       :event               => [:parse_simple,     :event        ] ,
       :tax                 => [:parse_simple,     :tax          ] ,
+      :raw_date            => [:parse_simple,     :date         ] ,
 
       :costs_offer         => [:parse_costs,      :offer        ] ,
       :costs_invoice       => [:parse_costs,      :invoice      ] ,
@@ -260,6 +261,14 @@ class InvoiceProject
     end
   end
 
+  def replace_keys line
+    @data.keys.each{ |key|
+      replacement = (@data[key].to_s).gsub "\n"," \\newline "
+      line = line.gsub('$' + key.to_s + '$', replacement)
+    }
+    return line
+  end
+
   ##
   # fills the template with minded data
   def create_tex choice, check = false
@@ -289,10 +298,8 @@ class InvoiceProject
 
     file_content = []
     template.each_line { |line| 
-      @data.keys.each{ |key|
-        replacement = (@data[key].to_s).gsub "\n"," \\newline "
-        line = line.gsub('$' + key.to_s + '$', replacement)
-      }
+      line = replace_keys line
+      line = replace_keys line
       file_content.push line
     }
 
