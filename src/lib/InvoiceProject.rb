@@ -8,12 +8,12 @@ class InvoiceProject
 
   include InvoiceParsers
 
-  def initialize(settings, project_path = nil)
+  def initialize(settings, project_path = nil, name = nil)
     @settings = settings
     @errors   = []
     @data     = {}
 
-    open(project_path) unless project_path.nil?
+    open(project_path, name) unless project_path.nil?
 
     #fail_at :template_offer   unless File.exists? @settings['templates']['offer']
     #fail_at :template_invoice unless File.exists? @settings['templates']['invoice']
@@ -110,7 +110,7 @@ class InvoiceProject
   end
 
   ## open given .yml and parse into @data
-  def open(project_path)
+  def open(project_path, name = nil)
     #puts "opening \"#{project_path}\""
     @project_path = project_path
     @project_folder = File.split(project_path)[0]
@@ -124,7 +124,10 @@ class InvoiceProject
 
       @data[:valid] = true
       @data[:project_path]  = project_path
-      @data[:name]  = File.basename File.split(@project_path)[0]
+      if name.nil?
+        @data[:name]  = File.basename File.split(@project_path)[0]
+      else @data[:name] = name
+      end
 
       @data[:lang]  = @raw_data['lang']? @raw_data['lang'] : @settings['default_lang']
       @data[:lang]  = @data[:lang].to_sym

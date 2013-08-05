@@ -102,6 +102,7 @@ class Commander < Thor
     else
       path = pick_project index
     end
+      project = InvoiceProject.new $SETTINGS, path
     if path
       edit_file path, options[:editor] if options[:editor]
       edit_file path
@@ -151,10 +152,12 @@ class Commander < Thor
   def display(index=nil)
     if options[:file]
       path = options[:file]
+      name = File.basename path, ".yml"
+      project = InvoiceProject.new $SETTINGS, path, name
     else
       path = pick_project index
+      project = InvoiceProject.new $SETTINGS, path
     end
-    project = InvoiceProject.new $SETTINGS, path
     #data = project.data
     if options[:verbose]
       project.validate :full, true
@@ -211,10 +214,12 @@ class Commander < Thor
     # TODO implement offer --archive
     if options[:file]
       path = options[:file]
+      name = File.basename path, ".yml"
+      project = InvoiceProject.new $SETTINGS, path, name
     else
       path = pick_project index
+      project = InvoiceProject.new $SETTINGS, path
     end
-    project = InvoiceProject.new $SETTINGS, path
 
     project.validate :offer
     if project.valid_for[:offer]
@@ -230,10 +235,12 @@ class Commander < Thor
     # TODO implement invoice --archive
     if options[:file]
       path = options[:file]
+      name = File.basename path, ".yml"
+      project = InvoiceProject.new $SETTINGS, path, name
     else
       path = pick_project index
+      project = InvoiceProject.new $SETTINGS, path
     end
-    project = InvoiceProject.new $SETTINGS, path
  
     project.validate :invoice
     if project.valid_for[:invoice]

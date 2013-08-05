@@ -80,7 +80,8 @@ module AsciiInvoicer
     box.add_line  "-----------------".rjust 33
     box.add_line  "total        : #{toto} -> #{toti}"
     box.footer = "Errors: #{project.errors.length} (#{ project.errors.join ',' })" if project.errors.length >0
-
+ 
+    puts data[:name]
     puts box
   end
 
