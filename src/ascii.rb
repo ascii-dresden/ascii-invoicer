@@ -262,9 +262,19 @@ class Commander < Thor
   #end
 
   desc "settings", "view Settings"
+  method_option :edit,
+    :type=>:boolean, :aliases => "-e",
+    :lazy_default=> false,
+    :required => false,
+    :desc => "edit your local settings"
   def settings
     #puts $SETTINGS.to_yaml
-    pp $SETTINGS
+    if options[:edit]
+      edit_file File.join $SETTINGS['path'], ".settings.yml"
+    else
+      puts $SETTINGS.to_yaml
+      #pp $SETTINGS
+    end
   end
 end
 
