@@ -84,7 +84,7 @@ module AsciiInvoicer
     box.add_line  "MWST         : #{to} -> #{ti}"
     box.add_line  "Gehalt Total : #{st}"
     box.add_line  "-----------------".rjust 33
-    box.add_line  "Brutto       : #{toto} -> #{toti}"
+    box.add_line  "Netto        : #{toto} -> #{toti}"
     box.add_line  "Final        : #{fo} -> #{fi}"
     box.footer = "Errors: #{project.errors.length} (#{ project.errors.join ',' })" if project.errors.length >0
  
