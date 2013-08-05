@@ -20,7 +20,7 @@ class Euro
   end
 
   def to_f
-    @value
+    @value.ceil_up
   end
 
   def to_euro

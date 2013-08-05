@@ -66,7 +66,7 @@ class InvoiceProject
                     :caterers, :script_path
                   ],
       :export  => [ :tax, :date, :manager, :name, :hours, :time, :salary_total, :salary,
-                    :address, :event, :offer_number, :costs,
+                    :address, :event, :offer_number, :costs, :costs_invoice, :costs_offer, :total_invoice,
                     :invoice_number, :invoice_number_long, :caterers,
       ],
     }

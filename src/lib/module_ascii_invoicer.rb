@@ -87,7 +87,10 @@ module AsciiInvoicer
   #takes an array of invoices (@plumber.working_projects)
   def print_project_list_csv(projects)
     header = [
-      'date', 'invoice_long', 'offer', 'event', 'name', 'path', 'manager', 'time', 'invoiced sum', 'valid'
+      'date',
+      'invoice_long',
+      'offer',
+      'event', 'name', 'manager', 'time', 'costs', 'total', 'valid'
     ]
     puts header.to_csv
     projects.each do |p|
@@ -97,13 +100,13 @@ module AsciiInvoicer
         p.data[:offer_number],
         p.data[:event],
         p.data[:name],
-        p.data[:project_path],
         p.data[:manager],
         p.data[:time].to_s + 'h',
         p.data[:costs_invoice],
         p.data[:total_invoice],
+        p.valid_for[:invoice]
       ]
-      line.map! {|v| v ? v : "..." } # wow, that looks cryptic
+      line.map! {|v| v ? v : "" } # wow, that looks cryptic
       puts line.to_csv
     end
   end
