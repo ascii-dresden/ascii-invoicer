@@ -145,11 +145,7 @@ module AsciiInvoicer
     end
   end
   
-  ## hand path to editor
-  def edit_file(path, editor = $SETTINGS['editor'])
-    logs "Opening #{path} in #{editor}"
-    pid = spawn "#{editor} #{path}"
-    Process.wait pid
+  def check_project(path)
     project = InvoiceProject.new $SETTINGS
     project.open path
     project.validate(:offer)
@@ -159,6 +155,20 @@ module AsciiInvoicer
         edit_file path
       end
     end
+  end
+  #
+  ## hand path to editor and check
+  def edit_project(path, editor = $SETTINGS['editor'])
+    edit_file path, editor
+    #check_project path #TODO
+  end
+
+  ## hand path to editor
+  def edit_file(path, editor = $SETTINGS['editor'])
+    editor = $SETTINGS['editor'] unless editor
+    logs "Opening #{path} in #{editor}"
+    pid = spawn "#{editor} #{path}"
+    Process.wait pid
   end
 
   def error(msg)

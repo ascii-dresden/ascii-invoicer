@@ -339,6 +339,8 @@ class InvoiceProject
       FileUtils.rm log if File.exists? log
       FileUtils.rm aux if File.exists? aux
     end
+
+    puts "Created #{output_path} and .pdf"
   end
 
   def write_array_to_file file_content, path

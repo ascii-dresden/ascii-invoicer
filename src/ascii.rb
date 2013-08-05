@@ -66,7 +66,6 @@ class Commander < Thor
   class_option :file,      :aliases=> "-f", :type => :string
   class_option :verbose,   :aliases=> "-v", :type => :boolean
   class_option :editor,                     :type => :string
-  class_option :check,                      :type => :boolean
   #class_option "keep-log", :aliases=> "-k", :type => :boolean
 
   desc "new NAME", "creating a new project" 
@@ -80,10 +79,10 @@ class Commander < Thor
 
     if plumber.new_project name
       puts "creating a new project name #{name}"
-      edit_file plumber.get_project_file_path name
+      edit_project plumber.get_project_file_path name
     else
       #puts "Project #{name} already exists"
-      edit_file plumber.get_project_file_path name unless options[:dont_edit]
+      edit_project plumber.get_project_file_path name unless options[:dont_edit]
     end
   end
 
@@ -104,8 +103,7 @@ class Commander < Thor
     end
       project = InvoiceProject.new $SETTINGS, path
     if path
-      edit_file path, options[:editor] if options[:editor]
-      edit_file path
+      edit_project path, options[:editor]
     end
   end
 
@@ -210,6 +208,11 @@ class Commander < Thor
 
 
   desc "offer NAME", "Create an offer from project file."
+  method_option :check,
+    :type=>:numeric, :aliases => "-d",
+    :lazy_default=> true,
+    :required => false,
+    :desc => "check"
   def offer(index=nil)
     # TODO implement offer --archive
     if options[:file]
@@ -231,6 +234,11 @@ class Commander < Thor
 
 
   desc "invoice NAME", "Create an invoice from project file."
+  method_option :check,
+    :type=>:numeric, :aliases => "-d",
+    :lazy_default=> true,
+    :required => false,
+    :desc => "check"
   def invoice(index=nil)
     # TODO implement invoice --archive
     if options[:file]
@@ -277,7 +285,7 @@ class Commander < Thor
   def settings
     #puts $SETTINGS.to_yaml
     if options[:edit]
-      edit_file File.join $SETTINGS['path'], ".settings.yml"
+      edit_file File.join($SETTINGS['path'], ".settings.yml")
     else
       puts $SETTINGS.to_yaml
       #pp $SETTINGS
