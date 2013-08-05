@@ -1,0 +1,18 @@
+verbose:  false
+
+dirs:
+  storage: projects
+  working: working
+  archive: archive
+
+templates:
+  project: templates/blank.yml
+  invoice: latex/ascii-rechnung.tex
+  offer:   latex/ascii-angebot.tex
+
+
+#careful here
+project_file_extension: yml
+path: /home/hendrik/Desktop/ram/
+default_lang: de
+default_tax: 0.19

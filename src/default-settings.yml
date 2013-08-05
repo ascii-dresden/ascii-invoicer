@@ -1,0 +1,30 @@
+verbose:  false
+editor:   vim
+latex:    pdflatex
+colors:   false # NOT YET IMPLEMENTED
+
+dirs:
+  storage: caterings
+  working: working
+  archive: archive
+
+templates:
+  project: templates/blank.yml
+  invoice: latex/ascii-rechnung.tex
+  offer:   latex/ascii-angebot.tex
+
+#careful here
+project_file_extension: .yml
+path:     #nil
+default_lang: de
+default_tax: 0.19
+default_signature: Mit freundlichen Grüßen
+default_messages:
+  invoice: 
+    - "wir bedanken uns für Ihren Auftrag für das Catering am $raw_date$ und erlauben uns ihnen folgende Rechnung zu stellen:"
+    - "Wir bitten um eine Begleichung des Betrags innerhalb von 14 Tagen nach Erhalt der Rechnung."
+  offer: 
+    - "hiermit möchten wir Ihnen für die gastronomische Betreuung Ihrer Veranstaltung am $raw_date$ folgendes Angebot unterbreiten:"
+    - ""
+
+...

@@ -1,0 +1,42 @@
+\documentclass[11pt,utf8]{$script_path$/latex/ascii-brief}
+\input{$script_path$/latex/ascii-include}
+\Logo {$script_path$/latex/ascii-logo.png}
+
+\Unterschrift        {$manager$}
+\Postvermerk         {}
+\Adresse             {$address$}
+
+\Betreff             {Rechnung} %% [Angebot|Rechnung]
+
+\Datum               {\today}
+\AngebotManuel       {$offer_number$} %% Manuel ueberschreibbar ansonsten automatisch heute
+\Veranstaltung       {$event$}
+\RechnungsNummer     {$invoice_number_long$} %% bei Angeboten leer lassen
+\Anrede              {$addressing$, }
+\Gruss               {$signature$}{1cm}
+
+%\Anlagen             {Anlagen}
+%\Verteiler           {Verteiler}
+
+\begin{document}
+\begin{ascii-brief}
+
+$message_invoice_1$
+
+\begin{center}
+\begin{tabular}{rp{7cm}rrr}
+\textbf{Nr.} & \textbf{Bezeichnung}&    \textbf{Menge}    &    \textbf{EP}&    \textbf{Preis}    \\
+\midrule
+$tex_table_invoice$
+\bottomrule[1pt]
+\multicolumn{4}{r}{Netto MwSt. 19\%} & $costs_invoice$ \\
+\multicolumn{4}{r}{+MwSt. 19\%}      & $taxes_invoice$ \\
+\multicolumn{4}{r}{MwSt 0\%}         & $salary_total$  \\
+\multicolumn{4}{r}{Gesamtpreis}      & $total_invoice$ \\
+\end{tabular}
+\end{center}
+
+$message_invoice_2$
+
+\end{ascii-brief}
+\end{document}
