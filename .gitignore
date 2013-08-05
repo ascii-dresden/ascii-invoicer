@@ -7,8 +7,7 @@
 *~
 .directory
 Gemfile.lock
-caterings
-caterings-dev
+caterings*
 doc
 settings.yml
 src

@@ -38,8 +38,8 @@ class InvoiceProject
       :list    => [ :tax, :date, :manager, :name, :offer_number, :invoice_number ],
 
       :offer   => [ :tax, :date, :raw_date, :manager, :name,
-                    :time, :salary, :salary_total,
-                    :costs_offer, :taxes_offer, :total_offer,
+                    :time, :salary, :salary_total, :costs,
+                    :costs_offer, :taxes_offer, :total_offer, :final_offer,
                     :offer_number,
                     :address, :messages,
                     :event, :signature, :addressing,
@@ -47,8 +47,8 @@ class InvoiceProject
                     :script_path
                   ],
       :invoice => [ :tax, :date, :raw_date, :manager, :name,
-                    :time, :salary, :salary_total,
-                    :costs_invoice, :taxes_invoice, :total_invoice,
+                    :time, :salary, :salary_total, :costs,
+                    :costs_invoice, :taxes_invoice, :total_invoice, :final_invoice,
                     :offer_number, :invoice_number, :invoice_number_long,
                     :address, :messages,
                     :event, :signature, :addressing,
@@ -56,9 +56,9 @@ class InvoiceProject
                     :script_path
                   ],
       :full    => [ :tax, :date, :raw_date,:manager, :name,
-                    :time, :salary, :salary_total,
-                    :costs_offer, :taxes_offer, :total_offer,
-                    :costs_invoice, :taxes_invoice, :total_invoice,
+                    :time, :salary, :salary_total, :costs,
+                    :costs_offer,    :taxes_offer,    :total_offer,    :final_offer,
+                    :costs_invoice,  :taxes_invoice,  :total_invoice,  :final_invoice,
                     :offer_number, :invoice_number, :invoice_number_long,
                     :address, :messages,
                     :event, :signature, :addressing,
@@ -66,7 +66,9 @@ class InvoiceProject
                     :caterers, :script_path
                   ],
       :export  => [ :tax, :date, :manager, :name, :hours, :time, :salary_total, :salary,
-                    :address, :event, :offer_number, :costs, :costs_invoice, :costs_offer, :total_invoice,
+                    :address, :event, :offer_number, :costs,
+                    :costs_offer,    :taxes_offer,    :total_offer,    :final_offer,
+                    :costs_invoice,  :taxes_invoice,  :total_invoice,  :final_invoice,
                     :invoice_number, :invoice_number_long, :caterers,
       ],
     }
@@ -90,6 +92,8 @@ class InvoiceProject
       :taxes_invoice       => [:parse_taxes,      :invoice      ] ,
       :total_offer         => [:parse_total,      :offer        ] ,
       :total_invoice       => [:parse_total,      :invoice      ] ,
+      :final_offer         => [:parse_final,      :offer        ] ,
+      :final_invoice       => [:parse_final,      :invoice      ] ,
 
       :tex_table_invoice   => [:parse_tex_table,  :invoice      ] ,
       :tex_table_offer     => [:parse_tex_table,  :offer        ] ,

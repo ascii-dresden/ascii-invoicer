@@ -63,11 +63,17 @@ module AsciiInvoicer
     data = project.data
 
     ci   = data[:costs_invoice ].to_s.rjust(7)
-    ti   = data[:taxes_invoice ].to_s.rjust(7)
     co   = data[:costs_offer   ].to_s.rjust(7)
+
+    ti   = data[:taxes_invoice ].to_s.rjust(7)
     to   = data[:taxes_offer   ].to_s.rjust(7)
+
+    fi   = data[:final_invoice ].to_s.rjust(7)
+    fo   = data[:final_offer   ].to_s.rjust(7)
+
     toto = data[:total_offer   ].to_s.rjust(7)
     toti = data[:total_invoice ].to_s.rjust(7)
+
     st   = data[:salary_total  ].to_s.rjust(18)
 
     box = TextBox.new
@@ -78,10 +84,12 @@ module AsciiInvoicer
     box.add_line  "MWST         : #{to} -> #{ti}"
     box.add_line  "Gehalt Total : #{st}"
     box.add_line  "-----------------".rjust 33
-    box.add_line  "total        : #{toto} -> #{toti}"
+    box.add_line  "Brutto       : #{toto} -> #{toti}"
+    box.add_line  "Final        : #{fo} -> #{fi}"
     box.footer = "Errors: #{project.errors.length} (#{ project.errors.join ',' })" if project.errors.length >0
  
-    puts data[:name]
+    pp data[:final_offer]
+    pp data[:final_invoice]
     puts box
   end
 

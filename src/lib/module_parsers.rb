@@ -32,6 +32,11 @@ module InvoiceParsers
     false
   end
 
+  def parse_final choice = nil
+    return @data[:salary_total] + @data[:total_invoice] if choice == :invoice
+    return @data[:salary_total] + @data[:total_offer]   if choice == :offer
+  end
+
   def parse_total choice = nil
     return fail_at :total unless choice
     return fail_at "costs_#{choice.to_s}" unless parse :costs
