@@ -4,7 +4,7 @@
 *.pdf
 *.aux
 *.log
-caterings
+caterings*
 .directory
 caterings-dev
 values.tex

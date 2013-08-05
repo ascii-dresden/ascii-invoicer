@@ -9,8 +9,8 @@
 @options.editor           = 'vim'
 @options.latex            = 'pdflatex'
 @options.store_dir        = "#{@options.path}caterings/"
-@options.working_dir      = "#{@options.store_dir}open/"
-@options.done_dir         = "#{@options.store_dir}done/"
+@options.working_dir      = "#{@options.store_dir}working/"
+@options.done_dir         = "#{@options.store_dir}archive/"
 @options.template_dir     = "#{@options.path}templates/"
 @options.template_yml     = "#{@options.template_dir}vorlage.yaml"
 @options.template_invoice = "#{@options.path}latex/ascii-rechnung.tex"
