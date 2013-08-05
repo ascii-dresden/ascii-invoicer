@@ -88,8 +88,6 @@ module AsciiInvoicer
     box.add_line  "Final        : #{fo} -> #{fi}"
     box.footer = "Errors: #{project.errors.length} (#{ project.errors.join ',' })" if project.errors.length >0
  
-    pp data[:final_offer]
-    pp data[:final_invoice]
     puts box
   end
 
