@@ -17,7 +17,7 @@ require "#{$SCRIPT_PATH}/lib/textboxes.rb"
 require "#{$SCRIPT_PATH}/lib/clitables.rb"
 
 $SETTINGS                = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
-$local_settings          = YAML::load(File.open("settings.yml")) if File.exists? "settings.yml"
+$local_settings          = YAML::load(File.open(".settings.yml")) if File.exists? ".settings.yml"
 $SETTINGS['path']        = File.expand_path File.split(__FILE__)[0]
 $SETTINGS['script_path'] = $SCRIPT_PATH
 

@@ -37,7 +37,8 @@ class InvoiceProject
     @requirements = {
       :list    => [ :tax, :date, :manager, :name, :offer_number, :invoice_number ],
 
-      :offer   => [ :tax, :date, :raw_date, :manager, :name, :hours, :time, :salary_total, 
+      :offer   => [ :tax, :date, :raw_date, :manager, :name,
+                    :time, :salary, :salary_total,
                     :costs_offer, :taxes_offer, :total_offer,
                     :offer_number,
                     :address, :messages,
@@ -45,7 +46,8 @@ class InvoiceProject
                     :tex_table_offer,
                     :script_path
                   ],
-      :invoice => [ :tax, :date, :raw_date, :manager, :name, :hours, :time, :salary_total, 
+      :invoice => [ :tax, :date, :raw_date, :manager, :name,
+                    :time, :salary, :salary_total,
                     :costs_invoice, :taxes_invoice, :total_invoice,
                     :offer_number, :invoice_number, :invoice_number_long,
                     :address, :messages,
@@ -53,7 +55,8 @@ class InvoiceProject
                     :tex_table_invoice,
                     :script_path
                   ],
-      :full    => [ :tax, :date, :raw_date,:manager, :name, :hours, :time, :salary_total, 
+      :full    => [ :tax, :date, :raw_date,:manager, :name,
+                    :time, :salary, :salary_total,
                     :costs_offer, :taxes_offer, :total_offer,
                     :costs_invoice, :taxes_invoice, :total_invoice,
                     :offer_number, :invoice_number, :invoice_number_long,
@@ -92,6 +95,7 @@ class InvoiceProject
       :tex_table_offer     => [:parse_tex_table,  :offer        ] ,
       :time                => [:parse_hours,      :time         ] ,
       :caterers            => [:parse_hours,      :caterers     ] ,
+      :salary              => [:parse_hours,      :salary       ] ,
       :salary_total        => [:parse_hours,      :salary_total ] ,
     }
 
@@ -250,7 +254,7 @@ class InvoiceProject
     name = @data[:name]
     date = @data[:date].strftime "%Y-%m-%d"
 
-    ext = '.' + ext unless ext.length > 0 and ext.start_with? '.'
+    ext.prepend '.' unless ext.length > 0 and ext.start_with? '.'
 
     if choice == :invoice
       "#{invoice_number} #{name} #{date}#{ext}"
@@ -271,7 +275,7 @@ class InvoiceProject
 
   ##
   # fills the template with minded data
-  def create_tex choice, check = false
+  def create_tex choice, check = false, run = true
     return fail_at :create_tex unless parse :products
     return fail_at :templates unless load_templates()
 
@@ -313,7 +317,10 @@ class InvoiceProject
     silencer = @settings['verbose'] ? "" : "> /dev/null" 
 
     #TODO output directory is not generic
-    system "#{@settings['latex']} \"#{output_path}\" -output-directory . #{silencer}"
+    if run
+      system "#{@settings['latex']} \"#{output_path}\" -output-directory . #{silencer}"
+    end
+
 
     unless @settings['keep_log']
       log = filename.gsub('.tex','.log')

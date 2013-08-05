@@ -7,9 +7,9 @@ module InvoiceParsers
  
   ##
   def parse_costs(choice = nil)
-    return fail_at :costs                 unless parse :tax
-    return fail_at :costs                 unless parse :products
-    return fail_at :costs                 unless parse :salary_total
+    return fail_at :costs unless parse :tax
+    return fail_at :costs unless parse :products
+    return fail_at :costs unless parse :salary_total
 
     costs = {}
     costs[:costs_invoice] = Euro.new 0.0
@@ -76,8 +76,10 @@ module InvoiceParsers
     number = 0
     @data[:products].each do |name, p|
       number += 1
-      table += "#{number} & #{name} & #{p.amount(choice)} & #{p.price} & #{p.cost(choice)} \\\\\\ " #TODO put price.to_euro into the InvoiceProduct
+      table += "#{number} & #{name} & #{p.amount(choice)} & #{p.price} & #{p.cost(choice)} \\\\\\\\" #TODO put price.to_euro into the InvoiceProduct
     end
+
+    table += [ number+1 ," & Betreuung (Stunden)& " , @data[:time] , " & " , @data[:salary], " & " , @data[:salary_total] ].join + " \\\\\\" if @data[:time] > 0
     return table
   end
 
@@ -225,8 +227,8 @@ module InvoiceParsers
 
     return hours[:time]     if choice == :time
     return hours[:salary]   if choice == :salary
-    return salary_total     if choice == :salary_total
     return hours[:caterers] if choice == :caterers
+    return salary_total     if choice == :salary_total
     return hours            if choice == :hours
   end
 
