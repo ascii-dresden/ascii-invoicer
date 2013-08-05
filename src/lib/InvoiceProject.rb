@@ -138,6 +138,10 @@ class InvoiceProject
     return false
   end
 
+  def name
+    @data[:name]
+  end
+
   ##
   # run validate() to initiate all parser functions.
   # If strikt = true the programm fails, otherise it returns false,

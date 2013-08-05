@@ -109,10 +109,10 @@ module InvoiceParsers
     elsif choice == :offer
       if @raw_data['anumber'].nil?  and @raw_data['manumber'].nil?
         return fail_at :offer_number
-      elsif @raw_data['anumber'].nil?
-        numbers[:offer] = @raw_data['manumber']
-      else
+      elsif @raw_data['manumber'].nil?
         numbers[:offer] = Date.today.strftime "A%Y%m%d-" + @raw_data['anumber'].to_s
+      else
+        numbers[:offer] = @raw_data['manumber']
       end
       return numbers[:offer]         if choice == :offer
     end
