@@ -12,10 +12,10 @@ module InvoiceParsers
     return fail_at :costs                 unless parse :salary_total
 
     costs = {}
-    costs[:costs_invoice] = 0.0
-    costs[:costs_offer]   = 0.0
-    costs[:taxes_invoice] = 0.0
-    costs[:taxes_offer]   = 0.0
+    costs[:costs_invoice] = Euro.new 0.0
+    costs[:costs_offer]   = Euro.new 0.0
+    costs[:taxes_invoice] = Euro.new 0.0
+    costs[:taxes_offer]   = Euro.new 0.0
 
     @data[:products].each { |name,product|
       costs[:costs_invoice] += product.cost_invoice
@@ -76,7 +76,7 @@ module InvoiceParsers
     number = 0
     @data[:products].each do |name, p|
       number += 1
-      table += "#{number} & #{name} & #{p.amount(choice)} & #{p.price} & #{p.cost(choice)} \\\\\\ "
+      table += "#{number} & #{name} & #{p.amount(choice)} & #{p.price} & #{p.cost(choice)} \\\\\\ " #TODO put price.to_euro into the InvoiceProduct
     end
     return table
   end
@@ -209,19 +209,19 @@ module InvoiceParsers
   def parse_hours(choice = :hours)
     hours            = {}
     hours[:time]     = @raw_data['hours']['time'].to_f
-    hours[:salary]   = @raw_data['hours']['salary']
+    hours[:salary]   = @raw_data['hours']['salary'].to_euro
     hours[:caterers] = @raw_data['hours']['caterers']
     hours[:time_each] = 0.0
 
     hours[:caterers].each { |name,time| hours[:time_each] += time } if hours[:caterers]
 
-    salary = @raw_data['hours']['salary']
-    salary_total   = salary * hours[:time]
+    salary_total   = hours[:salary] * hours[:time]
+    #salary_total   = Euro.new salary_total
 
     return fail_at :hours     unless hours
     return fail_at :time      unless hours[:time]
     return fail_at :time_each unless hours[:time_each] and hours[:time] == hours[:time_each]
-    return fail_at :salary    unless salary_total.class == Float
+    return fail_at :salary    unless salary_total.class == Euro
 
     return hours[:time]     if choice == :time
     return hours[:salary]   if choice == :salary

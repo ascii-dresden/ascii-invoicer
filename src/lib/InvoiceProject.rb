@@ -145,7 +145,10 @@ class InvoiceProject
       @valid_for[type] = true
       puts type.to_s if print
       requirements.each { |req|
-        puts "   " + (!@data[req].nil?).to_s + req.to_s.ljust(15) + "(#{ @data[req].to_s.each_line.first.to_s.each_line.first })" if print
+        puts "   " +
+          (!@data[req].nil?).to_s + req.to_s.ljust(15) +
+          "(#{ @data[req].to_s.each_line.first.to_s.each_line.first })" +
+          "(#{@data[req].class})" if print
         @valid_for[type] = false unless @data[req] 
       }
       puts if print
@@ -344,7 +347,7 @@ class InvoiceProduct
     @valid    = false unless @h['sold'].nil? or @h['returned'].nil?
     @valid    = false unless @h['amount'] and @h['price']
     @sold     = @h['sold']
-    @price    = @h['price']
+    @price    = @h['price'].to_euro
     @amount   = @h['amount']
     @returned = @h['returned']
 
@@ -367,14 +370,14 @@ class InvoiceProduct
   end
 
   def cost choice
-    return cost_invoice.to_euro if choice == :invoice
-    return cost_offer.to_euro   if choice == :offer
+    return cost_invoice if choice == :invoice
+    return cost_offer   if choice == :offer
     return -1.to_euro
   end
 
   def calculate()
-    @cost_invoice = (@sold   * @price).ceil_up()
-    @cost_offer   = (@amount * @price).ceil_up()
+    @cost_invoice = (@price * @sold).ceil_up()
+    @cost_offer   = (@price * @amount).ceil_up()
 
     @tax_invoice  = (@cost_invoice * @tax_value).ceil_up()
     @tax_offer    = (@cost_offer   * @tax_value).ceil_up()

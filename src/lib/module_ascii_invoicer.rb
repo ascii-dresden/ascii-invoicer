@@ -62,13 +62,13 @@ module AsciiInvoicer
   def costbox project 
     data = project.data
 
-    ci   = data[:costs_invoice ].to_euro(7)
-    ti   = data[:taxes_invoice ].to_euro(7)
-    co   = data[:costs_offer   ].to_euro(7)
-    to   = data[:taxes_offer   ].to_euro(7)
-    toto = data[:total_offer   ].to_euro(7)
-    toti = data[:total_invoice ].to_euro(7)
-    st   = data[:salary_total  ].to_euro(7)
+    ci   = data[:costs_invoice ]
+    ti   = data[:taxes_invoice ]
+    co   = data[:costs_offer   ]
+    to   = data[:taxes_offer   ]
+    toto = data[:total_offer   ]
+    toti = data[:total_invoice ]
+    st   = data[:salary_total  ]
 
     box = TextBox.new
     box.padding_horizontal = 3

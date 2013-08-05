@@ -21,17 +21,6 @@ class Object
     return n
   end
 
-  def to_euro(rj = -1)
-    return self unless self.class == Float
-    a,b = sprintf("%0.2f", self.to_s).split('.')
-    a.gsub!(/(\d)(?=(\d{3})+(?!\d))/, '\\1.')
-    if rj > 0
-      "#{a},#{b}€".rjust rj
-    else
-      "#{a},#{b}€"
-    end
-
-  end
 end
 
 def do_ask

@@ -9,6 +9,7 @@ require 'paint'
 
 $SCRIPT_PATH = File.split(File.expand_path(File.readlink(__FILE__)))[0]
 require "#{$SCRIPT_PATH}/lib/tweaks.rb"
+require "#{$SCRIPT_PATH}/lib/Euro.rb"
 require "#{$SCRIPT_PATH}/lib/InvoiceProject.rb"
 require "#{$SCRIPT_PATH}/lib/ProjectPlumber.rb"
 require "#{$SCRIPT_PATH}/lib/module_ascii_invoicer.rb"
@@ -60,6 +61,7 @@ class Commander < Thor
   map "-d" => :display
   map "-i" => :invoice
   map "-o" => :offer
+  map "-e" => :edit
 
   class_option :file,      :aliases=> "-f", :type => :string
   class_option :verbose,   :aliases=> "-v", :type => :boolean
@@ -240,6 +242,24 @@ class Commander < Thor
       error "#{project.name} is not ready for creating an invoice!"
     end
   end
+
+
+  desc "pull", "NOT YET IMPLEMENTED."
+  def pull
+    puts "You wish you could do this don't you. Wait for 2.1 :D"
+  end
+
+
+  desc "commit", "NOT YET IMPLEMENTED."
+  def commit
+    puts "You wish you could do this don't you. Wait for 2.1 :D"
+  end
+
+
+  #desc "history", "NOT YET IMPLEMENTED."
+  #def history
+  #  puts "You wish you could do this don't you. Wait for 2.1 :D"
+  #end
 
   desc "settings", "view Settings"
   def settings
