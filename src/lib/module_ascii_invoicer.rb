@@ -62,22 +62,22 @@ module AsciiInvoicer
   def costbox project 
     data = project.data
 
-    ci   = data[:costs_invoice ]
-    ti   = data[:taxes_invoice ]
-    co   = data[:costs_offer   ]
-    to   = data[:taxes_offer   ]
-    toto = data[:total_offer   ]
-    toti = data[:total_invoice ]
-    st   = data[:salary_total  ]
+    ci   = data[:costs_invoice ].to_s.rjust(7)
+    ti   = data[:taxes_invoice ].to_s.rjust(7)
+    co   = data[:costs_offer   ].to_s.rjust(7)
+    to   = data[:taxes_offer   ].to_s.rjust(7)
+    toto = data[:total_offer   ].to_s.rjust(7)
+    toti = data[:total_invoice ].to_s.rjust(7)
+    st   = data[:salary_total  ].to_s.rjust(18)
 
     box = TextBox.new
     box.padding_horizontal = 3
-    box.header = "Project: #{data[:event]}"
+    box.header = "Project:" + "\"#{data[:event]}\"".rjust(25)
 
     box.add_line  "Kosten       : #{co} -> #{ci}"
     box.add_line  "MWST         : #{to} -> #{ti}"
     box.add_line  "Gehalt Total : #{st}"
-    box.add_line  "           ------------------"
+    box.add_line  "-----------------".rjust 33
     box.add_line  "total        : #{toto} -> #{toti}"
     box.footer = "Errors: #{project.errors.length} (#{ project.errors.join ',' })" if project.errors.length >0
 

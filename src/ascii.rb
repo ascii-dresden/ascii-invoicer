@@ -162,7 +162,7 @@ class Commander < Thor
       puts project.valid_for
       puts project.errors
     else
-      project.validate :invoice
+      project.validate :full
       costbox project
     end
   end
