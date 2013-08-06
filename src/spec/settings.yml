@@ -13,6 +13,7 @@ templates:
 
 #careful here
 project_file_extension: yml
-path: /home/hendrik/Desktop/ram/
+path: .
+script_path: .
 default_lang: de
 default_tax: 0.19

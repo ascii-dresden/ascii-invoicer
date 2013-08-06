@@ -184,7 +184,7 @@ class ProjectsPlumber
     return false unless project_folder
     return false if list_project_names(:archive, year).include? name
 
-    puts "moving: #{project_folder} to #{target}" if target and project_folder
+    logs "moving: #{project_folder} to #{target}" if target and project_folder
     FileUtils.mv project_folder, target
     return target
   end
