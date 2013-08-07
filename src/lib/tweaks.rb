@@ -1,12 +1,12 @@
 # encoding: utf-8
 class TrueClass
-  def to_s
+  def print
     "\e[32m✓\e[0m"
   end
 end
 
 class FalseClass
-  def to_s
+  def print
     "\e[31m✗\e[0m"
   end
 end

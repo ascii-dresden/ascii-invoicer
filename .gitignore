@@ -10,7 +10,6 @@ Gemfile.lock
 caterings*
 doc
 settings.yml
-src
 stats
 test.rb
 tmp

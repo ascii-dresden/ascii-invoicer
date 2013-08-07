@@ -43,7 +43,7 @@ module AsciiInvoicer
         p.data[:manager],
         p.data[:invoice_number],
         p.data[:date].strftime("%d.%m.%Y"),
-        p.data[:valid].to_s,
+        p.data[:valid].print,
       ]
     end
     table.set_alignment(0, :r)

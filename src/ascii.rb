@@ -68,6 +68,10 @@ class Commander < Thor
   class_option :editor,                     :type => :string
   #class_option "keep-log", :aliases=> "-k", :type => :boolean
 
+
+
+
+
   desc "new NAME", "creating a new project" 
   method_option :dont_edit,
     :type=>:boolean, :aliases => "-d",
@@ -85,6 +89,7 @@ class Commander < Thor
       edit_project plumber.get_project_file_path name unless options[:dont_edit]
     end
   end
+
 
 
   desc "edit index", "Edit project file."
@@ -106,6 +111,8 @@ class Commander < Thor
       edit_project path, options[:editor]
     end
   end
+
+
 
   desc "list", "List current Projects."
     method_option :archives,
@@ -168,7 +175,12 @@ class Commander < Thor
     end
   end
 
+  
+
   desc "archive NAME", "Move project to archive."
+  method_option :force,:type=>:boolean,
+    :lazy_default=> true, :required => false,
+    :desc => "Force archiving projects that are invalid."
   def archive(name)
     # TODO implement archive Project
     plumber = ProjectsPlumber.new $SETTINGS
@@ -182,7 +194,7 @@ class Commander < Thor
     prefix = data[:invoice_number].to_s + "_"
     name   = data[:name]
 
-    unless data[:valid]
+    unless data[:valid] or options[:force]
       error "\"#{name}\" contains errors\n(#{project.errors.join(',')})"
     end
 
@@ -195,6 +207,7 @@ class Commander < Thor
   end
 
 
+
   desc "reopen YEAR NAME", "Reopen an archived project."
   def reopen(year, name)
     # TODO finish reopen
@@ -205,6 +218,7 @@ class Commander < Thor
       error "Can't unarchive #{name}, checks names of current projects for duplicates!"
     end
   end
+
 
 
   desc "offer NAME", "Create an offer from project file."
@@ -233,6 +247,7 @@ class Commander < Thor
   end
 
 
+
   desc "invoice NAME", "Create an invoice from project file."
   method_option :check,
     :type=>:numeric, :aliases => "-d",
@@ -259,10 +274,12 @@ class Commander < Thor
   end
 
 
+
   desc "pull", "NOT YET IMPLEMENTED."
   def pull
     puts "You wish you could do this don't you. Wait for 2.1 :D"
   end
+
 
 
   desc "commit", "NOT YET IMPLEMENTED."
@@ -271,10 +288,13 @@ class Commander < Thor
   end
 
 
+
   #desc "history", "NOT YET IMPLEMENTED."
   #def history
   #  puts "You wish you could do this don't you. Wait for 2.1 :D"
   #end
+
+
 
   desc "settings", "view Settings"
   method_option :edit,
