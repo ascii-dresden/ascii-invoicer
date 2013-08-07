@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'ostruct'
 require 'fileutils'
 require File.dirname(__FILE__) + '/spec_helper'
@@ -26,7 +27,6 @@ describe InvoiceProject do
   end
 
   describe "#initialize" do
-
     #it "loads template files" do
     #  File.should exist @settings['templates']['offer']
     #  File.should exist @settings['templates']['invoice']
@@ -35,7 +35,6 @@ describe InvoiceProject do
   end
 
   describe "#open" do
-
     it "loads project file" do
       File.should exist @test_projects['alright']
       @project.open @test_projects['alright']
@@ -69,11 +68,6 @@ describe InvoiceProject do
       #@project.print_data()
       #puts @project.tex_product_table()
     end
-
-    #it "validates alright invoice as alright" do
-    #  File.should exist @test_projects['alright']
-    #  @project.open @test_projects['alright']
-    #end
 
     it "validates email addresses" do
       @project.open @test_projects['alright']
@@ -118,16 +112,18 @@ describe InvoiceProject do
     it "validates numbers" do
       File.should exist @test_projects['alright']
       @project.open @test_projects['alright']
-      @project.parse :numbers
-      @project.data[:numbers][:offer].should === Date.today.strftime("A%Y%m%d-1")
-      @project.data[:numbers][:invoice_long].should === "R2013-027"
-      @project.data[:numbers][:invoice_short].should === "R027"
+      @project.parse :offer_number
+      @project.parse :invoice_number
+      @project.parse :invoice_number_long
+      @project.data[:offer_number].should === Date.today.strftime("A%Y%m%d-1")
+      @project.data[:invoice_number].should === "R027"
+      @project.data[:invoice_number_long].should === "R2013-027"
     end
 
     it "validates client" do
       @project.open @test_projects['alright']
-      @project.parse_client().should be true
-      @project.data[:client][:last_name].should === 'Doe'
+      @project.parse(:client).should be_true
+      @project.data[:client][:last_name].should  === 'Doe'
       @project.data[:client][:addressing].should === 'Sehr geehrter Herr Doe'
     end
 
@@ -143,107 +139,106 @@ describe InvoiceProject do
       name4 = 'client_female'
       File.should exist @test_projects[name]
       @project.open @test_projects[name]
-      @project.parse_client().should be true
+      @project.parse(:client).should be_true
+      @project.data[:client]
       @project.data[:client][:last_name].should === 'Doe'
       @project.data[:client][:addressing].should === 'Sehr geehrter Professor Dr. Dr. Doe'
 
       File.should exist @test_projects[name2]
       @project2.open @test_projects[name2]
-      @project2.parse_client().should be true
+      @project2.parse(:client).should be_true
       @project2.data[:client][:last_name].should === 'Doe'
       @project2.data[:client][:addressing].should === 'Sehr geehrte Frau Professor Dr. Dr. Doe'
 
       File.should exist @test_projects[name3]
       @project3.open @test_projects[name3]
-      @project3.parse_client().should be true
+      @project3.parse(:client).should be_true
       @project3.data[:client][:last_name].should === 'Doe'
       @project3.data[:client][:addressing].should === 'Sehr geehrter Herr Professor Dr. Dr. Doe'
 
       File.should exist @test_projects[name4]
       @project4.open @test_projects[name4]
-      @project4.parse_client().should be true
+      @project4.parse(:client).should be_true
       @project4.data[:client][:last_name].should === 'Doe'
       @project4.data[:client][:addressing].should === 'Sehr geehrte Frau Doe'
     end
 
-    it "validates caterer" do
+    it "validates manager" do
       @project.open @test_projects['alright']
-      @project.parse_signature().should be true
-      @project.data[:caterer].should === 'Yours Truely'
+      @project.parse(:manager).should be_true
+      @project.data[:manager].should === 'Manager Bob'
 
       @project2.open @test_projects['signature_long']
-      @project2.parse_signature().should be true
-      @project2.data[:caterer].should === 'Hendrik Sollich'
+      @project2.parse(:manager).should be_true
+      @project2.data[:manager].should === 'Hendrik Sollich'
 
       @project3.open @test_projects['old_signature']
-      @project3.parse_signature().should be true
-      #pp @project3.raw_data['signature']
-      @project3.data[:caterer].should === 'Yours Truely'
+      @project3.parse(:manager).should be_true
+      @project3.data[:manager].should === 'Yours Truely'
     end
 
     it "validates signature" do
       @project.open @test_projects['alright']
-      @project.parse_signature().should be true
-      @project.data[:signature].should === 'Yours Truely'
+      @project.parse(:signature).should be_true
+      @project.data[:signature].should === 'Mit freundlichen Grüßen'
 
       @project2.open @test_projects['signature_long']
-      @project2.parse_signature().should be true
+      @project2.parse(:signature).should be_true
       @project2.data[:signature].should === "Yours Truely\nHendrik Sollich"
     end
 
     it "validates hours" do
       @project.open @test_projects['alright']
-      @project.parse_hours().should be true
+      @project.parse(:hours).should be_true
 
       @project2.open @test_projects['hours_missmatching']
-      @project2.parse_hours().should be false
+      @project2.parse(:hours).should be_true
 
       @project3.open @test_projects['hours_simple']
-      @project3.parse_hours().should be true
+      @project3.parse(:hours).should be_true
 
       @project4.open @test_projects['hours_missing']
-      @project4.parse_hours().should be false
+      @project4.parse(:hours).should be false
 
       @project5.open @test_projects['hours_missing_salary']
-      @project5.parse_hours().should be false
-
+      @project5.parse(:hours).should be false
     end
 
     it "validates products" do
       @project.open @test_projects['alright']
-      @project.parse_products().should be true
+      @project.parse(:products).should be_true
 
       @project2.open @test_projects['products_missing']
-      @project2.parse_products().should be false
+      @project2.parse(:products).should be false
 
       @project3.open @test_projects['products_empty']
-      @project3.parse_products().should be false
+      @project3.parse(:products).should be false
 
       @project4.open @test_projects['products_soldandreturned']
-      @project4.parse_products().should be false
+      @project4.parse(:products).should be false
 
       ## cant be tested because YAML::load already eliminates the duplicate
       #@project5.open @test_projects['products_name_twice']
-      #@project5.parse_products().should be false
+      #@project5.parse(:products).should be false
     end
 
-    it "sums up products" do
-      @project.open @test_projects['alright']
-      @project.parse_products().should be_true
-      @project.parse :products
-      #pp @project.data['products']
-      @project.get_cost(:offer).should      === 50.14
-      @project.get_cost(:invoice).should     === 31.55
-      @project.data[:products]['sums']['offered_tax'].should  === 59.67
-      @project.data[:products]['sums']['invoiced_tax'].should === 37.54
-    end
-
-    #it "validates for invoices" do
-    #  # Rechnungsnummer
+    #it "sums up products" do
+    #  @project.open @test_projects['alright']
+    #  @project.parse(:products).should be_true
+    #  @project.parse :products
+    #  #pp @project.data['products']
+    #  @project.get_cost(:offer).should    === 50.14
+    #  @project.get_cost(:invoice).should  === 31.55
+    #  @project.data[:products]['sums']['offered_tax'].should  === 59.67
+    #  @project.data[:products]['sums']['invoiced_tax'].should === 37.54
     #end
 
-    #it "validates for offers" do
-    #end
+    ##it "validates for invoices" do
+    ##  # Rechnungsnummer
+    ##end
+
+    ##it "validates for offers" do
+    ##end
 
   end
 

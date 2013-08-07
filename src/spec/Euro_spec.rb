@@ -74,6 +74,17 @@ describe Euro do
       (Euro.new(3)         ==  Euro.new(3.0)).should be true
     end
 
+    it "converts from Float" do
+      a = 17.5.to_euro
+      a.should be_a Euro
+
+      b = 17.5.to_euro * 6.8
+      b.should be_a Euro
+
+      c = 17.5.to_euro * 6.8.to_euro
+      c.should be_a Euro
+    end
+
   end
 
 end

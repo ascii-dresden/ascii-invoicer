@@ -20,7 +20,7 @@ class Euro
   end
 
   def to_f
-    @value.ceil_up
+    @value
   end
 
   def to_euro
@@ -42,15 +42,18 @@ module EuroConversion
   end
 end
 
-class FalseClass
-  def to_euro
-    Euro.new 0
-  end
-end
-
 class Fixnum
   include EuroConversion
 end
+
 class Float
+  def ceil_up
+    return self unless self.class == Float
+    n = self
+    n = n*100
+    n = n.round().to_f()
+    n = n/100
+    return n
+  end
   include EuroConversion
 end

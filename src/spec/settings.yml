@@ -16,4 +16,5 @@ project_file_extension: yml
 path: .
 script_path: .
 default_lang: de
+default_signature: Mit freundlichen Grüßen
 default_tax: 0.19

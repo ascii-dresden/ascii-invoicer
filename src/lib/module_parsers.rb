@@ -67,6 +67,7 @@ module InvoiceParsers
     @raw_data['products'].each { |p|
       name = p[0]
       hash = p[1]
+      return fail_at :products if hash.nil?
       product = InvoiceProduct.new(name, hash, @data[:tax])
       products[name] = product
       return fail_at :products unless product.valid
@@ -214,6 +215,8 @@ module InvoiceParsers
 
   ##
   def parse_hours(choice = :hours)
+    return fail_at :hours     unless @raw_data['hours']
+    return fail_at :salary    unless @raw_data['hours']['salary']
     hours            = {}
     hours[:time]     = @raw_data['hours']['time'].to_f
     hours[:salary]   = @raw_data['hours']['salary'].to_euro
@@ -225,7 +228,6 @@ module InvoiceParsers
     salary_total   = hours[:salary] * hours[:time]
     #salary_total   = Euro.new salary_total
 
-    return fail_at :hours     unless hours
 
     if choice == :time
       return fail_at :time      unless hours[:time]

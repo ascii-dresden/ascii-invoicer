@@ -366,11 +366,11 @@ class InvoiceProduct
     @tax_value = tax_value
 
     @valid = true
-    validate()
+    validate() unless hash.nil?
   end
 
   def validate()
-    @valid    = false if @h.nil?
+    return false if @h.nil?
     @valid    = false unless @h['sold'].nil? or @h['returned'].nil?
     @valid    = false unless @h['amount'] and @h['price']
     @sold     = @h['sold']
