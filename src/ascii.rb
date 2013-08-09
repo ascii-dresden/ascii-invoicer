@@ -191,7 +191,7 @@ class Commander < Thor
 
     data   = project.data
     year   = data[:date].year
-    prefix = data[:invoice_number].to_s + "_"
+    prefix = data[:invoice_number].nil? ? "" : data[:invoice_number]
     name   = data[:name]
 
     unless data[:valid] or options[:force]
@@ -275,24 +275,69 @@ class Commander < Thor
 
 
 
+  desc "status", "NOT YET IMPLEMENTED."
+  def status
+    plumber = ProjectsPlumber.new $SETTINGS
+    if plumber.check_git()
+      plumber.git_status()
+    end
+  end
+
+
+  desc "add name", "NOT YET IMPLEMENTED."
+  def add index
+    plumber = ProjectsPlumber.new $SETTINGS
+    if options[:file]
+      path = options[:file]
+    else
+      project = InvoiceProject.new $SETTINGS, pick_project(index)
+      path = project.project_folder
+    end
+    if plumber.check_git()
+      plumber.git_update_path(path)
+    else
+      puts "problems with git"
+    end
+  end
+
+
+  desc "commit message", "NOT YET IMPLEMENTED."
+  def commit message
+    plumber = ProjectsPlumber.new $SETTINGS
+    if plumber.check_git()
+      plumber.git_commit(message)
+    else
+      puts "problems with git"
+    end
+  end
+
+
+  desc "push", "NOT YET IMPLEMENTED."
+  def push
+    plumber = ProjectsPlumber.new $SETTINGS
+    if plumber.check_git()
+      plumber.git_push()
+    end
+  end
+
   desc "pull", "NOT YET IMPLEMENTED."
   def pull
-    puts "You wish you could do this don't you. Wait for 2.1 :D"
+    plumber = ProjectsPlumber.new $SETTINGS
+    if plumber.check_git()
+      plumber.git_pull()
+    end
   end
 
 
-
-  desc "commit", "NOT YET IMPLEMENTED."
-  def commit
-    puts "You wish you could do this don't you. Wait for 2.1 :D"
+  desc "log", "NOT YET IMPLEMENTED."
+  def log
+    plumber = ProjectsPlumber.new $SETTINGS
+    if plumber.check_git()
+      plumber.git_log
+    else
+      puts "problems with git"
+    end
   end
-
-
-
-  #desc "history", "NOT YET IMPLEMENTED."
-  #def history
-  #  puts "You wish you could do this don't you. Wait for 2.1 :D"
-  #end
 
 
 

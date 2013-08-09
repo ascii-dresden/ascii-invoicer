@@ -25,7 +25,7 @@ class ProjectsPlumber
   # depends on @settings.silent = true|false
 
   def logs message, force = false
-    puts "#{__FILE__}: #{message}" if @settings['verbose'] or force
+    puts "#{__FILE__}:\n\t#{message}" if @settings['verbose'] or force
   end
 
   ##
@@ -184,13 +184,21 @@ class ProjectsPlumber
     FileUtils.mkdir year_folder unless File.exists? year_folder
 
     project_folder = get_project_folder name, :working
-    target = File.join year_folder, name.prepend(prefix)
+    if prefix and prefix.length > 0
+      target = File.join year_folder, name.prepend(prefix + "_")
+    else
+      target = File.join year_folder, name
+    end
 
     return false unless project_folder
     return false if list_project_names(:archive, year).include? name
 
     logs "moving: #{project_folder} to #{target}" if target and project_folder
     FileUtils.mv project_folder, target
+    if check_git()
+      git_update_path project_folder
+      git_update_path target
+    end
     return target
   end
 
@@ -211,13 +219,15 @@ class ProjectsPlumber
 
     unless get_project_folder cleaned_name
       FileUtils.mv source, target
+      if check_git()
+        git_update_path source
+        git_update_path target
+      end
       return true
     else
       return false
     end
   end
-
-
 
 end
 

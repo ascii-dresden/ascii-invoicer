@@ -190,7 +190,7 @@ describe ProjectsPlumber do
       it "moves project to archive, with special year and prefix" do
         name = "project_from_2010"
         project = @plumber.new_project name
-        @plumber.archive_project(name, 2010, "R025_").should be_true
+        @plumber.archive_project(name, 2010, "R025").should be_true
       end
     end
 

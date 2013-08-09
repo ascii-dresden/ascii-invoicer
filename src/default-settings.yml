@@ -16,6 +16,8 @@ templates:
 #careful here
 project_file_extension: .yml
 path:     #nil
+use_git: true
+
 default_lang: de
 default_tax: 0.19
 default_signature: Mit freundlichen Grüßen
