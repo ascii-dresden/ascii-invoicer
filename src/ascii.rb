@@ -93,18 +93,19 @@ class Commander < Thor
 
 
   desc "edit index", "Edit project file."
-  method_option :archives,
+  method_option :archive,
     :type=>:numeric, :aliases => "-a",
+    :default => nil,
     :lazy_default=> Date.today.year,
     :required => false,
-    :desc => "list archived projects"
+    :desc => "Open File from archive YEAR"
   def edit(index=nil)
     # TODO implement edit --archive
     plumber = ProjectsPlumber.new $SETTINGS
     if options[:file]
       path = options[:file]
     else
-      path = pick_project index
+      path = pick_project index, options[:archive]
     end
       project = InvoiceProject.new $SETTINGS, path
     if path
@@ -126,7 +127,6 @@ class Commander < Thor
     method_option :yaml, :type=>:boolean,
       :lazy_default=> true, :required => false,
       :desc => "output as yaml"
-
   def list
     plumber = ProjectsPlumber.new $SETTINGS
 
@@ -154,13 +154,28 @@ class Commander < Thor
 
 
   desc "display NAME", "Shows information about a Project in different ways."
+  method_option :archive,
+    :type=>:numeric, :aliases => "-a",
+    :default => nil,
+    :lazy_default=> Date.today.year,
+    :required => false,
+    :desc => "Open File from archive YEAR"
+  method_option :offer, :type=>:boolean,
+    :default=> false, :lazy_default=> true, :required => false,
+    :desc => ""
+  method_option :invoice, :type=>:boolean,
+    :default=> false, :lazy_default=> true, :required => false,
+    :desc => ""
+  method_option :costs,:type=>:boolean,
+    :default=> true, :lazy_default=> true, :required => false,
+    :desc => ""
   def display(index=nil)
     if options[:file]
       path = options[:file]
       name = File.basename path, ".yml"
       project = InvoiceProject.new $SETTINGS, path, name
     else
-      path = pick_project index
+      path = pick_project index, options[:archive]
       project = InvoiceProject.new $SETTINGS, path
     end
     #data = project.data
@@ -171,11 +186,17 @@ class Commander < Thor
       puts project.errors
     else
       project.validate :full
-      costbox project
+      if options[:offer]
+        display_products project, :offer
+      elsif options[:invoice]
+        display_products project, :invoice
+      elsif options[:costs]
+        display_costs project
+      end
     end
   end
 
-  
+
 
   desc "archive NAME", "Move project to archive."
   method_option :force,:type=>:boolean,
@@ -222,6 +243,12 @@ class Commander < Thor
 
 
   desc "offer NAME", "Create an offer from project file."
+  method_option :archive,
+    :type=>:numeric, :aliases => "-a",
+    :default => nil,
+    :lazy_default=> Date.today.year,
+    :required => false,
+    :desc => "Open File from archive YEAR"
   method_option :check,
     :type=>:numeric, :aliases => "-d",
     :lazy_default=> true,
@@ -234,7 +261,7 @@ class Commander < Thor
       name = File.basename path, ".yml"
       project = InvoiceProject.new $SETTINGS, path, name
     else
-      path = pick_project index
+      path = pick_project index, options[:archive]
       project = InvoiceProject.new $SETTINGS, path
     end
 
@@ -249,6 +276,12 @@ class Commander < Thor
 
 
   desc "invoice NAME", "Create an invoice from project file."
+  method_option :archive,
+    :type=>:numeric, :aliases => "-a",
+    :default => nil,
+    :lazy_default=> Date.today.year,
+    :required => false,
+    :desc => "Open File from archive YEAR"
   method_option :check,
     :type=>:numeric, :aliases => "-d",
     :lazy_default=> true,
@@ -261,7 +294,7 @@ class Commander < Thor
       name = File.basename path, ".yml"
       project = InvoiceProject.new $SETTINGS, path, name
     else
-      path = pick_project index
+      path = pick_project index, options[:archive]
       project = InvoiceProject.new $SETTINGS, path
     end
  
@@ -275,7 +308,7 @@ class Commander < Thor
 
 
 
-  desc "status", "NOT YET IMPLEMENTED."
+  desc "status", "Git Integration."
   def status
     plumber = ProjectsPlumber.new $SETTINGS
     if plumber.check_git()
@@ -284,7 +317,7 @@ class Commander < Thor
   end
 
 
-  desc "add name", "NOT YET IMPLEMENTED."
+  desc "add NAME", "Git Integration."
   def add index
     plumber = ProjectsPlumber.new $SETTINGS
     if options[:file]
@@ -301,7 +334,7 @@ class Commander < Thor
   end
 
 
-  desc "commit message", "NOT YET IMPLEMENTED."
+  desc "commit message", "Git Integration."
   def commit message
     plumber = ProjectsPlumber.new $SETTINGS
     if plumber.check_git()
@@ -312,7 +345,7 @@ class Commander < Thor
   end
 
 
-  desc "push", "NOT YET IMPLEMENTED."
+  desc "push", "Git Integration."
   def push
     plumber = ProjectsPlumber.new $SETTINGS
     if plumber.check_git()
@@ -320,7 +353,7 @@ class Commander < Thor
     end
   end
 
-  desc "pull", "NOT YET IMPLEMENTED."
+  desc "pull", "Git Integration."
   def pull
     plumber = ProjectsPlumber.new $SETTINGS
     if plumber.check_git()
@@ -329,8 +362,8 @@ class Commander < Thor
   end
 
 
-  desc "log", "NOT YET IMPLEMENTED."
-  def log
+  desc "history", "Git Integration."
+  def history
     plumber = ProjectsPlumber.new $SETTINGS
     if plumber.check_git()
       plumber.git_log

@@ -5,7 +5,8 @@ class CliTable < TextBox
   #TODO colspan
   #TODO rowspan
   
-  attr_writer :borders, :column_alignments
+  attr_writer :borders, :column_alignments, :width
+  attr_reader :borders, :column_widths
 
   def initialize()
     super()
@@ -19,8 +20,12 @@ class CliTable < TextBox
     row.each_index { |i|
       row[i] = "" if row[i] == false
       column = row[i]
+      a = :l
+      a = :r if column.class == Float or column.class == Fixnum or column.class == Euro
+      column = column.to_s
+
       @column_widths.push 0      unless i < @column_widths.length
-      @column_alignments.push :l unless i < @column_alignments.length
+      @column_alignments.push a unless i < @column_alignments.length
       @column_widths[i] = max @column_widths[i], Paint.unpaint(column).length
     }
 
@@ -42,7 +47,7 @@ class CliTable < TextBox
   def align_row row
     columns = []
     row.each_index {|i|
-      column = row[i]
+      column = row[i].to_s
       case @column_alignments[i]
       when :c
         columns.push column.center @column_widths[i]
@@ -72,9 +77,13 @@ class CliTable < TextBox
     return "" unless @borders
     string = super(cross)
     return string if index == -1
+    cw = 0
     @column_widths.each_index {|i|
       w = @column_widths[i]
-      string[w+3*@padding_horizontal] = @splitter[2] unless i == (@column_widths.length - 1 )
+      unless i == (@column_widths.length - 1 )
+        cw += w+3*@padding_horizontal
+        string[cw] = @splitter[2]
+      end
     }
     return string 
   end

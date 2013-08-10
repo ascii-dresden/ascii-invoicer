@@ -59,7 +59,22 @@ module AsciiInvoicer
     end
   end
 
-  def costbox project 
+  def display_products project, choice = :offer
+    table = CliTable.new
+    table.borders   = true
+    table.header = "Project:" + "\"#{project.data[:event]}\"".rjust(25)
+      table.add_row ["#", "name", "price", "cost"]
+    project.data[:products].each {|name, product|
+      amount = product.amount choice
+      price = product.price
+      cost  = product.cost choice
+      table.add_row [amount, name, price, cost]
+    }
+
+    puts table
+  end
+
+  def display_costs project 
     data = project.data
 
     ci   = data[:costs_invoice ].to_s.rjust(7)
