@@ -3,6 +3,7 @@
 
 require 'pp'
 require 'csv'
+require 'git'
 require 'yaml'
 require 'thor'
 require 'paint'
@@ -62,6 +63,7 @@ class Commander < Thor
   map "-i" => :invoice
   map "-o" => :offer
   map "-e" => :edit
+  #map "--version" => :version
 
   class_option :file,      :aliases=> "-f", :type => :string
   class_option :verbose,   :aliases=> "-v", :type => :boolean
@@ -389,6 +391,18 @@ class Commander < Thor
       #pp $SETTINGS
     end
   end
+
+
+
+  #desc "version", "display Version"
+  #def version
+  #  git = Git.open $SCRIPT_PATH+'/..'
+  #  current = git.log.to_s.lines.to_a.last
+  #  #puts git.branch unless git.tags.include? current 
+  #  puts current
+  #end
+
+
 end
 
 Commander.start

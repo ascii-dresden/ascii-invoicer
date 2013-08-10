@@ -109,8 +109,7 @@ module AsciiInvoicer
   #takes an array of invoices (@plumber.working_projects)
   def print_project_list_csv(projects)
     header = [
-      'date',
-      'invoice_long',
+      'date', 'invoice_long',
       'offer',
       'event', 'name', 'manager', 'time', 'costs', 'total', 'valid'
     ]
