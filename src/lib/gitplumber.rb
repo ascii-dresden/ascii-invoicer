@@ -12,12 +12,14 @@
 #   end
 # end
 
+require 'git'
+require 'logger'
+
 module GitPlumber
 
   def check_git
     begin
       @git = Git.open @dirs[:storage]
-      #@git = Git.open @dirs[:storage], :log => Logger.new(STDOUT)
       return true
     rescue
       return false
@@ -38,11 +40,15 @@ module GitPlumber
   end
 
   def git_push()
-    pp @git.push()
+    @git = Git.open @dirs[:storage], :log => Logger.new(STDOUT)
+    out = @git.push()
+    puts out if out
   end
 
   def git_pull()
-    pp @git.pull()
+    @git = Git.open @dirs[:storage], :log => Logger.new(STDOUT)
+    out = @git.pull()
+    puts out if out
   end
 
   def git_commit(message)
@@ -99,7 +105,7 @@ module GitPlumber
       line = Paint[path, color]
       state = " "
       state = Paint[ "\e[32m✓\e[0m" , :green] if !info.sha_index.nil? and info.sha_index.to_i(16) > 0
-      puts "#{state} #{line} \t #{info.sha_index}"
+      puts "#{state} #{line}"
     end
     puts if status.length > 0
   end

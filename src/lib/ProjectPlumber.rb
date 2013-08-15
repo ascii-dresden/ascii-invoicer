@@ -1,6 +1,5 @@
 # encoding: utf-8
 require 'fileutils'
-require 'git'
 LIBPATH = File.split(__FILE__)[0]
 require "#{LIBPATH}/gitplumber.rb"
 
