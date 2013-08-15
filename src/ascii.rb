@@ -323,6 +323,8 @@ class Commander < Thor
     plumber = ProjectsPlumber.new $SETTINGS
     if plumber.check_git()
       plumber.git_status()
+    else
+      puts "problems with git"
     end
   end
 

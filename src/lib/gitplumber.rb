@@ -17,6 +17,7 @@ module GitPlumber
   def check_git
     begin
       @git = Git.open @dirs[:storage]
+      #@git = Git.open @dirs[:storage], :log => Logger.new(STDOUT)
       return true
     rescue
       return false
@@ -67,6 +68,9 @@ module GitPlumber
   def git_status
     renamed = git_renamed_files
     exclude = renamed.flatten
+    if @git.status.added.length + @git.status.deleted.length + @git.status.untracked.length + @git.status.changed.length == 0
+      puts "Nothing Changed"
+    end
 
     git_print_status :added,      exclude
     git_print_status :changed,    exclude
@@ -130,7 +134,7 @@ module GitPlumber
       out << Paint[b, :green]
       out << "\n"
     }
-    puts out
+    puts out if out.length > 0
   end
 
 
