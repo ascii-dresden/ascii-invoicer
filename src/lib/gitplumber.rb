@@ -75,6 +75,31 @@ module GitPlumber
     git_print_renamed renamed
   end
 
+  def git_print_status name, exclude
+    case name
+      when :added     then status = @git.status.added
+      when :changed   then status = @git.status.changed
+      when :deleted   then status = @git.status.deleted
+      when :untracked then status = @git.status.untracked
+    end
+    status.reject! {|k,v| exclude.include? k }
+
+    puts "#{status.length} #{name.to_s.capitalize}:" if status.length > 0
+    status.each do |path, info|
+      case info.type
+      when "M" then color = :yellow
+      when "A" then color = :green
+      when "D" then color = :red
+      else color = :default
+      end
+      line = Paint[path, color]
+      state = " "
+      state = Paint[ "\e[32m✓\e[0m" , :green] if !info.sha_index.nil? and info.sha_index.to_i(16) > 0
+      puts "#{state} #{line} \t #{info.sha_index}"
+    end
+    puts if status.length > 0
+  end
+
   def git_renamed_files
     repo_shas = {}
     index_shas = {}
@@ -106,31 +131,6 @@ module GitPlumber
       out << "\n"
     }
     puts out
-  end
-
-  def git_print_status name, exclude
-    case name
-      when :added     then status = @git.status.added
-      when :changed   then status = @git.status.changed
-      when :deleted   then status = @git.status.deleted
-      when :untracked then status = @git.status.untracked
-    end
-    status.reject! {|k,v| exclude.include? k }
-
-    puts "#{status.length} #{name.to_s.capitalize}:" if status.length > 0
-    status.each do |path, info|
-      case info.type 
-      when "M" then color = :yellow
-      when "A" then color = :green
-      when "D" then color = :red
-      else color = :default
-      end
-      line = Paint[path, color]
-      state = " "
-      state = Paint[ "\e[32m✓\e[0m" , :green] unless info.sha_index.nil?
-      puts "#{state} #{line}"
-    end
-    puts if status.length > 0
   end
 
 

@@ -164,13 +164,16 @@ class Commander < Thor
     :desc => "Open File from archive YEAR"
   method_option :offer, :type=>:boolean,
     :default=> false, :lazy_default=> true, :required => false,
-    :desc => ""
+    :desc => "Display Products parsed as OFFER"
   method_option :invoice, :type=>:boolean,
     :default=> false, :lazy_default=> true, :required => false,
-    :desc => ""
+    :desc => "Display Products parsed as INVOICE"
   method_option :costs,:type=>:boolean,
     :default=> true, :lazy_default=> true, :required => false,
     :desc => ""
+  #method_option :yaml, :type=>:boolean,
+  #  :lazy_default=> true, :required => false,
+  #  :desc => "output as yaml"
   def display(index=nil)
     if options[:file]
       path = options[:file]
@@ -187,12 +190,17 @@ class Commander < Thor
       puts project.valid_for
       puts project.errors
     else
-      project.validate :full
       if options[:offer]
+        project.validate :offer
         display_products project, :offer
       elsif options[:invoice]
+        project.validate :invoice
         display_products project, :invoice
+      elsif options[:yaml]
+        project.validate :export
+        puts project.to_yaml
       elsif options[:costs]
+        project.validate :export
         display_costs project
       end
     end
