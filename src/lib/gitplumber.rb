@@ -26,11 +26,11 @@ module GitPlumber
   def git_log
     table = CliTable.new
     table.borders = false
-    @git.log.each do |commit|
+    @git.log.to_a.reverse.each do |commit|
       table.add_row [
         commit.author.name,
         commit.message,
-        commit.date.strftime("%H:%M %d.%m.%Y"),
+        commit.date.strftime("%H:%M Uhr — %d.%m.%Y"),
       ]
     end
     puts table
