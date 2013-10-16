@@ -1,5 +1,5 @@
 verbose:  false
-editor:   vim
+editor:   "vim -p"
 latex:    pdflatex
 colors:   false # NOT YET IMPLEMENTED
 

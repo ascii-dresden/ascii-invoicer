@@ -170,13 +170,14 @@ module AsciiInvoicer
   end
   #
   ## hand path to editor and check
-  def edit_project(path, editor = $SETTINGS['editor'])
-    edit_file path, editor
+  def edit_project(paths, editor = $SETTINGS['editor'])
+    edit_file paths, editor
     #check_project path #TODO
   end
 
   ## hand path to editor
-  def edit_file(path, editor = $SETTINGS['editor'])
+  def edit_file(paths, editor = $SETTINGS['editor'])
+    path = paths.join ' '
     editor = $SETTINGS['editor'] unless editor
     logs "Opening #{path} in #{editor}"
     pid = spawn "#{editor} #{path}"

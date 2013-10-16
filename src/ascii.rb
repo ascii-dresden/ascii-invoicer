@@ -35,7 +35,7 @@ end
 
 overwrite_settings $SETTINGS, $local_settings if $local_settings
 
-error "settings:editor is an elaborate string: \"#{$SETTINGS['editor']}\"!\nDANGEROUS!" if $SETTINGS['editor'].include? " "
+#error "settings:editor is an elaborate string: \"#{$SETTINGS['editor']}\"!\nDANGEROUS!" if $SETTINGS['editor'].include? " "
 error "settings:latex is an elaborate string: \"#{$SETTINGS['editor']}\"!\nDANGEROUS!" if $SETTINGS['latex'].include? " "
 
 
@@ -94,24 +94,30 @@ class Commander < Thor
 
 
 
-  desc "edit index", "Edit project file."
+  desc "edit indexs", "Edit project file."
   method_option :archive,
     :type=>:numeric, :aliases => "-a",
     :default => nil,
     :lazy_default=> Date.today.year,
     :required => false,
     :desc => "Open File from archive YEAR"
-  def edit(index=nil)
+  def edit( *hash )
     # TODO implement edit --archive
     plumber = ProjectsPlumber.new $SETTINGS
-    if options[:file]
-      path = options[:file]
+    paths = hash.map { |index|
+      if options[:file]
+        options[:file]
+      else
+        pick_project index, options[:archive]
+      end
+    }
+    #project = InvoiceProject.new $SETTINGS, path
+    paths.select! {|item| not item.nil?}
+
+    if paths.size > 0
+      edit_project paths, options[:editor]
     else
-      path = pick_project index, options[:archive]
-    end
-      project = InvoiceProject.new $SETTINGS, path
-    if path
-      edit_project path, options[:editor]
+      puts "nothing found (#{hash})"
     end
   end
 
