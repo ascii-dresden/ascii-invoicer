@@ -2,6 +2,28 @@
 module AsciiInvoicer
   ## Use Option parser or leave it if only one argument is given
 
+  def render_project project, choice
+    project.validate choice
+    if project.valid_for[choice]
+      project.create_tex choice, options[:check]
+    else
+      error "#{project.name} is not ready for creating an invoice!"
+    end
+  end
+
+  def pick_paths hash, archive = nil
+    paths = hash.map { |index|
+      if options[:file]
+        options[:file]
+      else
+        pick_project index, archive
+      end
+    }
+    #project = InvoiceProject.new $SETTINGS, path
+    paths.select! {|item| not item.nil?}
+    return paths
+  end
+
   def open_projects(paths, validation = :list, sort = :date)
     projects = []
     paths.each do |path|
@@ -25,6 +47,22 @@ module AsciiInvoicer
         p.data[:manager], 
         p.data[:invoice_number], 
         p.data[:date].strftime("%d.%m.%Y"), 
+      ]
+    end
+    table.column_alignments = [:r, :l, :l]
+    puts table.build
+  end
+
+  def print_project_list_paths(projects)
+
+    table = CliTable.new
+    table.borders = false
+    projects.each_index do |i|
+      p  = projects[i]
+      table.add_row [
+        (i+1).to_s+".", 
+        p.data[:name].ljust(35), 
+        p.data[:project_path]
       ]
     end
     table.column_alignments = [:r, :l, :l]

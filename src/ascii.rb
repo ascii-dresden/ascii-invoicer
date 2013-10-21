@@ -104,15 +104,7 @@ class Commander < Thor
   def edit( *hash )
     # TODO implement edit --archive
     plumber = ProjectsPlumber.new $SETTINGS
-    paths = hash.map { |index|
-      if options[:file]
-        options[:file]
-      else
-        pick_project index, options[:archive]
-      end
-    }
-    #project = InvoiceProject.new $SETTINGS, path
-    paths.select! {|item| not item.nil?}
+    paths = pick_paths hash
 
     if paths.size > 0
       edit_project paths, options[:editor]
@@ -129,6 +121,9 @@ class Commander < Thor
       :lazy_default=> Date.today.year,
       :required => false,
       :desc => "list archived projects"
+    method_option :paths, :type=>:boolean,
+      :lazy_default=> true, :required => false,
+      :desc => "list paths to .yml files"
     method_option :csv, :type=>:boolean,
       :lazy_default=> true, :required => false,
       :desc => "output as csv"
@@ -147,6 +142,9 @@ class Commander < Thor
     if options[:csv] 
       projects = open_projects paths, :export, :date
       print_project_list_csv projects
+    elsif options[:paths] 
+      projects = open_projects paths, :export , :date
+      print_project_list_paths projects
     elsif options[:yaml] 
       projects = open_projects paths, :export , :date
       print_project_list_yaml projects
@@ -270,22 +268,19 @@ class Commander < Thor
     :lazy_default=> true,
     :required => false,
     :desc => "check"
-  def offer(index=nil)
+  def offer( *hash )
     # TODO implement offer --archive
     if options[:file]
       path = options[:file]
       name = File.basename path, ".yml"
       project = InvoiceProject.new $SETTINGS, path, name
+      render_project project, choice
     else
-      path = pick_project index, options[:archive]
-      project = InvoiceProject.new $SETTINGS, path
-    end
-
-    project.validate :offer
-    if project.valid_for[:offer]
-      project.create_tex :offer, options[:check]
-    else
-      error "#{project.name} is not ready for creating an offer!"
+      paths = pick_paths hash
+      paths.each { |path|
+        project = InvoiceProject.new $SETTINGS, path
+        render_project project, :offer
+      }
     end
   end
 
@@ -303,22 +298,19 @@ class Commander < Thor
     :lazy_default=> true,
     :required => false,
     :desc => "check"
-  def invoice(index=nil)
+  def invoice( *hash )
     # TODO implement invoice --archive
     if options[:file]
       path = options[:file]
       name = File.basename path, ".yml"
       project = InvoiceProject.new $SETTINGS, path, name
+      render_project project, choice
     else
-      path = pick_project index, options[:archive]
-      project = InvoiceProject.new $SETTINGS, path
-    end
- 
-    project.validate :invoice
-    if project.valid_for[:invoice]
-      project.create_tex :invoice, options[:check]
-    else
-      error "#{project.name} is not ready for creating an invoice!"
+      paths = pick_paths hash
+      paths.each { |path|
+        project = InvoiceProject.new $SETTINGS, path
+        render_project project, :invoice
+      }
     end
   end
 
