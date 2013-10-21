@@ -19,6 +19,10 @@ class Euro
     return false
   end
 
+  def + v
+    return (@value + v.to_f).to_euro
+  end
+
   def to_f
     @value.ceil_up
   end
