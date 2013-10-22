@@ -261,7 +261,7 @@ class InvoiceProject
 
   def export_filename choice, ext=""
     offer_number = @data[:offer_number]
-    invoice_number = @data[:invoice_number_long]
+    invoice_number = @data[:invoice_number]
     name = @data[:name]
     date = @data[:date].strftime "%Y-%m-%d"
 
