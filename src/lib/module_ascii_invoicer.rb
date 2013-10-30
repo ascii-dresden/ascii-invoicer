@@ -11,19 +11,6 @@ module AsciiInvoicer
     end
   end
 
-  def pick_paths hash, archive = nil
-    paths = hash.map { |index|
-      if options[:file]
-        options[:file]
-      else
-        pick_project index, archive
-      end
-    }
-    #project = InvoiceProject.new $SETTINGS, path
-    paths.select! {|item| not item.nil?}
-    return paths
-  end
-
   def open_projects(paths, validation = :list, sort = :date)
     projects = []
     paths.each do |path|
@@ -36,7 +23,7 @@ module AsciiInvoicer
     return projects
   end
 
-  def print_project_list_plain(projects)
+  def print_project_list_simple(projects)
     table = CliTable.new
     table.borders = false
     projects.each_index do |i|
@@ -168,6 +155,19 @@ module AsciiInvoicer
       line.map! {|v| v ? v : "" } # wow, that looks cryptic
       puts line.to_csv
     end
+  end
+
+  def pick_paths( hash, archive = nil)
+    paths = hash.map { |index|
+      if options[:file]
+        options[:file]
+      else
+        pick_project index, archive
+      end
+    }
+    #project = InvoiceProject.new $SETTINGS, path
+    paths.select! {|item| not item.nil?}
+    return paths
   end
 
   def pick_project(selection, year = nil)

@@ -118,18 +118,15 @@ class Commander < Thor
   desc "list", "List current Projects."
     method_option :archives,
       :type=>:numeric, :aliases => "-a",
-      :lazy_default=> Date.today.year,
-      :required => false,
-      :desc => "list archived projects"
-    method_option :paths, :type=>:boolean,
-      :lazy_default=> true, :required => false,
-      :desc => "list paths to .yml files"
-    method_option :csv, :type=>:boolean,
-      :lazy_default=> true, :required => false,
-      :desc => "output as csv"
+      :lazy_default=> Date.today.year, :required => false, :desc => "list archived projects"
+    method_option :paths, :type=>:boolean, :aliases => '-p',
+      :lazy_default=> true, :required => false, :desc => "list paths to .yml files"
+    method_option :simple, :type=>:boolean, :aliases => '-s',
+      :lazy_default=> true, :required => false, :desc => "ignore global verbose setting"
+    method_option :csv, :type=>:boolean, :aliases => '-c',
+      :lazy_default=> true, :required => false, :desc => "output as csv"
     method_option :yaml, :type=>:boolean,
-      :lazy_default=> true, :required => false,
-      :desc => "output as yaml"
+      :lazy_default=> true, :required => false, :desc => "output as yaml"
   def list
     plumber = ProjectsPlumber.new $SETTINGS
 
@@ -148,12 +145,15 @@ class Commander < Thor
     elsif options[:yaml] 
       projects = open_projects paths, :export , :date
       print_project_list_yaml projects
-    elsif options[:verbose] 
+    elsif options[:simple]
+      projects = open_projects paths, :list, :date
+      print_project_list_simple projects
+    elsif options[:verbose] or $SETTINGS['verbose']
       projects = open_projects paths, :export , :date
       print_project_list_verbose projects
     else
       projects = open_projects paths, :list, :date
-      print_project_list_plain projects
+      print_project_list_simple projects
     end
   end
 
