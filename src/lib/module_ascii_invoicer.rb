@@ -24,7 +24,7 @@ module AsciiInvoicer
   end
 
   def print_project_list_simple(projects)
-    table = CliTable.new
+    table = TableBox.new
     table.borders = false
     projects.each_index do |i|
       p  = projects[i]
@@ -41,7 +41,8 @@ module AsciiInvoicer
   end
 
   def print_project_list_paths(projects)
-    table = CliTable.new
+
+    table = TableBox.new
     table.borders = false
     projects.each_index do |i|
       p  = projects[i]
@@ -56,7 +57,7 @@ module AsciiInvoicer
   end
 
   def print_project_list_verbose(projects)
-    table = CliTable.new
+    table = TableBox.new
     table.borders = false
     projects.each_index do |i|
       p  = projects[i]
@@ -84,7 +85,7 @@ module AsciiInvoicer
   end
 
   def display_products project, choice = :offer
-    table = CliTable.new
+    table = TableBox.new
     table.borders   = true
     table.header = "Project:" + "\"#{project.data[:event]}\"".rjust(25)
       table.add_row ["#", "name", "price", "cost"]
@@ -115,7 +116,7 @@ module AsciiInvoicer
 
     st   = data[:salary_total  ].to_s.rjust(18)
 
-    box = TextBox.new
+    box = TableBox.new
     box.padding_horizontal = 3
     box.header = "Project:" + "\"#{data[:event]}\"".rjust(25)
 

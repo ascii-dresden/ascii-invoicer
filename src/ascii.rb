@@ -15,7 +15,6 @@ require "#{$SCRIPT_PATH}/lib/InvoiceProject.rb"
 require "#{$SCRIPT_PATH}/lib/ProjectPlumber.rb"
 require "#{$SCRIPT_PATH}/lib/module_ascii_invoicer.rb"
 require "#{$SCRIPT_PATH}/lib/textboxes.rb"
-require "#{$SCRIPT_PATH}/lib/clitables.rb"
 
 $SETTINGS                = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
 $local_settings          = YAML::load(File.open(".settings.yml")) if File.exists? ".settings.yml"
