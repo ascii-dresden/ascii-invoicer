@@ -8,7 +8,8 @@ class TextBox
     :padding_horizontal, :padding_vertical,
     :header, :footer
 
-  attr_reader :borders, :column_widths, :width, :column_widths, :column_count, :content_width, :padding_horizontal
+  attr_reader :borders, :width, :column_widths, :column_count, :content_width,
+    :padding_horizontal, :row_heights, :rows
 
   # TODO take :box or :table or :aligning for matching defaults
   def initialize()
@@ -60,6 +61,8 @@ class TextBox
 
   # takes an array of columns
   def add_row row
+    height = 0
+    width = 0
     row.each_index { |i|
       row[i] = "" if row[i] == false
       cell = row[i]
@@ -67,12 +70,14 @@ class TextBox
       a = :r if cell.class == Float or cell.class == Fixnum
       cell = cell.to_s
 
+      height = max height, cell.lines.to_a.length
+
       @column_widths.push 0     unless i < @column_widths.length
       @column_alignments.push a unless i < @column_alignments.length
       @column_widths[i] = max @column_widths[i], Paint.unpaint(cell).length
     }
+    @row_heights << height
     @column_count = max @column_count, row.length
-    width = 0
     @column_widths.each {|w| width += w}
     @content_width = max @content_width, width
     @rows.push row
@@ -81,7 +86,7 @@ class TextBox
 
   def build_header
     string = ""
-    string << build_line(@header)
+    string << build_row(@header)
     string << build_border(@splitter) if @cell_borders
     return string
   end
@@ -99,24 +104,52 @@ class TextBox
     return string
   end
 
+  def align_row row
+    cells = []
+    row.each_index {|i|
+      column = row[i].to_s
+      case @column_alignments[i]
+      when :c
+        cells.push column.center @column_widths[i]
+      when :l
+        cells.push column.ljust  @column_widths[i]
+      when :r
+        cells.push column.rjust  @column_widths[i]
+      else 
+        cells.push column.ljust  @column_widths[i]
+      end
+    }
+    return cells
+  end
 
-  def build_line(line)
+  def build_row(row)
     padding = " " * (@padding_horizontal)
     inpadding = padding+padding 
     inpadding = padding+"#"+padding if @cell_borders
 
-    string = ""
-    string << @border_vertical if @borders
-    string << padding
-
-    if line.class == Array
-      string << line.join(inpadding).ljust(width())
-    elsif line.class == String
-      string << line.center(width())
+    if row.class == Array
+      row = row.each.to_a # copy
+    elsif row.class == String
+      row = [row]
     end
+    row = align_row row
 
-    string << @border_vertical if @borders
-    add_vertical_borders(string , @border_vertical) if @cell_borders
+    lines = []
+    line_count = 1
+    row.each { |cell| line_count = max line_count, cell.lines.to_a.length }
+    line_count.times { |i| lines[i] =  row.map { |cell| c = cell.lines.to_a[i].to_s.chomp } }
+
+    string = ""
+    lines.each { |line|
+      lstring = ""
+      line = align_row line
+      lstring << @border_vertical << padding if @borders
+      lstring << line.join(inpadding).ljust(width())
+      lstring << @border_vertical if @borders
+      lstring <<  "\n"
+      add_vertical_borders(lstring , @border_vertical) if @cell_borders
+      string << lstring
+    }
     string
   end
 
@@ -132,28 +165,26 @@ class TextBox
   end
 
   def build_table
-    rows   = align_rows()
     br     = "\n"
     string = ""
 
     #top
     string << build_border(@top) << br if @borders
-    string << build_line(@header)<< br if @header.length > 0
+    string << build_row(@header)<< br if @header.length > 0
     string << build_border(@splitter) << br if @borders and @header.length > 0
 
     rows.each_index{ |i|
       row = rows[i]
-      string << build_line( row )
-      string << br
+        string << build_row(row)
 
-      if @cell_borders
-        string << (build_border(@splitter)) << br unless i == rows.length - 1
-      end
+        if @cell_borders
+          string << (build_border(@splitter)) << br unless i == rows.length - 1
+        end
     }
 
     #bottom
     string << build_border(@splitter) << br if @borders and @footer.length > 0
-    string << build_line(@footer)     << br if @footer.length > 0
+    string << build_row(@footer)     << br if @footer.length > 0
     string << build_border(@bottom)         if @borders
 
 
@@ -169,29 +200,6 @@ class TextBox
     return b
   end
 
-  def align_rows
-    aligned_rows = []
-    @rows.each { |row| row = aligned_rows.push(align_row(row)) }
-    return aligned_rows
-  end
-
-  def align_row row
-    columns = []
-    row.each_index {|i|
-      column = row[i].to_s
-      case @column_alignments[i]
-      when :c
-        columns.push column.center @column_widths[i]
-      when :l
-        columns.push column.ljust  @column_widths[i]
-      when :r
-        columns.push column.rjust  @column_widths[i]
-      else 
-        columns.push column.ljust  @column_widths[i]
-      end
-    }
-    return columns
-  end
 
 
 
