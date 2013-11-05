@@ -2,23 +2,26 @@
 require 'paint'
 
 class TableBox
-  attr_writer :borders, :cell_borders, :width,
-    :top, :bottom, :splitter, :border_horizontal, :border_vertical,
-    :column_alignments,
-    :padding_horizontal, :padding_vertical,
+  attr_writer :top, :bottom, :splitter,
+    :padding_horizontal,
     :title, :footer
 
-  attr_reader :borders, :width, :column_widths, :column_count, :content_width,
-    :padding_horizontal, :row_heights, :rows
+  attr :style, :row_colors, 
+    :column_alignments
+
+  attr_reader :width, :column_widths, :column_count, :content_width,
+    :padding_horizontal, :rows
 
   # TODO take :box or :table or :aligning for matching defaults
   # TODO style[:column_borders,:row_borders]
   def initialize(hash = {})
-    @top               = [ "┌", "┐", "┬" ]
-    @bottom            = [ "└", "┘", "┴" ]
-    @splitter          = [ "├", "┤", "┼" ]
-    @border_vertical   = "│"
-    @border_horizontal = "─"
+
+    @borders          = {}
+    @borders[:top]    = [ "┌", "┐", "┬"]
+    @borders[:middle] = [ "├", "┤", "┼"]
+    @borders[:bottom] = [ "└", "┘", "┴"]
+    @borders[:column] = "│"
+    @borders[:row]    = "─"
 
     @rows              = []
     @row_heights       = []
@@ -27,14 +30,14 @@ class TableBox
     @column_count      = 0
     @content_width     = 0
 
-    @title             = ""
-    @footer             = ""
+    @title             = nil
+    @footer            = nil
 
-    @style = {}
-    @borders            = false
-    @cell_borders       = false
-    @padding_horizontal = 1
-    #@padding_vertical   = 0
+    @style                  = {}
+    @style[:border]         = false
+    @style[:column_borders] = false
+    @style[:padding_horizontal]     = 1
+    #@padding_vertical      = 0
 
   end
 
@@ -64,7 +67,11 @@ class TableBox
     rows.each {|row| add_row row}
   end
 
-  def add_row row
+  def set_headings row
+    @headings = prepare_row row
+  end
+
+  def prepare_row row
     row = [row] unless row.class == Array
 
     row.each_index { |i|
@@ -86,13 +93,17 @@ class TableBox
     content_width = 0
     @column_widths.each {|w| content_width += w}
     @content_width = max @content_width, content_width
-    @rows.push row
+    return row
+  end
+
+  def add_row row
+    @rows.push prepare_row row
   end
 
   def content_width()
-    width = @content_width + (@column_count  ) * @padding_horizontal * 2 
-    width += @column_count -1  if @cell_borders
-    width -= 1 if @padding_horizontal > 0
+    width = @content_width + (@column_count  ) * @style[:padding_horizontal] * 2 
+    width += @column_count -1  if @style[:column_borders]
+    width -= 1 if @style[:padding_horizontal] > 0
     return width
   end
 
@@ -117,16 +128,44 @@ class TableBox
 
 
 
-  def render_border devider
-    string = devider[0] + @border_horizontal * ( content_width() +  @padding_horizontal  ) + devider[1]
-    render_vertical_border(string , devider[2]) if @cell_borders
+  def render_column_borders(line, devider = @borders[:column])
+    widths = @column_widths.each.to_a
+    widths.pop
+    p = 0
+    p = -1 -@style[:padding_horizontal] if @style[:column_borders] and not @style[:border]
+    widths.each { |w|
+      p = p + w + @style[:padding_horizontal]*2 + 1 
+      line[p] = devider if line[p]
+    }
+    return line
+  end
+
+  def render_row_border orientation 
+    devider = @borders[orientation]
+    devider[2] = @borders[:row] if orientation == :top and @title
+    devider[2] = @borders[:row] if orientation == :bottom and @footer
+
+    if @style[:border]
+      string = devider[0] + @borders[:row] * ( content_width() +  @style[:padding_horizontal]  ) + devider[1]
+    else
+      string = @borders[:row] * ( content_width() - 1 )
+    end
+    render_column_borders(string , devider[2]) if @style[:column_borders]
     return string
   end
 
+  def render_title (title)
+    string = ""
+    string << @borders[:column] if @style[:border]
+    string << paint_rjust(title,content_width() + @style[:padding_horizontal] )
+    string << @borders[:column] if @style[:border]
+    string
+  end
+
   def render_row(row)
-    padding = " " * (@padding_horizontal)
+    padding = " " * (@style[:padding_horizontal])
     inpadding = padding+padding 
-    inpadding = padding+@border_vertical+padding if @cell_borders
+    inpadding = padding+@borders[:column]+padding if @style[:column_borders]
 
 
     #fill up the shorter rows
@@ -140,24 +179,17 @@ class TableBox
     line_count.times { |i| lines[i] =  row.map { |cell| c = cell.lines.to_a[i].to_s.chomp } }
 
     string = ""
-    lines.each { |line|
-      line = align_row line
+    lines.each_index { |i|
+      line = align_row lines[i]
       line = paint_ljust(line.join(inpadding),content_width())
       #line = line.join(inpadding).ljust(content_width())
 
-      string << @border_vertical << padding if @borders
+      string << @borders[:column] << padding if @style[:border]
       string << line
-      string << @border_vertical if @borders
+      string << @borders[:column] if @style[:border]
       string <<  "\n"
     }
     string
-  end
-
-  # fix for ljust in combination with paint
-  def paint_ljust(string, width, padstr= " ")
-    diff = width - Paint.unpaint(string).length
-    return string + (padstr * diff) if diff > 0
-    return string
   end
 
   def render_table
@@ -165,37 +197,48 @@ class TableBox
     string = ""
 
     #top
-    string << render_border(@top) << br if @borders
-    string << render_row(@title)<< br if @title.length > 0
-    string << render_border(@splitter) << br if @borders and @title.length > 0
+    string << render_row_border(:top)    << br if @style[:border]
+    string << render_title(@title)                 << br if @title
+    string << render_row_border(:middle) << br if @style[:border] and @title
+
+    #headings
+    string << render_row(@headings) if @headings
+    string << (render_row_border(:middle)) << br if @headings
 
     rows.each_index{ |i|
       row = rows[i]
-        string << render_row(row)
-
-        if @cell_borders
-          string << (render_border(@splitter)) << br unless i == rows.length - 1
-        end
+      string << render_row(row)
+      string << (render_row_border(:middle)) << br if i < rows.length - 1 and @style[:row_borders]
     }
 
     #bottom
-    string << render_border(@splitter) << br if @borders and @footer.length > 0
-    string << render_row(@footer)     << br if @footer.length > 0
-    string << render_border(@bottom)         if @borders
+    string << render_row_border(:middle) << br if @style[:border] and @footer
+    string << render_title(@footer)      << br if @footer
+    string << render_row_border(:bottom)       if @style[:border]
 
 
     return string
   end
+ 
+  # fix for ljust in combination with paint
+  def paint_ljust(string, width, padstr= " ")
+    diff = width - Paint.unpaint(string).length
+    return string + (padstr * diff) if diff > 0
+    return string
+  end
 
-  def render_vertical_border(line, devider = @splitter)
-    widths = @column_widths.each.to_a
-    widths.pop
-    p = 0 #@padding_horizontal 
-    widths.each { |w|
-      p = p + w + @padding_horizontal*2 + 1 
-      line[p] = devider if line[p]
-    }
-    return line
+  # fix for rjust in combination with paint
+  def paint_rjust(string, width, padstr= " ")
+    diff = width - Paint.unpaint(string).length
+    return (padstr * diff) + string if diff > 0
+    return string
+  end
+
+  # fix for center in combination with paint
+  def paint_rjust(string, width, padstr= " ")
+    diff = width - Paint.unpaint(string).length
+    return (padstr * (diff/2)) + string + (padstr * (diff.to_f/2).ceil) if diff > 0
+    return string
   end
 
 
@@ -207,9 +250,5 @@ class TableBox
     return a if a>b
     return b
   end
-
-
-
-
 
 end
