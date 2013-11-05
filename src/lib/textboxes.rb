@@ -12,7 +12,8 @@ class TableBox
     :padding_horizontal, :row_heights, :rows
 
   # TODO take :box or :table or :aligning for matching defaults
-  def initialize()
+  # TODO style[:column_borders,:row_borders]
+  def initialize(hash = {})
     @top               = [ "┌", "┐", "┬" ]
     @bottom            = [ "└", "┘", "┴" ]
     @splitter          = [ "├", "┤", "┼" ]
@@ -29,6 +30,7 @@ class TableBox
     @title             = ""
     @footer             = ""
 
+    @style = {}
     @borders            = false
     @cell_borders       = false
     @padding_horizontal = 1
@@ -49,11 +51,19 @@ class TableBox
   end
 
   # set the alignment of a column
+  def set_alignments *aligns
+    aligns.each_index {|index| @column_alignments[index] = aligns[index] }
+  end
+
   def set_alignment index, alignment
     @column_alignments[index] = alignment
   end
 
   # takes an array of columns
+  def add_rows rows
+    rows.each {|row| add_row row}
+  end
+
   def add_row row
     row = [row] unless row.class == Array
 
@@ -68,7 +78,9 @@ class TableBox
       cell = cell.to_s
 
       @column_widths << 0     unless i < @column_widths.length
-      @column_widths[i] = max(@column_widths[i], Paint.unpaint(cell).length)
+      cell.to_s.lines.each {|line|
+        @column_widths[i] = max(@column_widths[i], Paint.unpaint(line).length)
+      }
     }
     @column_count = max(@column_count, row.length)
     content_width = 0
