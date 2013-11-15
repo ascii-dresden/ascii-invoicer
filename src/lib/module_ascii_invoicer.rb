@@ -215,6 +215,8 @@ module AsciiInvoicer
 
   ## hand path to editor
   def edit_file(paths, editor = $SETTINGS['editor'])
+    paths = [paths] if paths.class == String
+    paths.map!{|path| "\"#{path}\"" }
     path = paths.join ' '
     editor = $SETTINGS['editor'] unless editor
     logs "Opening #{path} in #{editor}"
