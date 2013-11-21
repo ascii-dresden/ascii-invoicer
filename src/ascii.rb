@@ -392,7 +392,8 @@ class Commander < Thor
   def settings
     #puts $SETTINGS.to_yaml
     if options[:edit]
-      edit_file File.join($SETTINGS['path'], ".settings.yml")
+      path = File.join($SETTINGS['path'], ".settings.yml")
+      edit_files path
     else
       puts $SETTINGS.to_yaml
       #pp $SETTINGS
