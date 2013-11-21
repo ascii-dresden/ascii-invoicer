@@ -41,7 +41,6 @@ module AsciiInvoicer
   end
 
   def print_project_list_paths(projects)
-
     table = CliTable.new
     table.borders = false
     projects.each_index do |i|
@@ -182,8 +181,7 @@ module AsciiInvoicer
       unsorted_paths = plumber.list_projects
     end
     projects = open_projects unsorted_paths
-    projects.each {|p| names.push p.data[:name]; paths.push p.data[:project_path]
-    }
+    projects.each {|p| names.push p.data[:name]; paths.push p.data[:project_path] }
 
 
     if index == 0 and names.include? selection
@@ -202,25 +200,19 @@ module AsciiInvoicer
     unless project.data[:valid]
       puts "\nWARNING: the file you just edited contains errors! (#{project.errors})"
       unless no? "would you like to edit it again? [y|N]"
-        edit_file path
+        edit_files path
       end
     end
   end
-  #
-  ## hand path to editor and check
-  def edit_project(paths, editor = $SETTINGS['editor'])
-    edit_file paths, editor
-    #check_project path #TODO
-  end
 
   ## hand path to editor
-  def edit_file(paths, editor = $SETTINGS['editor'])
+  def edit_files(paths, editor = $SETTINGS['editor'])
     paths = [paths] if paths.class == String
     paths.map!{|path| "\"#{path}\"" }
-    path = paths.join ' '
+    paths = paths.join ' '
     editor = $SETTINGS['editor'] unless editor
-    logs "Opening #{path} in #{editor}"
-    pid = spawn "#{editor} #{path}"
+    logs "Opening #{paths} in #{editor}"
+    pid = spawn "#{editor} #{paths}"
     Process.wait pid
   end
 

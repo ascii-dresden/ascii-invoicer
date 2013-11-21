@@ -58,7 +58,6 @@ class Commander < Thor
   package_name "ascii project"
   #argument :first, :type => :numeric
   map "-l" => :list
-  #map "-a" => :list ARCHIVES #XXX
   map "-d" => :display
   map "-i" => :invoice
   map "-o" => :offer
@@ -85,10 +84,10 @@ class Commander < Thor
 
     if plumber.new_project name
       puts "creating a new project name #{name}"
-      edit_project plumber.get_project_file_path name
+      edit_files plumber.get_project_file_path name
     else
       #puts "Project #{name} already exists"
-      edit_project plumber.get_project_file_path name unless options[:dont_edit]
+      edit_files plumber.get_project_file_path name unless options[:dont_edit]
     end
   end
 
@@ -104,10 +103,10 @@ class Commander < Thor
   def edit( *hash )
     # TODO implement edit --archive
     plumber = ProjectsPlumber.new $SETTINGS
-    paths = pick_paths hash
+    paths = pick_paths hash, options[:archive]
 
     if paths.size > 0
-      edit_project paths, options[:editor]
+      edit_files paths, options[:editor]
     else
       puts "nothing found (#{hash})"
     end
@@ -276,7 +275,7 @@ class Commander < Thor
       project = InvoiceProject.new $SETTINGS, path, name
       render_project project, choice
     else
-      paths = pick_paths hash
+      paths = pick_paths hash, options[:archive]
       paths.each { |path|
         project = InvoiceProject.new $SETTINGS, path
         render_project project, :offer
@@ -306,7 +305,7 @@ class Commander < Thor
       project = InvoiceProject.new $SETTINGS, path, name
       render_project project, choice
     else
-      paths = pick_paths hash
+      paths = pick_paths hash, options[:archive]
       paths.each { |path|
         project = InvoiceProject.new $SETTINGS, path
         render_project project, :invoice
@@ -402,13 +401,14 @@ class Commander < Thor
 
 
 
-  #desc "version", "display Version"
-  #def version
-  #  git = Git.open $SCRIPT_PATH+'/..'
-  #  current = git.log.to_s.lines.to_a.last
-  #  #puts git.branch unless git.tags.include? current 
-  #  puts current
-  #end
+  desc "version", "display Version"
+  def version
+    #git = Git.open $SCRIPT_PATH+'/..'
+    #current = git.log.to_s.lines.to_a.last
+    ##puts git.branch unless git.tags.include? current 
+    #puts current
+    puts "ascii-invoicer 2.1.2"
+  end
 
 
 end
