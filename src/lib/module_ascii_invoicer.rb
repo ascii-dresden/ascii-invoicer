@@ -7,7 +7,7 @@ module AsciiInvoicer
     if project.valid_for[choice]
       project.create_tex choice, options[:check]
     else
-      error "#{project.name} is not ready for creating an invoice!"
+      error "#{project.name} is not ready for creating an #{choice.to_s}! #{project.data[:valid]} #{project.errors}"
     end
   end
 

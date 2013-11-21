@@ -81,6 +81,7 @@ class Commander < Thor
     :desc => "do not edit a new file after creation"
   def new(name)
     plumber = ProjectsPlumber.new $SETTINGS
+    name = name.deumlautify
 
     if plumber.new_project name
       puts "creating a new project name #{name}"
@@ -273,7 +274,7 @@ class Commander < Thor
       path = options[:file]
       name = File.basename path, ".yml"
       project = InvoiceProject.new $SETTINGS, path, name
-      render_project project, choice
+      render_project project, :offer
     else
       paths = pick_paths hash, options[:archive]
       paths.each { |path|
@@ -303,7 +304,7 @@ class Commander < Thor
       path = options[:file]
       name = File.basename path, ".yml"
       project = InvoiceProject.new $SETTINGS, path, name
-      render_project project, choice
+      render_project project, :invoice
     else
       paths = pick_paths hash, options[:archive]
       paths.each { |path|
@@ -408,7 +409,7 @@ class Commander < Thor
     #current = git.log.to_s.lines.to_a.last
     ##puts git.branch unless git.tags.include? current 
     #puts current
-    puts "ascii-invoicer 2.1.2"
+    puts "ascii-invoicer 2.1.3"
   end
 
 

@@ -2,6 +2,7 @@
 require File.join File.dirname(__FILE__) + '/rfc5322_regex.rb'
 require File.join File.dirname(__FILE__) + '/module_parsers.rb'
 require 'yaml'
+
 class InvoiceProject
   attr_reader :project_path, :project_folder, :data, :raw_data, :errors, :valid_for
   attr_writer :raw_data, :errors
@@ -165,7 +166,10 @@ class InvoiceProject
           (!@data[req].nil?).to_s + req.to_s.ljust(15) +
           "(#{ @data[req].to_s.each_line.first.to_s.each_line.first })" +
           "(#{@data[req].class})" if print
-        @valid_for[type] = false unless @data[req] 
+        unless @data[req] 
+          @valid_for[type] = false
+          @errors.push req unless @errors.include? req
+        end
       }
       puts if print
     }
