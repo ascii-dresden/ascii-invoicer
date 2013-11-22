@@ -15,10 +15,12 @@ rows << ['eins','zwei','drei']
 rows << ["",Paint['eins',:red],"hello\nworld",'drei']
 rows << ['eins','zwei','drei','vier','fünf']
 rows << ['eins','zwei','drei']
+table.add_row ['eins','zwei','drei'], :red
 
 #pp table.rows
 
 table.add_rows rows
+table.add_row ['eins','zwei','drei'], :yellow
 table.add_rows [
   [1,2,3,4,5],
   [2,3,4,5,6],

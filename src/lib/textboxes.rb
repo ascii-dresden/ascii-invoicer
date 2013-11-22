@@ -24,6 +24,7 @@ class TableBox
     @borders[:row]    = "─"
 
     @rows              = []
+    @row_colors        = []
     @row_heights       = []
     @column_widths     = []
     @column_alignments = []
@@ -96,8 +97,9 @@ class TableBox
     return row
   end
 
-  def add_row row
+  def add_row row, color = nil
     @rows.push prepare_row row
+    @row_colors.push(color)
   end
 
   def content_width()
@@ -162,7 +164,7 @@ class TableBox
     string
   end
 
-  def render_row(row)
+  def render_row(row, color = nil)
     padding = " " * (@style[:padding_horizontal])
     inpadding = padding+padding 
     inpadding = padding+@borders[:column]+padding if @style[:column_borders]
@@ -185,7 +187,11 @@ class TableBox
       #line = line.join(inpadding).ljust(content_width())
 
       string << @borders[:column] << padding if @style[:border]
-      string << line
+      if color
+        string << Paint[line, color]
+      else
+        string << line
+      end
       string << @borders[:column] if @style[:border]
       string <<  "\n"
     }
@@ -207,7 +213,7 @@ class TableBox
 
     rows.each_index{ |i|
       row = rows[i]
-      string << render_row(row)
+      string << render_row(row, @row_colors[i])
       string << (render_row_border(:middle)) << br if i < rows.length - 1 and @style[:row_borders]
     }
 
