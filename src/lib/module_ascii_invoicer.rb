@@ -23,25 +23,55 @@ module AsciiInvoicer
     return projects
   end
 
+  def color_from_date(date)
+    return nil      unless $SETTINGS['colors']
+    return :blue    if date - Date.today < -14
+    return :default if date < Date.today
+    return :red     if date - Date.today < 7
+    return :yellow  if date - Date.today < 14
+    return :green   if date - Date.today >= 14
+    return :white
+  end
+
+
   def print_project_list_simple(projects)
     table = TableBox.new
-    table.borders = false
+    table.style[:border] = false
     projects.each_index do |i|
       p  = projects[i]
-      table.add_row [
+      table.add_row([
         (i+1).to_s+".", 
         p.data[:name].ljust(35), 
         p.data[:manager], 
         p.data[:invoice_number], 
         p.data[:date].strftime("%d.%m.%Y"), 
-      ]
+      ], color_from_date(p.data[:date]))
     end
-    table.column_alignments = [:r, :l, :l]
-    puts table.build
+    table.set_alignments(:r, :l, :l)
+    puts table
+  end
+
+  def print_project_list_verbose(projects)
+    table = TableBox.new
+    table.style[:border] = false
+    projects.each_index do |i|
+      p  = projects[i]
+      table.add_row([
+        (i+1).to_s+".",
+        p.data[:event] ? p.data[:event] : "",
+        p.data[:name],
+        p.data[:manager],
+        p.data[:invoice_number],
+        p.data[:date].strftime("%d.%m.%Y"),
+        p.data[:valid].print,
+      ], color_from_date(p.data[:date]))
+    end
+    table.set_alignment(0, :r)
+    table.set_alignment(5, :r)
+    puts table
   end
 
   def print_project_list_paths(projects)
-
     table = TableBox.new
     table.borders = false
     projects.each_index do |i|
@@ -52,27 +82,7 @@ module AsciiInvoicer
         p.data[:project_path]
       ]
     end
-    table.column_alignments = [:r, :l, :l]
-    puts table.build
-  end
-
-  def print_project_list_verbose(projects)
-    table = TableBox.new
-    table.borders = false
-    projects.each_index do |i|
-      p  = projects[i]
-      table.add_row [
-        (i+1).to_s+".",
-        p.data[:event] ? p.data[:event] : "",
-        p.data[:name],
-        p.data[:manager],
-        p.data[:invoice_number],
-        p.data[:date].strftime("%d.%m.%Y"),
-        p.data[:valid].print,
-      ]
-    end
-    table.set_alignment(0, :r)
-    table.set_alignment(5, :r)
+    table.set_alignments(:r, :l, :l)
     puts table
   end
 
