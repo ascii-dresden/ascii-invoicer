@@ -232,7 +232,7 @@ class Commander < Thor
       error "\"#{name}\" contains errors\n(#{project.errors.join(',')})"
     end
 
-    if yes? "Do you want to move \"#{prefix}#{name}\" into the archives of #{year}? (yes|No)"
+    if yes? "Do you want to move \"#{prefix}_#{name}\" into the archives of #{year}? (yes|No)"
       new_path = plumber.archive_project name, year, prefix
       puts new_path
 
