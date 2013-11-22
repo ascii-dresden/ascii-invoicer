@@ -27,7 +27,7 @@ module GitPlumber
   end
 
   def git_log
-    table = CliTable.new
+    table = TableBox.new
     table.borders = false
     @git.log.to_a.reverse.each do |commit|
       table.add_row [

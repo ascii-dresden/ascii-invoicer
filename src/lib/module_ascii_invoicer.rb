@@ -96,8 +96,8 @@ module AsciiInvoicer
 
   def display_products project, choice = :offer
     table = TableBox.new
-    table.borders   = true
-    table.header = "Project:" + "\"#{project.data[:event]}\"".rjust(25)
+    table.style[:border] = true
+    table.title = "Project:" + "\"#{project.data[:event]}\"".rjust(25)
       table.add_row ["#", "name", "price", "cost"]
     project.data[:products].each {|name, product|
       amount = product.amount choice
@@ -128,15 +128,17 @@ module AsciiInvoicer
 
     box = TableBox.new
     box.padding_horizontal = 3
-    box.header = "Project:" + "\"#{data[:event]}\"".rjust(25)
+    box.style[:border] = true
+    box.title = "Project:" + "\"#{data[:event]}\"".rjust(25)
 
-    box.add_line  "Kosten       : #{co} -> #{ci}"
-    box.add_line  "MWST         : #{to} -> #{ti}"
-    box.add_line  "Gehalt Total : #{st}"
-    box.add_line  "-----------------".rjust 33
-    box.add_line  "Netto        : #{toto} -> #{toti}"
-    box.add_line  "Final        : #{fo} -> #{fi}"
+    box.add_row  ["Kosten       :","#{co} -> #{ci}"]
+    box.add_row  ["MWST         :","#{to} -> #{ti}"]
+    box.add_row  ["Gehalt Total :","#{st}"]
+    box.add_row  [nil, "-----------------"]
+    box.add_row  ["Netto        :","#{toto} -> #{toti}"]
+    box.add_row  ["Final        :","#{fo} -> #{fi}"]
     box.footer = "Errors: #{project.errors.length} (#{ project.errors.join ',' })" if project.errors.length >0
+    box.set_alignment 1, :r
  
     puts box
   end

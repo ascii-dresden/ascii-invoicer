@@ -168,7 +168,7 @@ class InvoiceProject
           "(#{@data[req].class})" if print
         unless @data[req] 
           @valid_for[type] = false
-          @errors.push req unless @errors.include? req
+          #@errors.push req unless @errors.include? req
         end
       }
       puts if print
@@ -301,8 +301,8 @@ class InvoiceProject
     template = @template_invoice if choice == :invoice
     template = @template_offer   if choice == :offer
 
-    table = CliTable.new 
-    table.header = "Template matches"
+    table = TableBox.new
+    table.title = "Template matches"
     if check
       template.each_line { |line| 
         scans = line.scan /\$([^$]*)\$/
