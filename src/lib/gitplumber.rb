@@ -28,7 +28,7 @@ module GitPlumber
 
   def git_log
     table = TableBox.new
-    table.borders = false
+    table.style[:border] = false
     @git.log.to_a.reverse.each do |commit|
       table.add_row [
         commit.author.name,
