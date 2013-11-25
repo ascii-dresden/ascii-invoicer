@@ -2,7 +2,7 @@
 class Euro
 
   def initialize value
-    @value = value.to_f
+    @value = value.rationalize
     return self
   end
 
@@ -20,7 +20,7 @@ class Euro
   end
 
   def + v
-    return (@value + v.to_f).to_euro
+    return (@value + v.rationalize).to_euro
   end
 
   def to_f
@@ -32,11 +32,20 @@ class Euro
   end
 
   def to_s
-    return @value unless @value.class == Float
-    a,b = sprintf("%0.2f", @value.to_s).split('.')
+    value = @value.to_f
+    a,b = sprintf("%0.2f", value.to_s).split('.')
     a.gsub!(/(\d)(?=(\d{3})+(?!\d))/, '\\1.')
     "#{a},#{b}€"
   end
+
+  #def ceil_up
+  #  return self unless self.class == Float
+  #  n = self
+  #  n = n*100
+  #  n = n.round().to_f()
+  #  n = n/100
+  #  return n
+  #end
 
 end
 
@@ -50,14 +59,10 @@ class Fixnum
   include EuroConversion
 end
 
+class Rational
+  include EuroConversion
+end
+
 class Float
-  def ceil_up
-    return self unless self.class == Float
-    n = self
-    n = n*100
-    n = n.round().to_f()
-    n = n/100
-    return n
-  end
   include EuroConversion
 end

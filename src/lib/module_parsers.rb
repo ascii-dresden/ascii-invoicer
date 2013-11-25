@@ -23,8 +23,8 @@ module InvoiceParsers
       costs[:taxes_invoice] += product.tax_invoice
       costs[:taxes_offer]   += product.tax_offer
     }
-    costs[:total_invoice] = (costs[:costs_invoice] + costs[:taxes_invoice]).ceil_up()
-    costs[:total_offer]   = (costs[:costs_offer]   + costs[:taxes_offer]).ceil_up()
+    costs[:total_invoice] = (costs[:costs_invoice] + costs[:taxes_invoice])
+    costs[:total_offer]   = (costs[:costs_offer]   + costs[:taxes_offer])
 
     return costs[:costs_invoice] if choice == :invoice
     return costs[:costs_offer]   if choice == :offer
@@ -32,6 +32,7 @@ module InvoiceParsers
     false
   end
 
+  ## Final := salary + total
   def parse_final choice = nil
     return @data[:salary_total] + @data[:total_invoice] if choice == :invoice
     return @data[:salary_total] + @data[:total_offer]   if choice == :offer
@@ -206,7 +207,7 @@ module InvoiceParsers
       return lines.last      if choice == :manager
       return lines.join "\n" if choice == :signature
     else
-      return lines.first     if choice == :manager
+      return lines.first                    if choice == :manager
       return @settings["default_signature"] if choice == :signature
     end
     return fail_at :signature,:manager

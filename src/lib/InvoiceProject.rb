@@ -127,8 +127,9 @@ class InvoiceProject
         error "error reading #{project_path}"
       end
 
-      @data[:valid] = true
+      @data[:valid] = true # at least for the moment 
       @data[:project_path]  = project_path
+
       if name.nil?
         @data[:name]  = File.basename File.split(@project_path)[0]
       else @data[:name] = name
@@ -137,8 +138,8 @@ class InvoiceProject
       @data[:lang]  = @raw_data['lang']? @raw_data['lang'] : @settings['default_lang']
       @data[:lang]  = @data[:lang].to_sym
 
-
       return @raw_data
+
     else
       fail_at :project_path
       error "FILE \"#{project_path}\" does not exist!"
@@ -184,14 +185,18 @@ class InvoiceProject
     begin
       parser = method parser
     rescue
+
+      # look for mapping in @parser_matches
       if @parser_matches.keys.include? key
         pm = @parser_matches[key]
         return fail_at key unless pm[0] or pm[1]
         parse(key, pm[0], pm[1])
         return @data[key]
+
       else
         @data[key] = false
         return fail_at key
+
       end
     end
 
@@ -409,10 +414,10 @@ class InvoiceProduct
   end
 
   def calculate()
-    @cost_invoice = (@price * @sold).ceil_up()
-    @cost_offer   = (@price * @amount).ceil_up()
+    @cost_invoice = (@price * @sold)
+    @cost_offer   = (@price * @amount)
 
-    @tax_invoice  = (@cost_invoice * @tax_value).ceil_up()
-    @tax_offer    = (@cost_offer   * @tax_value).ceil_up()
+    @tax_invoice  = (@cost_invoice * @tax_value)
+    @tax_offer    = (@cost_offer   * @tax_value)
   end
 end
