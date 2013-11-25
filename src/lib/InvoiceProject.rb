@@ -258,6 +258,8 @@ class InvoiceProject
       @template_invoice = File.open(invoice).read
       @template_offer   = File.open(offer).read
       return true
+    else
+      error "Template File not found!"
     end
     return false
   end
@@ -289,7 +291,7 @@ class InvoiceProject
   end
 
   ##
-  # fills the template with minded data
+  # fills the template with mined data
   def create_tex choice, check = false, run = true
     return fail_at :create_tex unless parse :products
     return fail_at :templates unless load_templates()
