@@ -261,7 +261,7 @@ module AsciiInvoicer
     end
 
     if project.is_valid or true
-      tex = project.create
+      tex = project.create_tex
 
       d = project.dump
 

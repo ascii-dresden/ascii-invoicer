@@ -414,8 +414,8 @@ class InvoiceProduct
   end
 
   def calculate()
-    @cost_invoice = (@price * @sold)
-    @cost_offer   = (@price * @amount)
+    @cost_invoice = (@price * @sold).to_euro
+    @cost_offer   = (@price * @amount).to_euro
 
     @tax_invoice  = (@cost_invoice * @tax_value)
     @tax_offer    = (@cost_offer   * @tax_value)

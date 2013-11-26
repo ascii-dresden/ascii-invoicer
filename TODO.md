@@ -1,1 +1,2 @@
-* custom template.yml per user
+* more settings
+* move include stuff into settings
