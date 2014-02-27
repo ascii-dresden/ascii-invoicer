@@ -408,7 +408,7 @@ class Commander < Thor
     #current = git.log.to_s.lines.to_a.last
     ##puts git.branch unless git.tags.include? current 
     #puts current
-    puts "ascii-invoicer 2.1.5"
+    puts "ascii-invoicer 2.2.1"
   end
 
 
