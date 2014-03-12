@@ -16,8 +16,18 @@ require "#{$SCRIPT_PATH}/lib/ProjectPlumber.rb"
 require "#{$SCRIPT_PATH}/lib/module_ascii_invoicer.rb"
 require "#{$SCRIPT_PATH}/lib/textboxes.rb"
 
+local_settings_paths = [
+  File.join(Dir.home, ".ascii-invoicer.yml"),
+  ".settings.yml"
+]
+
 $SETTINGS                = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
-$local_settings          = YAML::load(File.open(".settings.yml")) if File.exists? ".settings.yml"
+local_settings_paths.each{ |path|
+  if File.exists? path
+    $local_settings          = YAML::load(File.open(path))
+    $SETTINGS['local_settings_path'] = path
+  end
+}
 $SETTINGS['path']        = File.expand_path File.split(__FILE__)[0]
 $SETTINGS['script_path'] = $SCRIPT_PATH
 
