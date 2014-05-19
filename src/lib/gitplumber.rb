@@ -26,10 +26,10 @@ module GitPlumber
     end
   end
 
-  def git_log
+  def git_log(count = 30)
     table = TableBox.new
     table.style[:border] = false
-    @git.log.to_a.reverse.each do |commit|
+    @git.log(count = count).to_a.reverse.each do |commit|
       table.add_row [
         commit.author.name,
         commit.message,

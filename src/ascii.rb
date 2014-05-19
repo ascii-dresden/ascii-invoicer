@@ -382,10 +382,16 @@ class Commander < Thor
 
 
   desc "history", "Git Integration."
+  method_option :count,
+    :type=>:numeric, :aliases => "-c",
+    :default => 30,
+    :lazy_default=> 1000, 
+    :required => false,
+    :desc => "Max count of history entries"
   def history
     plumber = ProjectsPlumber.new $SETTINGS
     if plumber.check_git()
-      plumber.git_log
+      plumber.git_log(options[:count])
     else
       puts "problems with git"
     end
@@ -418,7 +424,7 @@ class Commander < Thor
     #current = git.log.to_s.lines.to_a.last
     ##puts git.branch unless git.tags.include? current 
     #puts current
-    puts "ascii-invoicer 2.2.3"
+    puts "ascii-invoicer 2.2.4"
   end
 
 
