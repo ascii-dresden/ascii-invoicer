@@ -8,7 +8,7 @@ class Euro
 
   def method_missing *args, &blk
     v = @value.send *args, &blk
-    if v.class == Float or v.class == Fixnum 
+    if v.class == Float or v.class == Fixnum or v.class == Rational
       return Euro.new v
     else return v
     end
@@ -19,12 +19,20 @@ class Euro
     return false
   end
 
+  def * v
+    return (@value * v.rationalize).to_euro
+  end
+
   def + v
     return (@value + v.rationalize).to_euro
   end
 
-  def to_f
-    @value.ceil_up
+  def rationalize
+    @value
+  end
+
+  def to_r
+    rationalize()
   end
 
   def to_euro
@@ -53,6 +61,7 @@ module EuroConversion
   def to_euro 
     Euro.new self
   end
+
 end
 
 class Fixnum

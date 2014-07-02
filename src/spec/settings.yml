@@ -12,7 +12,7 @@ templates:
 
 
 #careful here
-project_file_extension: yml
+project_file_extension: .yml
 path: .
 script_path: .
 default_lang: de

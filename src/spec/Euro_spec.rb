@@ -25,15 +25,11 @@ describe Euro do
 
     it "adds" do
       a = @e + 1
-      b = 1 + @e
-      c = 1.0 + @e
+      lambda{1 + @e}.should   raise_error(TypeError)
+      lambda{1.0 + @e}.should raise_error(TypeError)
 
       a.should be_a Euro
       a.should === Euro.new(2)
-      b.should be_a Float
-      b.should === Euro.new(2)
-      c.should be_a Float
-      c.should === Euro.new(2)
 
       d = Euro.new 2.0
       d += 1
@@ -65,6 +61,10 @@ describe Euro do
       c.should === Euro.new(-2)
       c.should === "-2.00€"
 
+      d = Euro.new(2.0) * Euro.new(2.0)
+      d.should be_a Euro
+      d.should === "4.00€"
+
     end
 
     it "compares" do
@@ -72,6 +72,21 @@ describe Euro do
       Euro.new(2.0).should === Euro.new(2)
       Euro.new(3).should   === Euro.new(3.0)
       (Euro.new(3)         ==  Euro.new(3.0)).should be true
+    end
+
+    it "converts from Rational" do
+      a = '24/7'.to_r.to_euro
+      a.should be_a Euro
+
+      b = '17/5'.to_r.to_euro * '6/8'.to_r
+      b.should be_a Euro
+
+      c = '17/5'.to_r.to_euro * '6/8'.to_r
+      c.should be_a Euro
+    end
+
+    it "converts from Euro" do
+      Euro.new(2.0).to_euro.should be_a Euro
     end
 
     it "converts from Float" do

@@ -64,7 +64,7 @@ describe InvoiceProject do
     it "prints the data" do
       name = "alright"
       @project.open @test_projects[name]
-      @project.parse_date().should be_true
+      @project.parse_date().should be_truthy
       #@project.print_data()
       #puts @project.tex_product_table()
     end
@@ -72,21 +72,21 @@ describe InvoiceProject do
     it "validates email addresses" do
       @project.open @test_projects['alright']
       @project.raw_data = {'email' => "john.doe@com"}
-      @project.parse_email().should be_true
+      @project.parse_email().should be_truthy
       @project.raw_data = {'email' => "john.doeexample.com"}
-      @project.parse_email().should be_false
+      @project.parse_email().should be_falsey
       @project.raw_data = {'email' => "john.doe@@example.com"}
-      @project.parse_email().should be_false
+      @project.parse_email().should be_falsey
       @project.raw_data = {'email' => ".@.com"}
-      @project.parse_email().should be_false
+      @project.parse_email().should be_falsey
 
       @project.raw_data =  {'email' => "john.doe@example.com"}
-      @project.parse_email().should be_true
+      @project.parse_email().should be_truthy
     end
 
     it "validates the date" do
       @project.open @test_projects['alright']
-      @project.parse_date().should be_true
+      @project.parse_date().should be_truthy
       @project.parse :date
       @project.data[:date].should === Date.new(2013,7,20)
 
@@ -102,7 +102,7 @@ describe InvoiceProject do
     it "validates date ranges" do
       File.should exist @test_projects['date_range']
       @project2.open @test_projects['date_range']
-      @project2.parse_date().should be_true
+      @project2.parse_date().should be_truthy
       @project2.parse :date
       @project2.parse :date_end, :parse_date,:end
       @project2.data[:date].should     === Date.new(2013,7,20)
@@ -122,7 +122,7 @@ describe InvoiceProject do
 
     it "validates client" do
       @project.open @test_projects['alright']
-      @project.parse(:client).should be_true
+      @project.parse(:client).should be_truthy
       @project.data[:client][:last_name].should  === 'Doe'
       @project.data[:client][:addressing].should === 'Sehr geehrter Herr Doe'
     end
@@ -139,63 +139,63 @@ describe InvoiceProject do
       name4 = 'client_female'
       File.should exist @test_projects[name]
       @project.open @test_projects[name]
-      @project.parse(:client).should be_true
+      @project.parse(:client).should be_truthy
       @project.data[:client]
       @project.data[:client][:last_name].should === 'Doe'
       @project.data[:client][:addressing].should === 'Sehr geehrter Professor Dr. Dr. Doe'
 
       File.should exist @test_projects[name2]
       @project2.open @test_projects[name2]
-      @project2.parse(:client).should be_true
+      @project2.parse(:client).should be_truthy
       @project2.data[:client][:last_name].should === 'Doe'
       @project2.data[:client][:addressing].should === 'Sehr geehrte Frau Professor Dr. Dr. Doe'
 
       File.should exist @test_projects[name3]
       @project3.open @test_projects[name3]
-      @project3.parse(:client).should be_true
+      @project3.parse(:client).should be_truthy
       @project3.data[:client][:last_name].should === 'Doe'
       @project3.data[:client][:addressing].should === 'Sehr geehrter Herr Professor Dr. Dr. Doe'
 
       File.should exist @test_projects[name4]
       @project4.open @test_projects[name4]
-      @project4.parse(:client).should be_true
+      @project4.parse(:client).should be_truthy
       @project4.data[:client][:last_name].should === 'Doe'
       @project4.data[:client][:addressing].should === 'Sehr geehrte Frau Doe'
     end
 
     it "validates manager" do
       @project.open @test_projects['alright']
-      @project.parse(:manager).should be_true
+      @project.parse(:manager).should be_truthy
       @project.data[:manager].should === 'Manager Bob'
 
       @project2.open @test_projects['signature_long']
-      @project2.parse(:manager).should be_true
+      @project2.parse(:manager).should be_truthy
       @project2.data[:manager].should === 'Hendrik Sollich'
 
       @project3.open @test_projects['old_signature']
-      @project3.parse(:manager).should be_true
+      @project3.parse(:manager).should be_truthy
       @project3.data[:manager].should === 'Yours Truely'
     end
 
     it "validates signature" do
       @project.open @test_projects['alright']
-      @project.parse(:signature).should be_true
+      @project.parse(:signature).should be_truthy
       @project.data[:signature].should === 'Mit freundlichen Grüßen'
 
       @project2.open @test_projects['signature_long']
-      @project2.parse(:signature).should be_true
+      @project2.parse(:signature).should be_truthy
       @project2.data[:signature].should === "Yours Truely\nHendrik Sollich"
     end
 
     it "validates hours" do
       @project.open @test_projects['alright']
-      @project.parse(:hours).should be_true
+      @project.parse(:hours).should be_truthy
 
       @project2.open @test_projects['hours_missmatching']
-      @project2.parse(:hours).should be_true
+      @project2.parse(:hours).should be_truthy
 
       @project3.open @test_projects['hours_simple']
-      @project3.parse(:hours).should be_true
+      @project3.parse(:hours).should be_truthy
 
       @project4.open @test_projects['hours_missing']
       @project4.parse(:hours).should be false
@@ -206,7 +206,7 @@ describe InvoiceProject do
 
     it "validates products" do
       @project.open @test_projects['alright']
-      @project.parse(:products).should be_true
+      @project.parse(:products).should be_truthy
 
       @project2.open @test_projects['products_missing']
       @project2.parse(:products).should be false
@@ -224,7 +224,7 @@ describe InvoiceProject do
 
     #it "sums up products" do
     #  @project.open @test_projects['alright']
-    #  @project.parse(:products).should be_true
+    #  @project.parse(:products).should be_truthy
     #  @project.parse :products
     #  #pp @project.data['products']
     #  @project.get_cost(:offer).should    === 50.14

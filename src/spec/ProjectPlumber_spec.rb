@@ -18,35 +18,35 @@ describe ProjectsPlumber do
     describe "#check_dir" do
 
       it "notices missing storage directory" do
-        expect(@plumber.check_dir :storage).to be_false
+        expect(@plumber.check_dir :storage).to be_falsey
       end
 
       it "notices missing working directory" do
-        expect( @plumber.check_dir :working ).to be_false
+        expect( @plumber.check_dir :working ).to be_falsey
       end
 
       it "notices missing archive directory" do
-        expect( @plumber.check_dir :archive ).to be_false
+        expect( @plumber.check_dir :archive ).to be_falsey
       end
 
       it "finds its template file" do
-        expect( @plumber.check_dir :template).to be_true
+        expect( @plumber.check_dir :template).to be_truthy
       end
     end
 
     describe "#create_dir" do
       it "refuses to create working directory without the storage directory" do
-        expect(@plumber.create_dir :working).to be_false
+        expect(@plumber.create_dir :working).to be_falsey
       end
 
       it "refuses to create archive directory without the storage directory" do
-        expect(@plumber.create_dir :archive).to be_false
+        expect(@plumber.create_dir :archive).to be_falsey
       end
     end
 
     describe "#_new_project_folder" do
       it "refuses to create a new project_folder" do
-        @plumber._new_project_folder("new_project_folder").should be_false
+        @plumber._new_project_folder("new_project_folder").should be_falsey
       end
     end
 
@@ -69,7 +69,7 @@ describe ProjectsPlumber do
 
     #describe "#list_projects" do
     #  it "refuses to list projects if file does not exist" do
-    #    @plumber.list_projects.should be_false
+    #    @plumber.list_projects.should be_falsey
     #  end
     #end
 
@@ -80,15 +80,15 @@ describe ProjectsPlumber do
 
     describe described_class, "#check_dir" do
       it "checks existing storage directory" do
-        @plumber.check_dir (:storage ).should be_true
+        @plumber.check_dir (:storage ).should be_truthy
       end
 
       it "checks existing working directory" do
-        expect( @plumber.check_dir :working ).to be_true
+        expect( @plumber.check_dir :working ).to be_truthy
       end
 
       it "checks existing archive directory" do
-        expect( @plumber.check_dir :archive ).to be_true
+        expect( @plumber.check_dir :archive ).to be_truthy
       end
     end
 
@@ -98,7 +98,7 @@ describe ProjectsPlumber do
         expect(File).to exist path
       end
       it "refuses to create a project folder with existing name" do
-        @plumber._new_project_folder("new_project0").should be_false
+        @plumber._new_project_folder("new_project0").should be_falsey
       end
     end
 
@@ -106,21 +106,21 @@ describe ProjectsPlumber do
       it "sanitizes names prior to creating new projects with forbidden characters" do
         subfolder     = @plumber.new_project("sub/folder")
         hiddenproject = @plumber.new_project(".hidden_project")
-        subfolder.should be_true
-        hiddenproject.should be_true
-        @plumber.get_project_folder("sub_folder").should be_true
-        @plumber.get_project_folder("hidden_project").should be_true
+        subfolder.should be_truthy
+        hiddenproject.should be_truthy
+        @plumber.get_project_folder("sub_folder").should be_truthy
+        @plumber.get_project_folder("hidden_project").should be_truthy
       end
 
       it "creates a new project" do
-        @plumber.new_project("new_project1").should be_true
-        @plumber.new_project("new_project2").should be_true
+        @plumber.new_project("new_project1").should be_truthy
+        @plumber.new_project("new_project2").should be_truthy
       end
 
       it "creates a new project with spaces in name" do
         name = "  fun project "
         @plumber.new_project(name)
-        @plumber.get_project_file_path(name.strip).should be_true
+        @plumber.get_project_file_path(name.strip).should be_truthy
         File.should exist @plumber.get_project_file_path(name.strip)
       end
     end
@@ -128,7 +128,7 @@ describe ProjectsPlumber do
     describe described_class, "#get_project_folder" do
       #TODO test get_project_folder for :archive
       it "returns false for missing project folder" do
-        @plumber.get_project_folder("nonexistent_project").should be_false
+        @plumber.get_project_folder("nonexistent_project").should be_falsey
       end
 
       it "returns path to project folder" do
@@ -146,7 +146,7 @@ describe ProjectsPlumber do
     describe described_class, "#get_project_file_path" do
 
       it "returns false for missing project" do
-        @plumber.get_project_file_path("nonexistent_project").should be_false
+        @plumber.get_project_file_path("nonexistent_project").should be_falsey
       end
 
       it "returns path to project folder" do
@@ -157,7 +157,7 @@ describe ProjectsPlumber do
         name = "archived project"
         @plumber.new_project name
         @plumber.archive_project name
-        @plumber.get_project_file_path(name, :archive).should be_true
+        @plumber.get_project_file_path(name, :archive).should be_truthy
         File.should exist @plumber.get_project_file_path(name, :archive)
       end
 
@@ -165,7 +165,7 @@ describe ProjectsPlumber do
 
     describe described_class, "#list_projects" do
     #  it "lists projects" do
-    #    @plumber.list_projects.should be_false
+    #    @plumber.list_projects.should be_falsey
     #  end
     end
 
@@ -174,23 +174,23 @@ describe ProjectsPlumber do
       it "moves project to archive" do
         name = "old_project"
         project = @plumber.new_project name
-        @plumber.archive_project(name).should be_true
+        @plumber.archive_project(name).should be_truthy
       end
 
       it "refuses to move non existent project to archive" do
-        @plumber.archive_project("nonexistent_project").should be_false
+        @plumber.archive_project("nonexistent_project").should be_falsey
       end
 
       it "moves project to archive, with special year" do
         name = "project_from_2010"
         project = @plumber.new_project name
-        @plumber.archive_project(name, 2010).should be_true
+        @plumber.archive_project(name, 2010).should be_truthy
       end
 
       it "moves project to archive, with special year and prefix" do
         name = "project_from_2010"
         project = @plumber.new_project name
-        @plumber.archive_project(name, 2010, "R025").should be_true
+        @plumber.archive_project(name, 2010, "R025").should be_truthy
       end
     end
 
@@ -200,35 +200,35 @@ describe ProjectsPlumber do
         name = "reheated_project"
         project = @plumber.new_project name
         File.should exist project
-        @plumber.archive_project(name).should be_true
-        @plumber.unarchive_project(name).should be_true
+        @plumber.archive_project(name).should be_truthy
+        @plumber.unarchive_project(name).should be_truthy
       end
 
       it "moves project from archive to working_dir" do
         name = "old_project_from_2010"
         project = @plumber.new_project name
-        @plumber.archive_project(name,2010).should be_true
-        @plumber.unarchive_project(name,2010).should be_true
+        @plumber.archive_project(name,2010).should be_truthy
+        @plumber.unarchive_project(name,2010).should be_truthy
       end
 
       it "refuses to move non existent project from archive to working_dir" do
-        @plumber.archive_project("nonexistent_project").should be_false
+        @plumber.archive_project("nonexistent_project").should be_falsey
       end
 
       it "refuses to overwrite project already in archive" do
         name = "previously archived"
         project = @plumber.new_project name
-        @plumber.archive_project(name).should be_true
+        @plumber.archive_project(name).should be_truthy
         project = @plumber.new_project name
-        @plumber.archive_project(name).should be_false
+        @plumber.archive_project(name).should be_falsey
       end
 
       it "refuses to overwrite project in working from archive" do
         name = "dont_overwrite me"
         project = @plumber.new_project name
-        @plumber.archive_project(name).should be_true
+        @plumber.archive_project(name).should be_truthy
         project = @plumber.new_project name
-        @plumber.unarchive_project(name).should be_false
+        @plumber.unarchive_project(name).should be_falsey
       end
 
     end
@@ -241,28 +241,28 @@ describe ProjectsPlumber do
       name = "   space separated filename   "
       project = @plumber.new_project name
       File.should exist project
-      @plumber.archive_project(name).should be_true
-      @plumber.unarchive_project(name).should be_true
-      @plumber.get_project_folder(name).should be_true
-      @plumber.get_project_folder(name.strip).should be_true
+      @plumber.archive_project(name).should be_truthy
+      @plumber.unarchive_project(name).should be_truthy
+      @plumber.get_project_folder(name).should be_truthy
+      @plumber.get_project_folder(name.strip).should be_truthy
     end
 
     it "handles dash separated filenames" do
       name = "dash/separated/filename"
       project = @plumber.new_project name
       File.should exist project
-      @plumber.archive_project(name).should be_true
-      @plumber.unarchive_project(name).should be_true
-      @plumber.get_project_folder(name).should be_true
+      @plumber.archive_project(name).should be_truthy
+      @plumber.unarchive_project(name).should be_truthy
+      @plumber.get_project_folder(name).should be_truthy
     end
 
     it "handles dot separated filenames" do
       name = "dot.separated.filename"
       project = @plumber.new_project name
       File.should exist project
-      @plumber.archive_project(name).should be_true
-      @plumber.unarchive_project(name).should be_true
-      @plumber.get_project_folder(name).should be_true
+      @plumber.archive_project(name).should be_truthy
+      @plumber.unarchive_project(name).should be_truthy
+      @plumber.get_project_folder(name).should be_truthy
     end
 
   end
