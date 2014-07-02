@@ -7,6 +7,7 @@ require 'git'
 require 'yaml'
 require 'thor'
 require 'paint'
+require 'icalendar'
 
 $SCRIPT_PATH = File.split(File.expand_path(File.readlink(__FILE__)))[0]
 require "#{$SCRIPT_PATH}/lib/tweaks.rb"
@@ -166,6 +167,17 @@ class Commander < Thor
     end
   end
 
+  desc "calendar", "creates a calendar from all caterings"
+  def calendar
+    plumber = ProjectsPlumber.new $SETTINGS
+    paths = plumber.list_projects :archive, 2013
+    paths += plumber.list_projects :archive, 2014
+    paths += plumber.list_projects
+
+    projects = open_projects paths, :export, :date
+    print_project_list_ical projects
+
+  end
 
 
   desc "display NAME", "Shows information about a Project in different ways."

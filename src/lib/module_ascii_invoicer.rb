@@ -73,7 +73,6 @@ module AsciiInvoicer
 
   def print_project_list_paths(projects)
     table = TableBox.new
-    table.borders = false
     projects.each_index do |i|
       p  = projects[i]
       table.add_row [
@@ -84,6 +83,23 @@ module AsciiInvoicer
     end
     table.set_alignments(:r, :l, :l)
     puts table
+  end
+
+  def print_project_list_ical(projects)
+    cal = Icalendar::Calendar.new
+    projects.each_index do |i|
+      p  = projects[i]
+      event = Icalendar::Event.new
+
+      event.dtstart = p.data[:date]
+      event.dtend = p.data[:date_end]
+      event.summary = p.data[:name]
+      event.description = p.data[:name] +"\n"+ p.data[:manager]
+      p.data[:invoice_number]
+
+      cal.add_event event
+    end
+    puts cal.to_ical
   end
 
   #takes an array of invoices (@plumber.working_projects)

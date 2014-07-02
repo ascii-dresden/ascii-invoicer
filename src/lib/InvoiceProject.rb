@@ -36,9 +36,9 @@ class InvoiceProject
       }, }
 
     @requirements = {
-      :list    => [ :tax, :date, :manager, :name, :offer_number, :invoice_number ],
+      :list    => [ :tax, :date, :date_end, :manager, :name, :offer_number, :invoice_number ],
 
-      :offer   => [ :tax, :date, :raw_date, :manager, :name,
+      :offer   => [ :tax, :date, :date_end, :raw_date, :manager, :name,
                     :time, :salary, :salary_total, :costs,
                     :costs_offer, :taxes_offer, :total_offer, :final_offer,
                     :offer_number,
@@ -47,7 +47,7 @@ class InvoiceProject
                     :tex_table_offer,
                     :script_path
                   ],
-      :invoice => [ :tax, :date, :raw_date, :manager, :name,
+      :invoice => [ :tax, :date, :date_end, :raw_date, :manager, :name,
                     :time, :salary, :salary_total, :costs,
                     :costs_invoice, :taxes_invoice, :total_invoice, :final_invoice,
                     :offer_number, :invoice_number, :invoice_number_long,
@@ -56,7 +56,7 @@ class InvoiceProject
                     :tex_table_invoice,
                     :script_path
                   ],
-      :full    => [ :tax, :date, :raw_date,:manager, :name,
+      :full    => [ :tax, :date, :date_end, :raw_date,:manager, :name,
                     :time, :salary, :salary_total, :costs,
                     :costs_offer,    :taxes_offer,    :total_offer,    :final_offer,
                     :costs_invoice,  :taxes_invoice,  :total_invoice,  :final_invoice,
@@ -66,7 +66,7 @@ class InvoiceProject
                     :tex_table_offer, :tex_table_invoice,
                     :caterers, :script_path
                   ],
-      :export  => [ :tax, :date, :manager, :name, :hours, :time, :salary_total, :salary,
+      :export  => [ :tax, :date, :date_end, :manager, :name, :hours, :time, :salary_total, :salary,
                     :address, :event, :offer_number, :costs,
                     :costs_offer,    :taxes_offer,    :total_offer,    :final_offer,
                     :costs_invoice,  :taxes_invoice,  :total_invoice,  :final_invoice,
