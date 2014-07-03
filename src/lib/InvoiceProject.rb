@@ -117,6 +117,7 @@ class InvoiceProject
   ## open given .yml and parse into @data
   def open(project_path, name = nil)
     #puts "opening \"#{project_path}\""
+    raise "already opened another project" if @project_path
     @project_path = project_path
     @project_folder = File.split(project_path)[0]
 

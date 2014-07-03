@@ -188,6 +188,7 @@ module InvoiceParsers
       if choice == :start
         return strpdates(@raw_data['date'])[0]
       elsif choice == :end
+        return strpdates(@raw_data['date_end'])[0] unless @raw_data['date_end'].nil?
         date_end = strpdates(@raw_data['date'])[1]
         return date_end unless date_end.nil?
         return strpdates(@raw_data['date'])[0] # returns start_date for end_date 
