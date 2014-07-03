@@ -129,6 +129,8 @@ class Commander < Thor
     method_option :archives,
       :type=>:numeric, :aliases => "-a",
       :lazy_default=> Date.today.year, :required => false, :desc => "list archived projects"
+    method_option :all, :type=>:boolean,
+      :lazy_default=> true, :required => false, :desc => "lists all projects, ever"
     method_option :paths, :type=>:boolean, :aliases => '-p',
       :lazy_default=> true, :required => false, :desc => "list paths to .yml files"
     method_option :simple, :type=>:boolean, :aliases => '-s',
@@ -140,10 +142,14 @@ class Commander < Thor
   def list
     plumber = ProjectsPlumber.new $SETTINGS
 
-    unless options[:archives]
-      paths = plumber.list_projects
+    if options[:all]
+      paths = plumber.list_projects_all
     else
-      paths = plumber.list_projects :archive, options[:archives]
+      unless options[:archives]
+        paths = plumber.list_projects
+      else
+        paths = plumber.list_projects :archive, options[:archives]
+      end
     end
 
     if options[:csv] 

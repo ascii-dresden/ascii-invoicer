@@ -158,6 +158,7 @@ class ProjectsPlumber
   ##
   # list projects
   # lists project files
+  # (names actually contains paths)
   def list_projects(dir = :working, year=Date.today.year)
     return unless check_dir(dir)
     if dir == :working
@@ -169,6 +170,30 @@ class ProjectsPlumber
     else
       error "unknown path #{dir}"
     end
+  end
+
+  ##
+  # list projects
+  # lists project files
+  # (names actually contains paths)
+  def list_projects_all
+    names = []
+
+    #first all archived projects, ever :D
+    archives = Dir.glob File.join @dirs[:archive], "/*"
+    archives.sort!
+    archives.each do |a|
+      paths = Dir.glob File.join a, "/*"
+      year = File.basename a
+      names += paths.map { |path|
+        get_project_file_path (File.basename path), :archive, year
+      }
+    end
+
+    #then all working projects
+    names += list_projects :working
+
+    return names
   end
 
   ##
