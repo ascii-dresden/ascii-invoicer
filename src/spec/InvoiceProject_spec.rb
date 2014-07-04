@@ -129,6 +129,14 @@ describe InvoiceProject do
       @project4.parse :date_end, :parse_date,:end
       expect(@project4.data[:date]).to     eq Date.new(2013,7,20)
       expect(@project4.data[:date_end]).to eq Date.new(2013,7,26)
+
+      expect(File).to exist @test_projects['date_range_blank_end']
+      @project5.open @test_projects['date_range_blank_end']
+      expect(@project5.parse_date()).to be_truthy
+      @project5.parse :date
+      @project5.parse :date_end, :parse_date,:end
+      expect(@project5.data[:date]).to     eq Date.new(2014,7,04)
+      expect(@project5.data[:date_end]).to eq Date.new(2014,7,04)
     end
 
     it "validates numbers" do
@@ -183,6 +191,26 @@ describe InvoiceProject do
       expect(@project4.parse(:client)).to be_truthy
       expect(@project4.data[:client][:last_name]).to eq 'Doe'
       expect(@project4.data[:client][:addressing]).to eq 'Sehr geehrte Frau Doe'
+    end
+
+    it "validates time" do
+      # TODO implement
+      expect(false).to eq true
+    end
+
+    it "validates description" do
+      # TODO implement
+      expect(false).to eq true
+    end
+
+    it "passes a canceld catering" do
+      # TODO implement
+      expect(false).to eq true
+    end
+
+    it "validates caterer" do
+      # TODO implement
+      expect(false).to eq true
     end
 
     it "validates manager" do

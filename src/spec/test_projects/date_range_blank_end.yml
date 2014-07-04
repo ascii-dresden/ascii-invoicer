@@ -29,7 +29,8 @@ manumber: #A20110520
 # rechnungsnummer
 rnumber: #27 
 
-date: 20.01.2013 # bezieht sich auf die veranstaltung selbst
+date: 04.07.2014 # bezieht sich auf die veranstaltung selbst
+date_end:
 
 # Preise:
 # Mineralwasser:    0.61 / 1l   # Mineralwasser:    0.59 / 0,5l
