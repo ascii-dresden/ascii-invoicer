@@ -28,40 +28,40 @@ describe InvoiceProject do
 
   describe "#initialize" do
     #it "loads template files" do
-    #  File.should exist @settings['templates']['offer']
-    #  File.should exist @settings['templates']['invoice']
-    #  @project.load_templates().should be true
+    #  expect(File).to exist @settings['templates']['offer']
+    #  expect(File).to exist @settings['templates']['invoice']
+    #  expect(@project.load_templates()).to be true
     #end
   end
 
   describe "#open" do
     it "loads project file" do
-      File.should exist @test_projects['alright']
+      expect(File).to exist @test_projects['alright']
       @project.open @test_projects['alright']
     end
 
     it "refuses to load a second project file" do
-      File.should exist @test_projects['alright']
+      expect(File).to exist @test_projects['alright']
       @project.open @test_projects['alright']
-      lambda{@project.open(@test_projects['alright'])}.should raise_exception
+      expect{@project.open(@test_projects['alright'])}.to raise_exception
     end
   end
 
   describe "#strpdates" do
     it "parses single dates" do
       dates = @project.strpdates("17.07.2013")
-      dates.should be_an_instance_of Array
-      dates[0].should be_an_instance_of Date
-      dates[0].should be == Date.new(2013,07,17)
+      expect(dates).to be_an_instance_of Array
+      expect(dates[0]).to be_an_instance_of Date
+      expect(dates[0]).to be == Date.new(2013,07,17)
     end
 
     it "parses pairs of dates" do
       dates = @project.strpdates("17-18.07.2013")
-      dates.should be_an_instance_of Array
-      dates[0].should be_an_instance_of Date
-      dates[0].should be == Date.new(2013,07,17)
-      dates[1].should be_an_instance_of Date
-      dates[1].should be == Date.new(2013,07,18)
+      expect(dates).to be_an_instance_of Array
+      expect(dates[0]).to be_an_instance_of Date
+      expect(dates[0]).to be == Date.new(2013,07,17)
+      expect(dates[1]).to be_an_instance_of Date
+      expect(dates[1]).to be == Date.new(2013,07,18)
     end
   end
 
@@ -70,7 +70,7 @@ describe InvoiceProject do
     it "prints the data" do
       name = "alright"
       @project.open @test_projects[name]
-      @project.parse_date().should be_truthy
+      expect(@project.parse_date()).to be_truthy
       #@project.print_data()
       #puts @project.tex_product_table()
     end
@@ -78,79 +78,79 @@ describe InvoiceProject do
     it "validates email addresses" do
       @project.open @test_projects['alright']
       @project.raw_data = {'email' => "john.doe@com"}
-      @project.parse_email().should be_truthy
+      expect(@project.parse_email()).to be_truthy
       @project.raw_data = {'email' => "john.doeexample.com"}
-      @project.parse_email().should be_falsey
+      expect(@project.parse_email()).to be_falsey
       @project.raw_data = {'email' => "john.doe@@example.com"}
-      @project.parse_email().should be_falsey
+      expect(@project.parse_email()).to be_falsey
       @project.raw_data = {'email' => ".@.com"}
-      @project.parse_email().should be_falsey
+      expect(@project.parse_email()).to be_falsey
 
       @project.raw_data =  {'email' => "john.doe@example.com"}
-      @project.parse_email().should be_truthy
+      expect(@project.parse_email()).to be_truthy
     end
 
     it "validates the date" do
       @project.open @test_projects['alright']
-      @project.parse_date().should be_truthy
+      expect(@project.parse_date()).to be_truthy
       @project.parse :date
-      @project.data[:date].should === Date.new(2013,7,20)
+      expect(@project.data[:date]).to eq Date.new(2013,7,20)
 
-      File.should exist @test_projects['missing_date']
+      expect(File).to exist @test_projects['missing_date']
       @project2.open @test_projects['missing_date']
-      @project2.parse_date().should be false
+      expect(@project2.parse_date()).to be false
 
-      File.should exist @test_projects['broken_date']
+      expect(File).to exist @test_projects['broken_date']
       @project3.open @test_projects['broken_date']
-      @project3.parse_date().should be false
+      expect(@project3.parse_date()).to be false
     end
 
     it "validates date ranges" do
-      File.should exist @test_projects['date_range']
+      expect(File).to exist @test_projects['date_range']
       @project2.open @test_projects['date_range']
-      @project2.parse_date().should be_truthy
+      expect(@project2.parse_date()).to be_truthy
       @project2.parse :date
       @project2.parse :date_end, :parse_date,:end
-      @project2.data[:date].should     === Date.new(2013,7,20)
-      @project2.data[:date_end].should === Date.new(2013,7,26)
+      expect(@project2.data[:date]).to     eq Date.new(2013,7,20)
+      expect(@project2.data[:date_end]).to eq Date.new(2013,7,26)
 
-      File.should exist @test_projects['date_range2']
+      expect(File).to exist @test_projects['date_range2']
       @project3.open @test_projects['date_range2']
-      @project3.parse_date().should be_truthy
+      expect(@project3.parse_date()).to be_truthy
       @project3.parse :date
       @project3.parse :date_end, :parse_date,:end
-      @project3.data[:date].should     === Date.new(2013,7,20)
-      @project3.data[:date_end].should === Date.new(2013,7,26)
+      expect(@project3.data[:date]).to     eq Date.new(2013,7,20)
+      expect(@project3.data[:date_end]).to eq Date.new(2013,7,26)
 
-      File.should exist @test_projects['date_range3']
+      expect(File).to exist @test_projects['date_range3']
       @project4.open @test_projects['date_range3']
-      @project4.parse_date().should be_truthy
+      expect(@project4.parse_date()).to be_truthy
       @project4.parse :date
       @project4.parse :date_end, :parse_date,:end
-      @project4.data[:date].should     === Date.new(2013,7,20)
-      @project4.data[:date_end].should === Date.new(2013,7,26)
+      expect(@project4.data[:date]).to     eq Date.new(2013,7,20)
+      expect(@project4.data[:date_end]).to eq Date.new(2013,7,26)
     end
 
     it "validates numbers" do
-      File.should exist @test_projects['alright']
+      expect(File).to exist @test_projects['alright']
       @project.open @test_projects['alright']
       @project.parse :offer_number
       @project.parse :invoice_number
       @project.parse :invoice_number_long
-      @project.data[:offer_number].should === Date.today.strftime("A%Y%m%d-1")
-      @project.data[:invoice_number].should === "R027"
-      @project.data[:invoice_number_long].should === "R2013-027"
+      expect(@project.data[:offer_number]).to eq Date.today.strftime("A%Y%m%d-1")
+      expect(@project.data[:invoice_number]).to eq "R027"
+      expect(@project.data[:invoice_number_long]).to eq "R2013-027"
     end
 
     it "validates client" do
       @project.open @test_projects['alright']
-      @project.parse(:client).should be_truthy
-      @project.data[:client][:last_name].should  === 'Doe'
-      @project.data[:client][:addressing].should === 'Sehr geehrter Herr Doe'
+      expect(@project.parse(:client)).to be_truthy
+      expect(@project.data[:client][:last_name]).to  eq 'Doe'
+      expect(@project.data[:client][:addressing]).to eq 'Sehr geehrter Herr Doe'
     end
 
     it "validates missing client" do
-      File.should exist @test_projects['missing_client']
+      expect(File).to exist @test_projects['missing_client']
       @project.open @test_projects['missing_client']
     end
 
@@ -159,103 +159,103 @@ describe InvoiceProject do
       name2 = 'client_long_title2'
       name3 = 'client_long_title3'
       name4 = 'client_female'
-      File.should exist @test_projects[name]
+      expect(File).to exist @test_projects[name]
       @project.open @test_projects[name]
-      @project.parse(:client).should be_truthy
+      expect(@project.parse(:client)).to be_truthy
       @project.data[:client]
-      @project.data[:client][:last_name].should === 'Doe'
-      @project.data[:client][:addressing].should === 'Sehr geehrter Professor Dr. Dr. Doe'
+      expect(@project.data[:client][:last_name]).to eq 'Doe'
+      expect(@project.data[:client][:addressing]).to eq 'Sehr geehrter Professor Dr. Dr. Doe'
 
-      File.should exist @test_projects[name2]
+      expect(File).to exist @test_projects[name2]
       @project2.open @test_projects[name2]
-      @project2.parse(:client).should be_truthy
-      @project2.data[:client][:last_name].should === 'Doe'
-      @project2.data[:client][:addressing].should === 'Sehr geehrte Frau Professor Dr. Dr. Doe'
+      expect(@project2.parse(:client)).to be_truthy
+      expect(@project2.data[:client][:last_name]).to eq 'Doe'
+      expect(@project2.data[:client][:addressing]).to eq 'Sehr geehrte Frau Professor Dr. Dr. Doe'
 
-      File.should exist @test_projects[name3]
+      expect(File).to exist @test_projects[name3]
       @project3.open @test_projects[name3]
-      @project3.parse(:client).should be_truthy
-      @project3.data[:client][:last_name].should === 'Doe'
-      @project3.data[:client][:addressing].should === 'Sehr geehrter Herr Professor Dr. Dr. Doe'
+      expect(@project3.parse(:client)).to be_truthy
+      expect(@project3.data[:client][:last_name]).to eq 'Doe'
+      expect(@project3.data[:client][:addressing]).to eq 'Sehr geehrter Herr Professor Dr. Dr. Doe'
 
-      File.should exist @test_projects[name4]
+      expect(File).to exist @test_projects[name4]
       @project4.open @test_projects[name4]
-      @project4.parse(:client).should be_truthy
-      @project4.data[:client][:last_name].should === 'Doe'
-      @project4.data[:client][:addressing].should === 'Sehr geehrte Frau Doe'
+      expect(@project4.parse(:client)).to be_truthy
+      expect(@project4.data[:client][:last_name]).to eq 'Doe'
+      expect(@project4.data[:client][:addressing]).to eq 'Sehr geehrte Frau Doe'
     end
 
     it "validates manager" do
-      File.should exist @test_projects['alright']
+      expect(File).to exist @test_projects['alright']
       @project.open @test_projects['alright']
-      @project.parse(:manager).should be_truthy
-      @project.data[:manager].should === 'Manager Bob'
+      expect(@project.parse(:manager)).to be_truthy
+      expect(@project.data[:manager]).to eq 'Manager Bob'
 
-      File.should exist @test_projects['signature_long']
+      expect(File).to exist @test_projects['signature_long']
       @project2.open @test_projects['signature_long']
-      @project2.parse(:manager).should be_truthy
-      @project2.data[:manager].should === 'Hendrik Sollich'
+      expect(@project2.parse(:manager)).to be_truthy
+      expect(@project2.data[:manager]).to eq 'Hendrik Sollich'
 
-      #File.should exist @test_projects['old_signature']
-      #@project3.open @test_projects['old_signature']
-      #@project3.parse(:manager).should be_truthy
-      #@project3.data[:manager].should === 'Yours Truely'
+      #expect(File).to exist @test_projects['old_signature']
+      #expect(@project3.open @test_projects['old_signature']
+      #expect(@project3.parse(:manager)).to be_truthy
+      #expect(@project3.data[:manager]).to eq 'Yours Truely'
     end
 
     it "validates signature" do
       @project.open @test_projects['alright']
-      @project.parse(:signature).should be_truthy
-      @project.data[:signature].should === 'Mit freundlichen Grüßen'
+      expect(@project.parse(:signature)).to be_truthy
+      expect(@project.data[:signature]).to eq 'Mit freundlichen Grüßen'
 
       @project2.open @test_projects['signature_long']
-      @project2.parse(:signature).should be_truthy
-      @project2.data[:signature].should === "Yours Truely\nHendrik Sollich"
+      expect(@project2.parse(:signature)).to be_truthy
+      expect(@project2.data[:signature]).to eq "Yours Truely\nHendrik Sollich"
     end
 
     it "validates hours" do
       @project.open @test_projects['alright']
-      @project.parse(:hours).should be_truthy
+      expect(@project.parse(:hours)).to be_truthy
 
       @project2.open @test_projects['hours_missmatching']
-      @project2.parse(:hours).should be_truthy
+      expect(@project2.parse(:hours)).to be_truthy
 
       @project3.open @test_projects['hours_simple']
-      @project3.parse(:hours).should be_truthy
+      expect(@project3.parse(:hours)).to be_truthy
 
       @project4.open @test_projects['hours_missing']
-      @project4.parse(:hours).should be false
+      expect(@project4.parse(:hours)).to be false
 
       @project5.open @test_projects['hours_missing_salary']
-      @project5.parse(:hours).should be false
+      expect(@project5.parse(:hours)).to be false
     end
 
     it "validates products" do
       @project.open @test_projects['alright']
-      @project.parse(:products).should be_truthy
+      expect(@project.parse(:products)).to be_truthy
 
       @project2.open @test_projects['products_missing']
-      @project2.parse(:products).should be false
+      expect(@project2.parse(:products)).to be false
 
       @project3.open @test_projects['products_empty']
-      @project3.parse(:products).should be false
+      expect(@project3.parse(:products)).to be false
 
       @project4.open @test_projects['products_soldandreturned']
-      @project4.parse(:products).should be false
+      expect(@project4.parse(:products)).to be false
 
       ## cant be tested because YAML::load already eliminates the duplicate
       #@project5.open @test_projects['products_name_twice']
-      #@project5.parse(:products).should be false
+      #@project5.parse(:products)).to be false
     end
 
     #it "sums up products" do
     #  @project.open @test_projects['alright']
-    #  @project.parse(:products).should be_truthy
+    #  expect(@project.parse(:products)).to be_truthy
     #  @project.parse :products
     #  #pp @project.data['products']
-    #  @project.get_cost(:offer).should    === 50.14
-    #  @project.get_cost(:invoice).should  === 31.55
-    #  @project.data[:products]['sums']['offered_tax'].should  === 59.67
-    #  @project.data[:products]['sums']['invoiced_tax'].should === 37.54
+    #  expect(@project.get_cost(:offer)).to    eq 50.14
+    #  expect(@project.get_cost(:invoice)).to  eq 31.55
+    #  expect(@project.data[:products]['sums']['offered_tax']).to  eq 59.67
+    #  expect(@project.data[:products]['sums']['invoiced_tax']).to eq 37.54
     #end
 
     ##it "validates for invoices" do
