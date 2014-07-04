@@ -30,19 +30,19 @@ rescue Interrupt
   exit
 end
 
-def sure?(message="Are you sure you wish to continue?")
-  display("#{message} (y/N)? ", false)
-  do_ask.downcase == 'y'
-end
-
-def display(msg, newline=true)
-  if newline
-    puts(msg)
-  else
-    print(msg)
-    STDOUT.flush
-  end
-end
+#def sure?(message="Are you sure you wish to continue?")
+#  display_message("#{message} (y/N)? ", false)
+#  do_ask.downcase == 'y'
+#end
+#
+#def display_message(msg, newline=true)
+#  if newline
+#    puts(msg)
+#  else
+#    print(msg)
+#    STDOUT.flush
+#  end
+#end
 
 def error(msg)
   STDERR.puts("ERROR: #{msg}")

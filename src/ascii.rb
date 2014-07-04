@@ -16,18 +16,25 @@ require "#{$SCRIPT_PATH}/lib/ProjectPlumber.rb"
 require "#{$SCRIPT_PATH}/lib/module_ascii_invoicer.rb"
 require "#{$SCRIPT_PATH}/lib/textboxes.rb"
 
-local_settings_paths = [
-  File.join(Dir.home, ".ascii-invoicer.yml"),
-  ".settings.yml"
-]
+## all about settings
 
+#where are settings located?
+$SETTINGS_PATHS = {
+   :global   => File.join(Dir.home, ".ascii-invoicer.yml"),
+   :local    => ".settings.yml",
+   :template => File.join($SCRIPT_PATH, "settings_template.yml")
+}
+
+# load default settings
 $SETTINGS = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
-local_settings_paths.each{ |path|
-  if File.exists? path
+# load local settings ( first realy local, than look at homedir)
+$SETTINGS_PATHS.values.each{ |path|
+  if File.exists? path and path != $SETTINGS_PATHS[:template]
     $local_settings                  = YAML::load(File.open(path))
     $SETTINGS['local_settings_path'] = path
   end
 }
+
 $SETTINGS['path']        = File.expand_path File.split(__FILE__)[0]
 $SETTINGS['script_path'] = $SCRIPT_PATH
 
@@ -42,7 +49,10 @@ def overwrite_settings(default, custom)
   end
 end
 
+# mixing local and default settings
 overwrite_settings $SETTINGS, $local_settings if $local_settings
+
+
 
 #error "settings:editor is an elaborate string: \"#{$SETTINGS['editor']}\"!\nDANGEROUS!" if $SETTINGS['editor'].include? " "
 error "settings:latex is an elaborate string: \"#{$SETTINGS['editor']}\"!\nDANGEROUS!" if $SETTINGS['latex'].include? " "
@@ -103,7 +113,7 @@ class Commander < Thor
 
 
 
-  desc "edit indexs", "Edit project file."
+  desc "edit index", "Edit project file."
   method_option :archive,
     :type=>:numeric, :aliases => "-a",
     :default => nil,
@@ -129,7 +139,7 @@ class Commander < Thor
       :type=>:numeric, :aliases => "-a",
       :lazy_default=> Date.today.year, :required => false, :desc => "list archived projects"
     method_option :all, :type=>:boolean,
-      :lazy_default=> true, :required => false, :desc => "lists all projects, ever"
+      :lazy_default=> true, :required => false, :desc => "lists all projects, ever (indezies wont work)"
     method_option :paths, :type=>:boolean, :aliases => '-p',
       :lazy_default=> true, :required => false, :desc => "list paths to .yml files"
     method_option :simple, :type=>:boolean, :aliases => '-s',
@@ -138,8 +148,8 @@ class Commander < Thor
       :lazy_default=> true, :required => false, :desc => "output as csv"
     method_option :yaml, :type=>:boolean,
       :lazy_default=> true, :required => false, :desc => "output as yaml"
-    method_option :no_colors, :type=>:boolean, :aliases => '-n',
-      :lazy_default=> true, :required => false, :desc => "list paths to .yml files"
+    method_option :no_color, :type=>:boolean, :aliases => '-n',
+      :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
   def list
     plumber = ProjectsPlumber.new $SETTINGS
 
@@ -153,7 +163,7 @@ class Commander < Thor
       end
     end
 
-    $SETTINGS['colors'] = false if options[:no_colors]
+    $SETTINGS['colors'] = false if options[:no_color]
 
     if options[:csv] 
       projects = open_projects paths, :export, :date
@@ -427,11 +437,47 @@ class Commander < Thor
     :lazy_default=> false,
     :required => false,
     :desc => "edit your local settings"
+
+  method_option :local,
+    :type=>:boolean, :aliases => "-l",
+    :lazy_default=> false,
+    :required => false,
+    :desc => "deal with local settings"
+
+  method_option :global,
+    :type=>:boolean, :aliases => "-g",
+    :lazy_default=> false,
+    :required => false,
+    :desc => "deal with global settings"
+
   def settings
     #puts $SETTINGS.to_yaml
+
     if options[:edit]
-      path = File.join($SETTINGS['path'], ".settings.yml")
+
+      if    options[:local]
+        error "you are in #{Dir.home}, use --global instead" if Dir.home == FileUtils.pwd
+        path = $SETTINGS_PATHS[:local]
+        choice = :local
+
+      elsif options[:global]
+        path = $SETTINGS_PATHS[:global]
+        choice = :global
+
+
+
+      else
+        error "please choose between --local and --global"
+      end
+
+      if not File.exists? path and no? "There is no #{path} yet do you want to use a template? (YES/no)"
+        error "templatefile #{$SETTINGS_PATHS[:template]} not found" unless File.exists? $SETTINGS_PATHS[:template]
+        puts "ok, I copy over a template"
+        FileUtils.cp($SETTINGS_PATHS[:template], path)
+      end
+
       edit_files path
+
     else
       puts $SETTINGS.to_yaml
       #pp $SETTINGS
