@@ -7,7 +7,6 @@ require 'git'
 require 'yaml'
 require 'thor'
 require 'paint'
-require 'icalendar'
 
 $SCRIPT_PATH = File.split(File.expand_path(File.readlink(__FILE__)))[0]
 require "#{$SCRIPT_PATH}/lib/tweaks.rb"
@@ -22,10 +21,10 @@ local_settings_paths = [
   ".settings.yml"
 ]
 
-$SETTINGS                = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
+$SETTINGS = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
 local_settings_paths.each{ |path|
   if File.exists? path
-    $local_settings          = YAML::load(File.open(path))
+    $local_settings                  = YAML::load(File.open(path))
     $SETTINGS['local_settings_path'] = path
   end
 }
@@ -139,6 +138,8 @@ class Commander < Thor
       :lazy_default=> true, :required => false, :desc => "output as csv"
     method_option :yaml, :type=>:boolean,
       :lazy_default=> true, :required => false, :desc => "output as yaml"
+    method_option :no_colors, :type=>:boolean, :aliases => '-n',
+      :lazy_default=> true, :required => false, :desc => "list paths to .yml files"
   def list
     plumber = ProjectsPlumber.new $SETTINGS
 
@@ -151,6 +152,8 @@ class Commander < Thor
         paths = plumber.list_projects :archive, options[:archives]
       end
     end
+
+    $SETTINGS['colors'] = false if options[:no_colors]
 
     if options[:csv] 
       projects = open_projects paths, :export, :date
@@ -175,6 +178,7 @@ class Commander < Thor
 
   desc "calendar", "creates a calendar from all caterings"
   def calendar
+    require 'icalendar'
     plumber = ProjectsPlumber.new $SETTINGS
     paths = plumber.list_projects :archive, 2013
     paths += plumber.list_projects :archive, 2014
