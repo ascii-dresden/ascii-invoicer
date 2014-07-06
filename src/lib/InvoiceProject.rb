@@ -66,7 +66,7 @@ class InvoiceProject
                     :address, :event, :offer_number, :costs,
                     :signature, :addressing,
                     :tex_table_offer, :tex_table_invoice,
-                    :caterers, :messages, :description, :script_path
+                    :caterers, :messages, :request_message,:description, :script_path
                   ],
       :export  => [
                     :tax, :date, :date_end,
@@ -77,7 +77,7 @@ class InvoiceProject
                     :invoice_number, :invoice_number_long,
                     :address, :event, :offer_number, :costs,
                     :invoice_number, :invoice_number_long,
-                    :caterers, :description
+                    :caterers, :request_message, :description
       ],
     }
 
@@ -94,6 +94,7 @@ class InvoiceProject
       :tax                 => [:parse_simple,     :tax          ] ,
       :raw_date            => [:parse_simple,     :date         ] ,
       :description         => [:parse_simple,     :description  ] ,
+      :request_message     => [:parse_simple,     :request_message] ,
       :caterers            => [:parse_caterers,   :caterers     ] ,
 
       :costs_offer         => [:parse_costs,      :offer        ] ,
