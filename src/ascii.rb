@@ -197,7 +197,7 @@ class Commander < Thor
     paths += plumber.list_projects :archive, 2014
     paths += plumber.list_projects
 
-    projects = open_projects paths, :export, :date
+    projects = open_projects paths, :full, :date
     print_project_list_ical projects
 
   end
@@ -246,10 +246,10 @@ class Commander < Thor
     else
       if options[:offer]
         project.validate :offer
-        display_products project, :offer
+        puts display_products project, :offer
       elsif options[:invoice]
         project.validate :invoice
-        display_products project, :invoice
+        puts display_products project, :invoice
       elsif options[:yaml]
 
         format_default = :full
@@ -264,7 +264,7 @@ class Commander < Thor
         puts project.data.to_yaml
       elsif options[:costs]
         project.validate :export
-        display_costs project
+        puts display_costs project
       end
     end
   end

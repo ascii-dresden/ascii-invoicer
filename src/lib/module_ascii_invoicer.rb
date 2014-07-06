@@ -93,9 +93,31 @@ module AsciiInvoicer
 
       event.dtstart     = p.data[:date]
       event.dtend       = p.data[:date_end]
-      event.summary     = p.data[:name]
-      event.description = p.data[:name] +"\n"+ p.data[:manager]
-      p.data[:invoice_number]
+      event.description = ""
+      if p.data[:event]
+        event.summary      = p.data[:event]
+        #event.description += "(#{p.data[:name]})\n"
+      else
+        event.summary     = p.data[:name]
+      end
+
+      event.description += "Verantwortung: " + p.data[:manager]      + "\n" if p.data[:manager]
+      if p.data[:caterers]
+        event.description +=  "Caterer:\n"
+        p.data[:caterers].each {|caterer|
+          event.description +=  " - #{ caterer}\n"
+        }
+      end
+
+      if p.data[:products]
+        event.description +=  "Produkte:\n"
+        p.data[:products].each {|name, product|
+          event.description +=  " - #{ product.amount :offer } #{ name}\n"
+        }
+      end
+
+
+      event.description += p.data[:description]  + "\n" if p.data[:description]
 
       cal.add_event event
     end
@@ -122,7 +144,7 @@ module AsciiInvoicer
       table.add_row [amount, name, price, cost]
     }
 
-    puts table
+    return table
   end
 
   def display_costs project 
@@ -156,7 +178,7 @@ module AsciiInvoicer
     box.footer = "Errors: #{project.errors.length} (#{ project.errors.join ',' })" if project.errors.length >0
     box.set_alignment 1, :r
  
-    puts box
+    return box
   end
 
   #takes an array of invoices (@plumber.working_projects)
