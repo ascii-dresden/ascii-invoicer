@@ -80,7 +80,7 @@ class Commander < Thor
   map "-d" => :display
   map "-i" => :invoice
   map "-o" => :offer
-  map "-e" => :edit
+  #map "-e" => :edit #depricated
   #map "--version" => :version
 
   class_option :file,      :aliases=> "-f", :type => :string
@@ -144,10 +144,12 @@ class Commander < Thor
       :lazy_default=> true, :required => false, :desc => "list paths to .yml files"
     method_option :simple, :type=>:boolean, :aliases => '-s',
       :lazy_default=> true, :required => false, :desc => "ignore global verbose setting"
-    method_option :csv, :type=>:boolean, :aliases => '-c',
+    method_option :csv, :type=>:boolean, 
       :lazy_default=> true, :required => false, :desc => "output as csv"
     method_option :yaml, :type=>:boolean,
       :lazy_default=> true, :required => false, :desc => "output as yaml"
+    method_option :color, :type=>:boolean, :aliases => '-c',
+      :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
     method_option :no_color, :type=>:boolean, :aliases => '-n',
       :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
   def list
@@ -163,6 +165,7 @@ class Commander < Thor
       end
     end
 
+    $SETTINGS['colors'] = true  if options[:color]
     $SETTINGS['colors'] = false if options[:no_color]
 
     if options[:csv] 
@@ -216,9 +219,15 @@ class Commander < Thor
   method_option :costs,:type=>:boolean,
     :default=> true, :lazy_default=> true, :required => false,
     :desc => ""
-  #method_option :yaml, :type=>:boolean,
-  #  :lazy_default=> true, :required => false,
-  #  :desc => "output as yaml"
+
+  method_option :yaml, :type=>:boolean,
+    :lazy_default=> true, :required => false,
+    :desc => "output as yaml"
+
+  method_option :format, :type=>:string,
+    :default=> "full", :required => false,
+    :desc => "used by --yaml"
+
   def display(index=nil)
     if options[:file]
       path = options[:file]
@@ -242,8 +251,17 @@ class Commander < Thor
         project.validate :invoice
         display_products project, :invoice
       elsif options[:yaml]
-        project.validate :export
-        puts project.to_yaml
+
+        format_default = :full
+        format_options = options[:format].to_sym
+
+        if project.requirements.keys.include? format_options
+          project.validate format_options
+        else
+          project.validate format_default
+        end
+
+        puts project.data.to_yaml
       elsif options[:costs]
         project.validate :export
         display_costs project

@@ -4,7 +4,7 @@ require File.join File.dirname(__FILE__) + '/module_parsers.rb'
 require 'yaml'
 
 class InvoiceProject
-  attr_reader :project_path, :project_folder, :data, :raw_data, :errors, :valid_for
+  attr_reader :project_path, :project_folder, :data, :raw_data, :errors, :valid_for, :requirements
   attr_writer :raw_data, :errors
 
   include InvoiceParsers
@@ -20,9 +20,9 @@ class InvoiceProject
     #fail_at :template_invoice unless File.exists? @settings['templates']['invoice']
 
     @gender_matches = {
-      :herr => :male,
-      :frau => :female,
-      :professor => :male,
+      :herr        => :male,
+      :frau        => :female,
+      :professor   => :male,
       :professorin => :female
     }
     @lang_addressing = {
@@ -56,27 +56,34 @@ class InvoiceProject
                     :tex_table_invoice,
                     :script_path
                   ],
-      :full    => [ :tax, :date, :date_end, :raw_date,:manager, :name,
-                    :time, :salary, :salary_total, :costs,
+      :full    => [
+                    :tax, :date, :date_end, :raw_date,
+                    :manager, :name, :hours,
+                    :time, :salary, :salary_total,
                     :costs_offer,    :taxes_offer,    :total_offer,    :final_offer,
                     :costs_invoice,  :taxes_invoice,  :total_invoice,  :final_invoice,
-                    :offer_number, :invoice_number, :invoice_number_long,
-                    :address, :messages,
-                    :event, :signature, :addressing,
-                    :tex_table_offer, :tex_table_invoice,
-                    :caterers, :script_path
-                  ],
-      :export  => [ :tax, :date, :date_end, :manager, :name, :hours, :time, :salary_total, :salary,
+                    :invoice_number, :invoice_number_long,
                     :address, :event, :offer_number, :costs,
+                    :signature, :addressing,
+                    :tex_table_offer, :tex_table_invoice,
+                    :caterers, :messages, :description, :script_path
+                  ],
+      :export  => [
+                    :tax, :date, :date_end,
+                    :manager, :name, :hours,
+                    :time, :salary, :salary_total,
                     :costs_offer,    :taxes_offer,    :total_offer,    :final_offer,
                     :costs_invoice,  :taxes_invoice,  :total_invoice,  :final_invoice,
-                    :invoice_number, :invoice_number_long, :caterers,
+                    :invoice_number, :invoice_number_long,
+                    :address, :event, :offer_number, :costs,
+                    :invoice_number, :invoice_number_long,
+                    :caterers, :description
       ],
     }
 
     # TODO allow for alternative parser_matches
     @parser_matches = {
-      #:key                => [parser,            parameters    ]
+      #:key                => [parser,            parameters/key]
       :date_end            => [:parse_date,       :end          ] ,
       :manager             => [:parse_signature,  :manager      ] ,
       :offer_number        => [:parse_numbers,    :offer        ] ,
@@ -86,6 +93,8 @@ class InvoiceProject
       :event               => [:parse_simple,     :event        ] ,
       :tax                 => [:parse_simple,     :tax          ] ,
       :raw_date            => [:parse_simple,     :date         ] ,
+      :description         => [:parse_simple,     :description  ] ,
+      :caterers            => [:parse_caterers,   :caterers     ] ,
 
       :costs_offer         => [:parse_costs,      :offer        ] ,
       :costs_invoice       => [:parse_costs,      :invoice      ] ,
@@ -212,7 +221,10 @@ class InvoiceProject
   def parse_simple key
     raw     = @raw_data[key.to_s]
     default = $SETTINGS["default_#{key.to_s}"]
-    return raw     if raw
+    if raw
+      return raw.strip if raw.class == String
+      return raw
+    end
     return default if default
     return fail_at key
   end
@@ -374,7 +386,7 @@ class InvoiceProduct
 
   def initialize(name, hash, tax_value)
     @name = name
-    @h = hash
+    @hash = hash
     @tax_value = tax_value
 
     @valid = true
@@ -382,13 +394,13 @@ class InvoiceProduct
   end
 
   def validate()
-    return false if @h.nil?
-    @valid    = false unless @h['sold'].nil? or @h['returned'].nil?
-    @valid    = false unless @h['amount'] and @h['price']
-    @sold     = @h['sold']
-    @price    = @h['price'].to_euro
-    @amount   = @h['amount']
-    @returned = @h['returned']
+    return false if @hash.nil?
+    @valid    = false unless @hash['sold'].nil? or @hash['returned'].nil?
+    @valid    = false unless @hash['amount'] and @hash['price']
+    @sold     = @hash['sold']
+    @price    = @hash['price'].to_euro
+    @amount   = @hash['amount']
+    @returned = @hash['returned']
 
     if @sold
       @returned = @amount - @sold

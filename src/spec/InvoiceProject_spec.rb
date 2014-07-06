@@ -26,6 +26,14 @@ describe InvoiceProject do
     @project5 = InvoiceProject.new @settings
   end
 
+  #after do
+  #  puts @project.errors if @project.errors
+  #  puts @project2.errors if @project2.errors
+  #  puts @project3.errors if @project3.errors
+  #  puts @project4.errors if @project4.errors
+  #  puts @project5.errors if @project5.errors
+  #end
+
   describe "#initialize" do
     #it "loads template files" do
     #  expect(File).to exist @settings['templates']['offer']
@@ -193,24 +201,46 @@ describe InvoiceProject do
       expect(@project4.data[:client][:addressing]).to eq 'Sehr geehrte Frau Doe'
     end
 
-    it "validates time" do
-      # TODO implement
-      expect(false).to eq true
-    end
-
     it "validates description" do
       # TODO implement
-      expect(false).to eq true
+      name = "described"
+      expect(File).to exist @test_projects[name]
+      expect(@project.open @test_projects[name])
+      expect(@project.parse(:description)).to be_truthy
+      #expect(@project.data[:description]).to eq "test\ntest"
+      expect(@project.data[:description]).to eq "Hi there, this is what we're going to do:\nFirst we will pack our swimsuites, then we will go to Freiberger Straße\nand then we will äëïöü!\n\nDanke"
+      
     end
 
-    it "passes a canceld catering" do
-      # TODO implement
-      expect(false).to eq true
-    end
+    #it "passes a canceled catering" do
+    #  # TODO implement
+    #  expect(false).to eq true
+    #end
+
+    #it "validates time" do
+    #  # TODO implement
+    #  expect(false).to eq true
+    #end
 
     it "validates caterer" do
       # TODO implement
-      expect(false).to eq true
+      name = "alright"
+      expect(File).to exist @test_projects[name]
+      @project.open @test_projects[name]
+      expect(@project.parse(:caterers)).to be_truthy
+
+      expect(@project.data[:caterers][0]).to eq "Name"
+      expect(@project.data[:caterers][1]).to eq "Name2"
+
+      expect(@project.parse(:hours)).to be_truthy
+      expect(@project.data[:hours][:caterers]['Name' ]).to eq 5
+      expect(@project.data[:hours][:caterers]['Name2']).to eq 2.6
+
+
+      #name = "no_caterers"
+      #expect(File).to exist @test_projects[name]
+      #@project2.open @test_projects[name]
+
     end
 
     it "validates manager" do

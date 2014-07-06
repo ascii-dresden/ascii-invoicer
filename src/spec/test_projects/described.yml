@@ -12,6 +12,11 @@ client: |
 email: 
 request_message: |
 description: |
+  Hi there, this is what we're going to do:
+  First we will pack our swimsuites, then we will go to Freiberger Straße
+  and then we will äëïöü!
+
+  Danke
 
 
 address: | 
@@ -19,37 +24,20 @@ address: |
   Nöthnitzerstraße 46
   01187 Dresden
 
-event: ""
+event: "Described Event"
 
 anumber: 1 # fortlaufende nummer fuer mehere Angebote an einem Tag
-
 manumber: #A20110520 
-
 rnumber: #27 
 
-date: 04.07.2014 
-date_end: # this should IMPLICITLY be 04.07.2014 
+date: 20.01.2013 # bezieht sich auf die veranstaltung selbst
+#date_end:
 
 products:
   "Kaffee (1l)":
     amount: 7
     price: 2.5
     # Kaffee geht nicht zurueck
-  "Mineralwasser (1l)":
-    amount: 8
-    price: 0.61
-    sold: 0
-  "Orangensaft (1l)":
-    amount: 8
-    price: 1.82
-    returned: 0
-  "Apfelsaft (1l)":
-    amount: 8
-    price: 1.65
-    sold: 0
-  "Belegte Brötchen":
-    amount: 0
-    price: 1.16
 
 hours: 
   time: 0

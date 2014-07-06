@@ -177,6 +177,12 @@ module InvoiceParsers
     return @raw_data['email']
   end
 
+  ###
+  #def parse_description()
+  #  return fail_at :description unless @raw_data['description']
+  #  return @raw_data['description'].strip
+  #end
+
   ##
   # returns :start date or :end date or false
   #   parse_date(:start) # or
@@ -254,6 +260,11 @@ module InvoiceParsers
     if choice == :hours
       return hours
     end
+  end
+
+  def parse_caterers
+    return fail_at :caterers if @raw_data['hours']['caterers'].nil?
+    return @raw_data['hours']['caterers'].keys
   end
 
 end
