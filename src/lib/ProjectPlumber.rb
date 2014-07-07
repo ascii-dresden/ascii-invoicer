@@ -80,22 +80,62 @@ class ProjectsPlumber
     end
   end
 
+  ### DEPRECATED
+  ## creates new project_dir and project_file
+  ## returns path to project_file
+  #def new_project(_name)
+  #  name = _name.strip()
+  #  name.sub!(/^\./,'') # removes hidden_file_dot '.' from the begging
+  #  name.gsub!(/\//,'_') 
+  #  name.gsub!(/\//,'_') 
+
+  #  # copy template_file to project_dir
+  #  folder = _new_project_folder(name)
+  #  if folder
+  #    target = File.join folder, name+@settings['project_file_extension']
+
+  #    FileUtils.cp @dirs[:template], target
+  #    logs "#{folder} created"
+  #    return target
+  #  else
+  #    return false
+  #  end
+  #end
 
   ##
   # creates new project_dir and project_file
   # returns path to project_file
-  def new_project(_name)
+  def new_project_fill(_name)
     name = _name.strip()
     name.sub!(/^\./,'') # removes hidden_file_dot '.' from the begging
     name.gsub!(/\//,'_') 
     name.gsub!(/\//,'_') 
+
+    event_name     = name
+    personal_notes = @settings['personal_notes']
+    manager_name   = @settings["manager_name"]
+    default_lang   = @settings["default_lang"]
+    default_tax    = @settings["default_tax"]
+    #automatically_iterated_invoice_number = ""
+
+    filename = @dirs[:template]
+
+    ## Approach A ( Thomas Kühn )
+    engine=ERB.new(File.read(filename),nil,'<>')
+    result = engine.result(binding)
 
     # copy template_file to project_dir
     folder = _new_project_folder(name)
     if folder
       target = File.join folder, name+@settings['project_file_extension']
 
-      FileUtils.cp @dirs[:template], target
+      puts "writing into #{target}"
+      file = File.new target, "w"
+      result.lines.each do |line|
+        file.write line
+      end
+      file.close
+
       logs "#{folder} created"
       return target
     else

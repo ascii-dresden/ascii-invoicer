@@ -1,7 +1,13 @@
+---
+manager_name: "The Unnamed Manager"
 verbose:  false
 editor:   "vim -O"
-latex:    pdflatex
 colors:   false
+
+#personal_notes: |
+#  stuff that is to be printed into each project file
+
+
 
 dirs:
   storage: caterings
@@ -9,7 +15,7 @@ dirs:
   archive: archive
 
 templates:
-  project: templates/blank.yml
+  project: templates/blank.yml.erb
   invoice: latex/ascii-rechnung.tex
   offer:   latex/ascii-angebot.tex
 
@@ -17,6 +23,7 @@ templates:
 project_file_extension: .yml
 path:     #nil
 use_git: true
+latex:    pdflatex
 
 default_lang: de
 default_tax: 0.19
@@ -28,5 +35,4 @@ default_messages:
   offer: 
     - "hiermit möchten wir Ihnen für die gastronomische Betreuung Ihrer Veranstaltung am $raw_date$ folgendes Angebot unterbreiten:"
     - ""
-
 ...

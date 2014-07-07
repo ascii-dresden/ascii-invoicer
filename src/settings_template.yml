@@ -1,23 +1,27 @@
 ---
+manager_name: ""
 #verbose:  false
 #editor:   "vim -O"
-#latex:    pdflatex
 #colors:   false
+
+#personal_notes: |
+#  stuff that is to be printed into each project file
 
 #dirs:
 #  storage: caterings
 #  working: working
 #  archive: archive
 
-#templates:
-#  project: templates/blank.yml
-#  invoice: latex/ascii-rechnung.tex
-#  offer:   latex/ascii-angebot.tex
+  
+ 
+
+
 
 ## CAREFUL HERE
 #project_file_extension: .yml
 #path:     #nil
 #use_git: true
+#latex:    pdflatex
 #
 #default_lang: de
 #default_tax: 0.19

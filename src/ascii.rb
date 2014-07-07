@@ -98,17 +98,13 @@ class Commander < Thor
     :lazy_default=> true,
     :required => false,
     :desc => "do not edit a new file after creation"
+
   def new(name)
     plumber = ProjectsPlumber.new $SETTINGS
     name = name.deumlautify
 
-    if plumber.new_project name
-      puts "creating a new project name #{name}"
-      edit_files plumber.get_project_file_path name
-    else
-      #puts "Project #{name} already exists"
-      edit_files plumber.get_project_file_path name unless options[:dont_edit]
-    end
+    puts "creating a new project name #{name}" if puts plumber.new_project_fill name
+    edit_files plumber.get_project_file_path name unless options[:dont_edit]
   end
 
 
@@ -510,7 +506,7 @@ class Commander < Thor
     #current = git.log.to_s.lines.to_a.last
     ##puts git.branch unless git.tags.include? current 
     #puts current
-    puts "ascii-invoicer 2.2.4"
+    puts "ascii-invoicer 2.2.4 NIGHTLY"
   end
 
 

@@ -1,0 +1,73 @@
+--- 
+version: 20140707
+created: <%= Time.now.strftime "%d.%m.%Y" %>
+
+# always include 'Herr' oder 'Frau'
+# defaults to male
+# look at lib/lang.yml for more, add if needed
+# NO FIRSTNAME HERE
+client: | 
+  Herr
+  name
+
+email: 
+request_message: |
+description: |
+
+
+address: | 
+  Voller Name
+  Nöthnitzerstraße 46
+  01187 Dresden
+
+event: "<%= event_name %>"
+
+anumber: 1 # fortlaufende nummer fuer mehere Angebote an einem Tag
+
+manumber: <%= Time.now.strftime "A%Y%m%d-1" %>
+
+# rechnungsnummer
+rnumber: #27 <%= "" %>
+
+date: <%= (Time.now + (60*60*24*14)).strftime "%d.%m.%Y" %> # bezieht sich auf die veranstaltung selbst
+
+<%= personal_notes %>
+
+products:
+  "Kaffee (1l)":
+    amount: 7
+    price: 2.5
+  "Mineralwasser (1l)":
+    amount: 8
+    price: 0.61
+    sold: 0
+  "Orangensaft (1l)":
+    amount: 8
+    price: 1.82
+    returned: 0
+  "Apfelsaft (1l)":
+    amount: 8
+    price: 1.65
+    sold: 0
+  "Belegte Brötchen":
+    amount: 0
+    price: 1.16
+
+hours: 
+  time: 0
+  salary: 8.00
+
+  caterers:
+    "Name" : 5 #Stunden
+    "Name2": 2 #Stunden
+    
+signature: |
+  <%= manager_name %>
+
+lang: <%= default_lang %>
+tax: <%= default_tax %>
+canceled: false
+
+#messages: # read default-settings.yml on how to overwrite
+
+...
