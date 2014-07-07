@@ -177,7 +177,7 @@ class Commander < Thor
       projects = open_projects paths, :list, :date
       print_project_list_simple projects
     elsif options[:verbose] or $SETTINGS['verbose']
-      projects = open_projects paths, :export , :date
+      projects = open_projects paths, :invoice, :date
       print_project_list_verbose projects
     else
       projects = open_projects paths, :list, :date
@@ -235,7 +235,7 @@ class Commander < Thor
     end
     #data = project.data
     if options[:verbose]
-      project.validate :full, true
+      project.validate :invoice, true
       #pp project.data#.keep_if{|k,v| k != :products}
       puts project.valid_for
       puts project.errors
