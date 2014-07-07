@@ -5,6 +5,17 @@ module InvoiceParsers
     return @settings['script_path']
   end
  
+  def parse_event
+    return fail_at :event unless @raw_data['event']
+    return @raw_data['canceled'] ? "CANCELED: #{@raw_data['event']}" : @raw_data['event']
+  end
+
+  def parse_canceled
+    @data[:canceled] = @raw_data['canceled']
+    fail_at :canceled if @raw_data['canceled']
+    return @raw_data['canceled'] # this one works the other way around
+  end
+
   ##
   def parse_costs(choice = nil)
     return fail_at :costs unless parse :tax
@@ -136,7 +147,7 @@ module InvoiceParsers
   def parse_client()
     return fail_at :client unless @raw_data['client']
 
-    names = @raw_data['client'].split("\n")
+    names  = @raw_data['client'].split("\n")
     titles = @raw_data['client'].split("\n")
     titles.pop()
     client = {}

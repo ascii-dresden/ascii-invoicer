@@ -41,7 +41,7 @@ module AsciiInvoicer
       p  = projects[i]
       table.add_row([
         (i+1).to_s+".", 
-        p.data[:name].ljust(35), 
+        p.name.ljust(35), 
         p.data[:manager], 
         p.data[:invoice_number], 
         p.data[:date].strftime("%d.%m.%Y"), 
@@ -59,7 +59,7 @@ module AsciiInvoicer
       table.add_row([
         (i+1).to_s+".",
         p.data[:event] ? p.data[:event] : "",
-        p.data[:name],
+        p.name,
         p.data[:manager],
         p.data[:invoice_number],
         p.data[:date].strftime("%d.%m.%Y"),
@@ -98,7 +98,7 @@ module AsciiInvoicer
         event.summary      = p.data[:event]
         #event.description += "(#{p.data[:name]})\n"
       else
-        event.summary     = p.data[:name]
+        event.summary     = p.name
       end
 
       event.description += "Verantwortung: " + p.data[:manager]      + "\n" if p.data[:manager]
@@ -195,7 +195,7 @@ module AsciiInvoicer
         p.data[:invoice_number_long],
         p.data[:offer_number],
         p.data[:event],
-        p.data[:name],
+        p.name,
         p.data[:manager],
         p.data[:time].to_s + 'h',
         p.data[:costs_invoice],

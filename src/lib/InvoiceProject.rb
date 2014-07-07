@@ -36,9 +36,10 @@ class InvoiceProject
       }, }
 
     @requirements = {
-      :list    => [ :tax, :date, :date_end, :manager, :name, :offer_number, :invoice_number ],
+      :list    => [ :canceled, :tax, :date, :date_end, :manager, :name, :offer_number, :invoice_number ],
 
-      :offer   => [ :tax, :date, :date_end, :raw_date, :manager, :name,
+      :offer   => [ :canceled,
+                    :tax, :date, :date_end, :raw_date, :manager, :name,
                     :time, :salary, :salary_total, :costs,
                     :costs_offer, :taxes_offer, :total_offer, :final_offer,
                     :offer_number,
@@ -47,7 +48,8 @@ class InvoiceProject
                     :tex_table_offer,
                     :script_path
                   ],
-      :invoice => [ :tax, :date, :date_end, :raw_date, :manager, :name,
+      :invoice => [ :canceled,
+                    :tax, :date, :date_end, :raw_date, :manager, :name,
                     :time, :salary, :salary_total, :costs,
                     :costs_invoice, :taxes_invoice, :total_invoice, :final_invoice,
                     :offer_number, :invoice_number, :invoice_number_long,
@@ -56,7 +58,7 @@ class InvoiceProject
                     :tex_table_invoice,
                     :script_path
                   ],
-      :full    => [
+      :full    => [ :canceled,
                     :tax, :date, :date_end, :raw_date,
                     :manager, :name, :hours,
                     :time, :salary, :salary_total,
@@ -68,7 +70,7 @@ class InvoiceProject
                     :tex_table_offer, :tex_table_invoice,
                     :caterers, :messages, :request_message,:description, :script_path
                   ],
-      :export  => [
+      :export  => [ :canceled,
                     :tax, :date, :date_end,
                     :manager, :name, :hours,
                     :time, :salary, :salary_total,
@@ -83,35 +85,36 @@ class InvoiceProject
 
     # TODO allow for alternative parser_matches
     @parser_matches = {
-      #:key                => [parser,            parameters/key]
-      :date_end            => [:parse_date,       :end          ] ,
-      :manager             => [:parse_signature,  :manager      ] ,
-      :offer_number        => [:parse_numbers,    :offer        ] ,
-      :invoice_number      => [:parse_numbers,    :invoice      ] ,
-      :invoice_number_long => [:parse_numbers,    :invoice_long ] ,
-      :address             => [:parse_simple,     :address      ] ,
-      :event               => [:parse_simple,     :event        ] ,
-      :tax                 => [:parse_simple,     :tax          ] ,
-      :raw_date            => [:parse_simple,     :date         ] ,
-      :description         => [:parse_simple,     :description  ] ,
-      :request_message     => [:parse_simple,     :request_message] ,
-      :caterers            => [:parse_caterers,   :caterers     ] ,
+      #:key                => [parser,            parameters/key   ]
+      :date_end            => [:parse_date,       :end             ] ,
+      :manager             => [:parse_signature,  :manager         ] ,
+      :offer_number        => [:parse_numbers,    :offer           ] ,
+      :invoice_number      => [:parse_numbers,    :invoice         ] ,
+      :invoice_number_long => [:parse_numbers,    :invoice_long    ] ,
+      :address             => [:parse_simple,     :address         ] ,
+      :event               => [:parse_event,      :event           ] ,
+      :tax                 => [:parse_simple,     :tax             ] ,
+      :raw_date            => [:parse_simple,     :date            ] ,
+      :description         => [:parse_simple,     :description     ] ,
+      :request_message     => [:parse_simple,     :request_message ] ,
+      :canceled            => [:parse_simple,     :canceled        ] ,
 
-      :costs_offer         => [:parse_costs,      :offer        ] ,
-      :costs_invoice       => [:parse_costs,      :invoice      ] ,
-      :taxes_offer         => [:parse_taxes,      :offer        ] ,
-      :taxes_invoice       => [:parse_taxes,      :invoice      ] ,
-      :total_offer         => [:parse_total,      :offer        ] ,
-      :total_invoice       => [:parse_total,      :invoice      ] ,
-      :final_offer         => [:parse_final,      :offer        ] ,
-      :final_invoice       => [:parse_final,      :invoice      ] ,
+      :caterers            => [:parse_caterers,   :caterers        ] ,
+      :costs_offer         => [:parse_costs,      :offer           ] ,
+      :costs_invoice       => [:parse_costs,      :invoice         ] ,
+      :taxes_offer         => [:parse_taxes,      :offer           ] ,
+      :taxes_invoice       => [:parse_taxes,      :invoice         ] ,
+      :total_offer         => [:parse_total,      :offer           ] ,
+      :total_invoice       => [:parse_total,      :invoice         ] ,
+      :final_offer         => [:parse_final,      :offer           ] ,
+      :final_invoice       => [:parse_final,      :invoice         ] ,
 
-      :tex_table_invoice   => [:parse_tex_table,  :invoice      ] ,
-      :tex_table_offer     => [:parse_tex_table,  :offer        ] ,
-      :time                => [:parse_hours,      :time         ] ,
-      :caterers            => [:parse_hours,      :caterers     ] ,
-      :salary              => [:parse_hours,      :salary       ] ,
-      :salary_total        => [:parse_hours,      :salary_total ] ,
+      :tex_table_invoice   => [:parse_tex_table,  :invoice         ] ,
+      :tex_table_offer     => [:parse_tex_table,  :offer           ] ,
+      :time                => [:parse_hours,      :time            ] ,
+      :caterers            => [:parse_hours,      :caterers        ] ,
+      :salary              => [:parse_hours,      :salary          ] ,
+      :salary_total        => [:parse_hours,      :salary_total    ] ,
     }
 
     @parser_matches.each {|k,v| 
@@ -159,7 +162,7 @@ class InvoiceProject
   end
 
   def name
-    @data[:name]
+    @data[:canceled] ? "CANCELED: #{@data[:name]}" : @data[:name]
   end
 
   ##
