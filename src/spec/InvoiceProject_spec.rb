@@ -106,11 +106,11 @@ describe InvoiceProject do
 
       expect(File).to exist @test_projects['missing_date']
       @project2.open @test_projects['missing_date']
-      expect(@project2.parse_date()).to be false
+      expect(@project2.parse_date()).to be_falsey
 
       expect(File).to exist @test_projects['broken_date']
       @project3.open @test_projects['broken_date']
-      expect(@project3.parse_date()).to be false
+      expect(@project3.parse_date()).to be_falsey
     end
 
     it "validates date ranges" do
@@ -281,10 +281,10 @@ describe InvoiceProject do
       expect(@project3.parse(:hours)).to be_truthy
 
       @project4.open @test_projects['hours_missing']
-      expect(@project4.parse(:hours)).to be false
+      expect(@project4.parse(:hours)).to be_falsey
 
       @project5.open @test_projects['hours_missing_salary']
-      expect(@project5.parse(:hours)).to be false
+      expect(@project5.parse(:hours)).to be_falsey
     end
 
     it "validates products" do
@@ -292,17 +292,17 @@ describe InvoiceProject do
       expect(@project.parse(:products)).to be_truthy
 
       @project2.open @test_projects['products_missing']
-      expect(@project2.parse(:products)).to be false
+      expect(@project2.parse(:products)).to be_falsey
 
       @project3.open @test_projects['products_empty']
-      expect(@project3.parse(:products)).to be false
+      expect(@project3.parse(:products)).to be_falsey
 
       @project4.open @test_projects['products_soldandreturned']
-      expect(@project4.parse(:products)).to be false
+      expect(@project4.parse(:products)).to be_falsey
 
       ## cant be tested because YAML::load already eliminates the duplicate
       #@project5.open @test_projects['products_name_twice']
-      #@project5.parse(:products)).to be false
+      #@project5.parse(:products)).to be_falsey
     end
 
     #it "sums up products" do

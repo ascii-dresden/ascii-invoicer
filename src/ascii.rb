@@ -235,7 +235,7 @@ class Commander < Thor
     end
     #data = project.data
     if options[:verbose]
-      project.validate :invoice, true
+      project.validate :full, true
       #pp project.data#.keep_if{|k,v| k != :products}
       puts project.valid_for
       puts project.errors
@@ -348,24 +348,31 @@ class Commander < Thor
     :lazy_default=> Date.today.year,
     :required => false,
     :desc => "Open File from archive YEAR"
-  method_option :check,
-    :type=>:numeric, :aliases => "-d",
+  method_option :print,
+    :type=>:numeric,
     :lazy_default=> true,
     :required => false,
-    :desc => "check"
+    :desc => "print"
   def invoice( *hash )
-    # TODO implement invoice --archive
     if options[:file]
       path = options[:file]
       name = File.basename path, ".yml"
       project = InvoiceProject.new $SETTINGS, path, name
-      render_project project, :invoice
+      project.create_tex choice, options[:check], false
     else
       paths = pick_paths hash, options[:archive]
-      paths.each { |path|
-        project = InvoiceProject.new $SETTINGS, path
-        render_project project, :invoice
-      }
+      if options[:print]
+        paths.each { |path|
+          project = InvoiceProject.new $SETTINGS, path
+          project.validate :full
+          puts project.name, project.valid_for, project.errors
+        }
+      else
+        paths.each { |path|
+          project = InvoiceProject.new $SETTINGS, path
+          render_project project, :invoice
+        }
+      end
     end
   end
 

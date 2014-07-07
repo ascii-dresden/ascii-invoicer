@@ -178,10 +178,10 @@ class InvoiceProject
       puts type.to_s if print
       requirements.each { |req|
         puts "   " +
-          (!@data[req].nil?).to_s + req.to_s.ljust(15) +
+          (!@data[req].nil?).print + req.to_s.ljust(15) +
           "(#{ @data[req].to_s.each_line.first.to_s.each_line.first })" +
           "(#{@data[req].class})" if print
-        unless @data[req] 
+        if @data[req].nil?
           @valid_for[type] = false
           #@errors.push req unless @errors.include? req
         end
@@ -241,34 +241,13 @@ class InvoiceProject
     puts "INVOICER: #{message}" if @settings['verbose'] or force
   end
 
-  def strpdates(string,pattern = nil)
-    if pattern 
-      return [Date.strptime(string, pattern).to_date]
-    else
-      p = string.split('.')
-      p_range = p[0].split('-')
-
-      if p_range.length == 1
-        t = Date.new p[2].to_i, p[1].to_i, p[0].to_i
-        return [t]
-
-      elsif p_range.length == 2
-        t1 = Date.new p[2].to_i, p[1].to_i, p_range[0].to_i
-        t2 = Date.new p[2].to_i, p[1].to_i, p_range[1].to_i
-        return [t1,t2]
-
-      else
-        fail
-      end
-    end
-  end
 
   def fail_at(*criteria)
     @data[:valid] = false
     criteria.each  {|c|
       @errors.push c unless @errors.include? c
     }
-    return false
+    return nil
   end
 
   ##
@@ -386,7 +365,8 @@ class InvoiceProject
 end
 
 class InvoiceProduct
-  attr_reader :name, :hash, :tax, :valid, :returned, :cost_invoice, :cost_offer, :tax_invoice, :tax_offer, :price
+  attr_reader :name, :hash, :tax, :valid, :returned,
+    :cost_invoice, :cost_offer, :tax_invoice, :tax_offer, :price
 
   def initialize(name, hash, tax_value)
     @name = name
@@ -425,8 +405,8 @@ class InvoiceProduct
   end
 
   def cost choice
-    return cost_invoice if choice == :invoice
-    return cost_offer   if choice == :offer
+    return @cost_invoice if choice == :invoice
+    return @cost_offer   if choice == :offer
     return -1.to_euro
   end
 

@@ -37,8 +37,8 @@ module InvoiceParsers
     costs[:total_invoice] = (costs[:costs_invoice] + costs[:taxes_invoice])
     costs[:total_offer]   = (costs[:costs_offer]   + costs[:taxes_offer])
 
-    return costs[:costs_invoice] if choice == :invoice
     return costs[:costs_offer]   if choice == :offer
+    return costs[:costs_invoice] if choice == :invoice
     return costs
     false
   end
@@ -54,8 +54,8 @@ module InvoiceParsers
     return fail_at "costs_#{choice.to_s}" unless parse :costs
     return fail_at "costs_#{choice.to_s}" unless parse :costs, choice
 
-    return @data[:costs][:total_invoice] if choice == :invoice
     return @data[:costs][:total_offer]   if choice == :offer
+    return @data[:costs][:total_invoice] if choice == :invoice
     return false
   end
 
@@ -64,8 +64,8 @@ module InvoiceParsers
     return fail_at "taxes_#{choice.to_s}" unless parse :costs
     return fail_at "taxes_#{choice.to_s}" unless parse :costs, choice
 
-    return @data[:costs][:taxes_invoice] if choice == :invoice
     return @data[:costs][:taxes_offer]   if choice == :offer
+    return @data[:costs][:taxes_invoice] if choice == :invoice
     return false
   end
 
@@ -193,6 +193,48 @@ module InvoiceParsers
   #  return fail_at :description unless @raw_data['description']
   #  return @raw_data['description'].strip
   #end
+
+  def strpdates(string,pattern = nil)
+    if pattern 
+      return [Date.strptime(string, pattern).to_date]
+    else
+      p = string.split('.')
+      p_range = p[0].split('-')
+
+      if p_range.length == 1
+        t = Date.new p[2].to_i, p[1].to_i, p[0].to_i
+        return [t]
+
+      elsif p_range.length == 2
+        t1 = Date.new p[2].to_i, p[1].to_i, p_range[0].to_i
+        t2 = Date.new p[2].to_i, p[1].to_i, p_range[1].to_i
+        return [t1,t2]
+
+      else
+        fail
+      end
+    end
+  end
+
+  ##
+  # returns :start date or :end date or false
+  #   parse_time(:start) # or
+  #   parse_time(:end)
+  def parse_time(choice = :start)
+    return fail_at :time, :time_end unless parse :date
+    return fail_at :time, :time_end unless @raw_data['time']
+
+    begin
+      if choice == :start
+        return DateTime.strptime "#{@raw_data['date']} #{@raw_data['time']}", "%d.%m.%Y %H:%M"
+      elsif choice == :end
+        return DateTime.strptime "#{@raw_data['date_end']} #{@raw_data['time_end']}", "%d.%m.%Y %H:%M"
+      else return false
+      end
+    rescue
+      return false
+    end
+  end
 
   ##
   # returns :start date or :end date or false

@@ -23,13 +23,15 @@ address: |
 event: "<%= event_name %>"
 
 anumber: 1 # fortlaufende nummer fuer mehere Angebote an einem Tag
-
 manumber: <%= Time.now.strftime "A%Y%m%d-1" %>
 
 # rechnungsnummer
 rnumber: #27 <%= "" %>
 
 date: <%= (Time.now + (60*60*24*14)).strftime "%d.%m.%Y" %> # bezieht sich auf die veranstaltung selbst
+date_end: 
+time:     "13:00"
+time_end: "14:20"
 
 <%= personal_notes %>
 
