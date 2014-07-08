@@ -103,7 +103,7 @@ class Commander < Thor
     plumber = ProjectsPlumber.new $SETTINGS
     name = name.deumlautify
 
-    puts "creating a new project name #{name}" if puts plumber.new_project_fill name
+    puts "creating a new project name #{name}" if puts plumber.new_project name
     edit_files plumber.get_project_file_path name unless options[:dont_edit]
   end
 

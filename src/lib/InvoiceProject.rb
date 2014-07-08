@@ -40,7 +40,7 @@ class InvoiceProject
 
       :offer   => [ :canceled,
                     :tax, :date, :date_end, :raw_date, :manager, :name,
-                    :time, :salary, :salary_total, :costs,
+                    :salary, :salary_total, :costs,
                     :costs_offer, :taxes_offer, :total_offer, :final_offer,
                     :offer_number,
                     :address, :messages,
@@ -50,7 +50,7 @@ class InvoiceProject
                   ],
       :invoice => [ :canceled,
                     :tax, :date, :date_end, :raw_date, :manager, :name,
-                    :time, :salary, :salary_total, :costs,
+                    :salary, :salary_total, :costs,
                     :costs_invoice, :taxes_invoice, :total_invoice, :final_invoice,
                     :offer_number, :invoice_number, :invoice_number_long,
                     :address, :messages,
@@ -60,8 +60,9 @@ class InvoiceProject
                   ],
       :full    => [ :canceled,
                     :tax, :date, :date_end, :raw_date,
+                    :time, :time_end, 
                     :manager, :name, :hours,
-                    :time, :salary, :salary_total,
+                    :salary, :salary_total,
                     :costs_offer,    :taxes_offer,    :total_offer,    :final_offer,
                     :costs_invoice,  :taxes_invoice,  :total_invoice,  :final_invoice,
                     :invoice_number, :invoice_number_long,
@@ -73,7 +74,8 @@ class InvoiceProject
       :export  => [ :canceled,
                     :tax, :date, :date_end,
                     :manager, :name, :hours,
-                    :time, :salary, :salary_total,
+                    :time, :time_end,
+                    :salary, :salary_total,
                     :costs_offer,    :taxes_offer,    :total_offer,    :final_offer,
                     :costs_invoice,  :taxes_invoice,  :total_invoice,  :final_invoice,
                     :invoice_number, :invoice_number_long,
@@ -86,6 +88,7 @@ class InvoiceProject
     # TODO allow for alternative parser_matches
     @parser_matches = {
       #:key                => [parser,            parameters/key   ]
+      :time_end            => [:parse_time,       :end             ] ,
       :date_end            => [:parse_date,       :end             ] ,
       :manager             => [:parse_signature,  :manager         ] ,
       :offer_number        => [:parse_numbers,    :offer           ] ,
@@ -111,7 +114,7 @@ class InvoiceProject
 
       :tex_table_invoice   => [:parse_tex_table,  :invoice         ] ,
       :tex_table_offer     => [:parse_tex_table,  :offer           ] ,
-      :time                => [:parse_hours,      :time            ] ,
+      :hours               => [:parse_hours,      :time            ] ,
       :caterers            => [:parse_hours,      :caterers        ] ,
       :salary              => [:parse_hours,      :salary          ] ,
       :salary_total        => [:parse_hours,      :salary_total    ] ,

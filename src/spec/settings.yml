@@ -6,7 +6,7 @@ dirs:
   archive: archive
 
 templates:
-  project: templates/blank.yml
+  project: templates/blank.yml.erb
   invoice: latex/ascii-rechnung.tex
   offer:   latex/ascii-angebot.tex
 

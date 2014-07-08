@@ -186,7 +186,7 @@ module AsciiInvoicer
     header = [
       'date', 'invoice_long',
       'offer',
-      'event', 'name', 'manager', 'time', 'costs', 'total', 'valid'
+      'event', 'name', 'manager', 'hours', 'costs', 'total', 'valid'
     ]
     puts header.to_csv
     projects.each do |p|
@@ -197,7 +197,7 @@ module AsciiInvoicer
         p.data[:event],
         p.name,
         p.data[:manager],
-        p.data[:time].to_s + 'h',
+        p.data[:hours][:time].to_s + 'h',
         p.data[:costs_invoice],
         p.data[:total_invoice],
         p.valid_for[:invoice]

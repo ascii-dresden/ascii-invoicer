@@ -228,7 +228,8 @@ module InvoiceParsers
       if choice == :start
         return DateTime.strptime "#{@raw_data['date']} #{@raw_data['time']}", "%d.%m.%Y %H:%M"
       elsif choice == :end
-        return DateTime.strptime "#{@raw_data['date_end']} #{@raw_data['time_end']}", "%d.%m.%Y %H:%M"
+        return DateTime.strptime "#{@raw_data['date_end']} #{@raw_data['time_end']}", "%d.%m.%Y %H:%M" unless @raw_data['date_end'].nil?
+        return DateTime.strptime "#{@raw_data['date']} #{@raw_data['time_end']}", "%d.%m.%Y %H:%M"
       else return false
       end
     rescue
@@ -281,7 +282,7 @@ module InvoiceParsers
     return fail_at :hours     unless @raw_data['hours']
     return fail_at :salary    unless @raw_data['hours']['salary']
     hours            = {}
-    hours[:time]     = @raw_data['hours']['time'].to_f
+    hours[:time] = @raw_data['hours']['time'].to_f
     hours[:salary]   = @raw_data['hours']['salary'].to_euro
     hours[:caterers] = @raw_data['hours']['caterers']
     hours[:time_each] = 0.0

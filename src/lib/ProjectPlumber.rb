@@ -105,7 +105,7 @@ class ProjectsPlumber
   ##
   # creates new project_dir and project_file
   # returns path to project_file
-  def new_project_fill(_name)
+  def new_project(_name)
     name = _name.strip()
     name.sub!(/^\./,'') # removes hidden_file_dot '.' from the begging
     name.gsub!(/\//,'_') 
@@ -129,7 +129,7 @@ class ProjectsPlumber
     if folder
       target = File.join folder, name+@settings['project_file_extension']
 
-      puts "writing into #{target}"
+      #puts "writing into #{target}"
       file = File.new target, "w"
       result.lines.each do |line|
         file.write line
