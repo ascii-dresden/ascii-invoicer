@@ -80,28 +80,6 @@ class ProjectsPlumber
     end
   end
 
-  ### DEPRECATED
-  ## creates new project_dir and project_file
-  ## returns path to project_file
-  #def new_project(_name)
-  #  name = _name.strip()
-  #  name.sub!(/^\./,'') # removes hidden_file_dot '.' from the begging
-  #  name.gsub!(/\//,'_') 
-  #  name.gsub!(/\//,'_') 
-
-  #  # copy template_file to project_dir
-  #  folder = _new_project_folder(name)
-  #  if folder
-  #    target = File.join folder, name+@settings['project_file_extension']
-
-  #    FileUtils.cp @dirs[:template], target
-  #    logs "#{folder} created"
-  #    return target
-  #  else
-  #    return false
-  #  end
-  #end
-
   ##
   # creates new project_dir and project_file
   # returns path to project_file

@@ -40,7 +40,7 @@ class InvoiceProject
 
       :offer   => [ :canceled,
                     :tax, :date, :date_end, :raw_date, :manager, :name,
-                    :salary, :salary_total, :costs,
+                    :hours, :salary, :salary_total, :costs,
                     :costs_offer, :taxes_offer, :total_offer, :final_offer,
                     :offer_number,
                     :address, :messages,
@@ -50,7 +50,7 @@ class InvoiceProject
                   ],
       :invoice => [ :canceled,
                     :tax, :date, :date_end, :raw_date, :manager, :name,
-                    :salary, :salary_total, :costs,
+                    :hours, :salary, :salary_total, :costs,
                     :costs_invoice, :taxes_invoice, :total_invoice, :final_invoice,
                     :offer_number, :invoice_number, :invoice_number_long,
                     :address, :messages,
@@ -62,7 +62,7 @@ class InvoiceProject
                     :tax, :date, :date_end, :raw_date,
                     :time, :time_end, 
                     :manager, :name, :hours,
-                    :salary, :salary_total,
+                    :hours, :salary, :salary_total,
                     :costs_offer,    :taxes_offer,    :total_offer,    :final_offer,
                     :costs_invoice,  :taxes_invoice,  :total_invoice,  :final_invoice,
                     :invoice_number, :invoice_number_long,
@@ -75,7 +75,7 @@ class InvoiceProject
                     :tax, :date, :date_end,
                     :manager, :name, :hours,
                     :time, :time_end,
-                    :salary, :salary_total,
+                    :hours, :salary, :salary_total,
                     :costs_offer,    :taxes_offer,    :total_offer,    :final_offer,
                     :costs_invoice,  :taxes_invoice,  :total_invoice,  :final_invoice,
                     :invoice_number, :invoice_number_long,
@@ -286,14 +286,6 @@ class InvoiceProject
     end
   end
 
-  def replace_keys line
-    @data.keys.each{ |key|
-      replacement = (@data[key].to_s).gsub "\n"," \\newline "
-      line = line.gsub('$' + key.to_s + '$', replacement)
-    }
-    return line
-  end
-
   ##
   # fills the template with mined data
   def create_tex choice, check = false, run = true
@@ -307,40 +299,23 @@ class InvoiceProject
     template = @template_invoice if choice == :invoice
     template = @template_offer   if choice == :offer
 
-    table = TableBox.new
-    table.title = "Template matches"
-    if check
-      template.each_line { |line| 
-        scans = line.scan /\$([^$]*)\$/
-        if scans.length > 0
-          findings = scans.map{|s| not @data[s[0].to_sym].nil? and not @data[s[0].to_sym] == false  }
-          table.add_row [scans.flatten.join(", "), findings.join(','),]
-        end
-      }
-      puts table
-      return
-    end
-
-    file_content = []
-    template.each_line { |line| 
-      line = replace_keys line
-      line = replace_keys line
-      file_content.push line
-    }
+    template = ERB.new(template).result(binding)
+    result   = ERB.new(template).result(binding)
 
     filename = export_filename choice, "tex"
     output_path = File.join @project_folder , filename
  
-    #puts file_content
-    write_array_to_file file_content, output_path
+    puts output_path
+    write_to_file result, output_path
+    render_tex output_path, filename if run
+  end
 
-    logs "Rendering #{output_path} with #{@settings['latex']}"
+  def render_tex path, filename
+    logs "Rendering #{path} with #{@settings['latex']}"
     silencer = @settings['verbose'] ? "" : "> /dev/null" 
 
     #TODO output directory is not generic
-    if run
-      system "#{@settings['latex']} \"#{output_path}\" -output-directory . #{silencer}"
-    end
+    system "#{@settings['latex']} \"#{path}\" -output-directory . #{silencer}"
 
 
     unless @settings['keep_log']
@@ -350,13 +325,13 @@ class InvoiceProject
       FileUtils.rm aux if File.exists? aux
     end
 
-    puts "Created #{output_path} and .pdf"
+    puts "Created #{path} and .pdf"
   end
 
-  def write_array_to_file file_content, path
+  def write_to_file file_content, path
     begin
     file = File.new path, "w"
-    file_content.each do |line|
+    file_content.lines.each do |line|
       file.write line
     end
     file.close

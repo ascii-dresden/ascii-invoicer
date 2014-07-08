@@ -236,6 +236,7 @@ describe InvoiceProject do
       expect(@project.data[:hours][:caterers]['Name' ]).to eq 5
       expect(@project.data[:hours][:caterers]['Name2']).to eq 2.6
 
+      expect(@project.data[:hours][:time]).to eq @project.data[:hours][:time_each]
 
       #name = "no_caterers"
       #expect(File).to exist @test_projects[name]

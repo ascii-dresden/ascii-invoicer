@@ -94,10 +94,16 @@ module InvoiceParsers
     number = 0
     @data[:products].each do |name, p|
       number += 1
-      table += "#{number} & #{name} & #{p.amount(choice)} & #{p.price} & #{p.cost(choice)} \\\\\\\\" #TODO put price.to_euro into the InvoiceProduct
+      table += "#{number} & #{name} & #{p.amount(choice)} & #{p.price} & #{p.cost(choice)} \\\\\n"
     end
 
-    table += [ number+1 ," & Betreuung (Stunden)& " , @data[:time] , " & " , @data[:salary], " & " , @data[:salary_total] ].join + " \\\\\\" if @data[:time] and @data[:time] > 0
+    if @data[:hours][:time] and @data[:hours][:time] > 0
+      table += [ number+1 ,
+                 " & Betreuung (Stunden)& " ,
+                 @data[:hours][:time].to_s.gsub('.',',') , " & " ,
+                 @data[:salary], " & " ,
+                 @data[:salary_total] ].join + " \\\\"
+    end
     return table
   end
 
@@ -281,10 +287,10 @@ module InvoiceParsers
   def parse_hours(choice = :hours)
     return fail_at :hours     unless @raw_data['hours']
     return fail_at :salary    unless @raw_data['hours']['salary']
-    hours            = {}
-    hours[:time] = @raw_data['hours']['time'].to_f
-    hours[:salary]   = @raw_data['hours']['salary'].to_euro
-    hours[:caterers] = @raw_data['hours']['caterers']
+    hours             = {}
+    hours[:time]      = @raw_data['hours']['time'].to_f
+    hours[:salary]    = @raw_data['hours']['salary'].to_euro
+    hours[:caterers]  = @raw_data['hours']['caterers']
     hours[:time_each] = 0.0
 
     hours[:caterers].each { |name,time| hours[:time_each] += time } if hours[:caterers]

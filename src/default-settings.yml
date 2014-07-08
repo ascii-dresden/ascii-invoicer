@@ -16,8 +16,8 @@ dirs:
 
 templates:
   project: templates/blank.yml.erb
-  invoice: latex/ascii-rechnung.tex
-  offer:   latex/ascii-angebot.tex
+  invoice: templates/invoice.tex.erb
+  offer:   templates/offer.tex.erb
 
 ## CAREFUL HERE
 project_file_extension: .yml
@@ -30,9 +30,9 @@ default_tax: 0.19
 default_signature: Mit freundlichen Grüßen
 default_messages:
   invoice: 
-    - "wir bedanken uns für Ihren Auftrag für das Catering am $raw_date$ und erlauben uns ihnen folgende Rechnung zu stellen:"
+    - "wir bedanken uns für Ihren Auftrag für das Catering am <%= @data[:raw_date] %> und erlauben uns ihnen folgende Rechnung zu stellen:"
     - "Wir bitten um eine Begleichung des Betrags innerhalb von 14 Tagen nach Erhalt der Rechnung."
   offer: 
-    - "hiermit möchten wir Ihnen für die gastronomische Betreuung Ihrer Veranstaltung am $raw_date$ folgendes Angebot unterbreiten:"
+    - "hiermit möchten wir Ihnen für die gastronomische Betreuung Ihrer Veranstaltung am <%= raw_date %> folgendes Angebot unterbreiten:"
     - ""
 ...

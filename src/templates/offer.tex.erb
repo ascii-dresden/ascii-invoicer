@@ -1,0 +1,43 @@
+\documentclass[11pt,utf8]{<%= @data[:script_path] %>/latex/ascii-brief}
+\input{<%= $SETTINGS['script_path'] %>/latex/ascii-include}
+\Logo {<%= $SETTINGS['script_path'] %>/latex/ascii-logo.png}
+
+\Unterschrift        {<%= @data[:manager] %>}
+\Postvermerk         {}
+\Adresse             {<%= @data[:address].gsub("\n","\\newline ") %>}
+
+\Betreff             {Angebot} %% [Angebot|Rechnung]
+
+\Datum               {\today}
+\AngebotManuel       {<%= @data[:offer_number] %>} %% Manuel ueberschreibbar ansonsten automatisch heute
+\Veranstaltung       {<%= @data[:event] %>}
+\RechnungsNummer     {} %% bei Angeboten leer lassen
+\Anrede              {<%= @data[:addressing] %>, }
+\Gruss               {<%= @data[:signature] %>}{1cm}
+
+%\Anlagen             {Anlagen}
+%\Verteiler           {Verteiler}
+
+\begin{document}
+\begin{ascii-brief}
+
+<%= @data[:message_offer_1] %>
+
+\begin{center}
+\begin{tabular}{rp{7cm}rrr}
+\textbf{Nr.} & \textbf{Bezeichnung}&    \textbf{Menge}    &    \textbf{EP}&    \textbf{Preis}    \\
+\midrule
+<%= @data[:tex_table_offer] %>
+\bottomrule[1pt]
+\multicolumn{4}{r}{Netto MwSt. 19\%}  & <%= @data[:costs_offer] %>  \\
+%\multicolumn{4}{r}{Brutto MwSt. 19\%} & <%= @data[:total_offer] %>  \\
+\multicolumn{4}{r}{+MwSt. 19\%}       & <%= @data[:taxes_offer] %>  \\
+\multicolumn{4}{r}{MwSt 0\%}          & <%= @data[:salary_total] %> \\
+\multicolumn{4}{r}{Gesamtpreis}       & <%= @data[:final_offer] %> \\
+\end{tabular}
+\end{center}
+
+<%= @data[:message_offer_2] %>
+
+\end{ascii-brief}
+\end{document}

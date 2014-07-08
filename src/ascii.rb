@@ -324,6 +324,7 @@ class Commander < Thor
     :required => false,
     :desc => "check"
   def offer( *hash )
+    $SETTINGS['verbose'] = true if options[:verbose]
     # TODO implement offer --archive
     if options[:file]
       path = options[:file]
@@ -354,6 +355,8 @@ class Commander < Thor
     :required => false,
     :desc => "print"
   def invoice( *hash )
+    $SETTINGS['verbose'] = true if options[:verbose]
+
     if options[:file]
       path = options[:file]
       name = File.basename path, ".yml"
