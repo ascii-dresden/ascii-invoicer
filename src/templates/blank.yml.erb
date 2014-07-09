@@ -1,5 +1,5 @@
 --- 
-version: 20140707
+version: 20140709
 created: <%= Time.now.strftime "%d.%m.%Y" %>
 
 # always include 'Herr' oder 'Frau'
@@ -30,8 +30,8 @@ rnumber: #27 <%= "" %>
 
 date: <%= (Time.now + (60*60*24*14)).strftime "%d.%m.%Y" %> # bezieht sich auf die veranstaltung selbst
 date_end: 
-time:     "13:00"
-time_end: "14:20"
+time:     #"13:00"
+time_end: #"14:20"
 
 <%= personal_notes %>
 
@@ -60,8 +60,7 @@ hours:
   salary: 8.00
 
   caterers:
-    "Name" : 5 #Stunden
-    "Name2": 2 #Stunden
+    "Name" : 0 #Stunden
     
 signature: |
   <%= manager_name %>
