@@ -91,8 +91,13 @@ module AsciiInvoicer
       p  = projects[i]
       event = Icalendar::Event.new
 
+      if p.data[:time]
       event.dtstart     = p.data[:time]
       event.dtend       = p.data[:time_end]
+      else
+      event.dtstart     = p.data[:date]
+      event.dtend       = p.data[:date_end]
+      end 
       event.description = ""
       if p.data[:event]
         event.summary      = p.data[:event]
