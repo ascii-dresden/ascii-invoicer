@@ -92,11 +92,11 @@ module AsciiInvoicer
       event = Icalendar::Event.new
 
       if p.data[:time]
-      event.dtstart     = p.data[:time]
-      event.dtend       = p.data[:time_end]
+        event.dtstart     = p.data[:time]
+        event.dtend       = p.data[:time_end]
       else
-      event.dtstart     = p.data[:date]
-      event.dtend       = p.data[:date_end]
+        event.dtstart = Icalendar::Values::Date.new p.data[:date].strftime "%Y%m%d"
+        event.dtend   = Icalendar::Values::Date.new((p.data[:date_end]+1).strftime "%Y%m%d")
       end 
       event.description = ""
       if p.data[:event]
