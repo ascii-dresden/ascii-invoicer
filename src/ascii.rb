@@ -34,15 +34,14 @@ $SETTINGS = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
 # load local settings ( first realy local, than look at homedir)
 $SETTINGS_PATHS.values.each{ |path|
   if File.exists? path and path != $SETTINGS_PATHS[:template]
-    $local_settings                  = YAML::load(File.open(path))
-    $SETTINGS['local_settings_path'] = path
+    $personal_settings                  = YAML::load(File.open(path))
+    $SETTINGS['personal_settings_path'] = path
   end
 }
 
-$SETTINGS['path']        = File.expand_path File.split(__FILE__)[0]
 $SETTINGS['script_path'] = $SCRIPT_PATH
 
-# loading $SETTINGS and local_settings
+# loading $SETTINGS and personal_settings
 def overwrite_settings(default, custom)
   default.each do |k,v|
     if custom[k].class == Hash
@@ -54,9 +53,9 @@ def overwrite_settings(default, custom)
 end
 
 # mixing local and default settings
-overwrite_settings $SETTINGS, $local_settings if $local_settings
+overwrite_settings $SETTINGS, $personal_settings if $personal_settings
 
-
+$SETTINGS['path']        = File.expand_path $SETTINGS['path']
 
 #error "settings:editor is an elaborate string: \"#{$SETTINGS['editor']}\"!\nDANGEROUS!" if $SETTINGS['editor'].include? " "
 error "settings:latex is an elaborate string: \"#{$SETTINGS['editor']}\"!\nDANGEROUS!" if $SETTINGS['latex'].include? " "

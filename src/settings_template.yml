@@ -7,6 +7,7 @@ manager_name: ""
 #personal_notes: |
 #  stuff that is to be printed into each project file
 
+#path: "~" #/where/you/want/to/put/the/dirs
 #dirs:
 #  storage: caterings
 #  working: working
@@ -19,10 +20,9 @@ manager_name: ""
 
 ## CAREFUL HERE
 #project_file_extension: .yml
-#path: /where/you/want/to/put/the/dirs    #nil 
 #use_git: true
 #latex:    pdflatex
-#
+
 #default_lang: de
 #default_tax: 0.19
 #default_signature: Mit freundlichen Grüßen
