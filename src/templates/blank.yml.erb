@@ -33,7 +33,7 @@ date_end:
 time:     #"13:00"
 time_end: #"14:20"
 
-<%= personal_notes %>
+<%= (["\n"] + personal_notes.lines).join "# " %>
 
 products:
   "Kaffee (1l)":

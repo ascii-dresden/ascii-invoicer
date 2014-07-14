@@ -90,7 +90,7 @@ class ProjectsPlumber
     name.gsub!(/\//,'_') 
 
     event_name     = name
-    personal_notes = @settings['personal_notes']
+    personal_notes = @settings["personal_notes"]
     manager_name   = @settings["manager_name"]
     default_lang   = @settings["default_lang"]
     default_tax    = @settings["default_tax"]

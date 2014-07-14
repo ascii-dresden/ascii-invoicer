@@ -4,7 +4,7 @@ verbose:  false
 editor:   "vim -O"
 colors:   false
 
-#personal_notes: |
+personal_notes: |
 #  stuff that is to be printed into each project file
 
 
