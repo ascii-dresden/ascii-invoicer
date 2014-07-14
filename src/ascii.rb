@@ -8,7 +8,13 @@ require 'yaml'
 require 'thor'
 require 'paint'
 
+begin
 $SCRIPT_PATH = File.split(File.expand_path(File.readlink(__FILE__)))[0]
+rescue
+  puts "SCRIPT_PATH did not work"
+  puts File.split File.expand_path __FILE__
+  $SCRIPT_PATH = File.split(File.expand_path(__FILE__))[0]
+end
 require "#{$SCRIPT_PATH}/lib/tweaks.rb"
 require "#{$SCRIPT_PATH}/lib/Euro.rb"
 require "#{$SCRIPT_PATH}/lib/InvoiceProject.rb"

@@ -19,7 +19,7 @@ manager_name: ""
 
 ## CAREFUL HERE
 #project_file_extension: .yml
-#path:     #nil
+#path: /where/you/want/to/put/the/dirs    #nil 
 #use_git: true
 #latex:    pdflatex
 #
