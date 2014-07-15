@@ -25,7 +25,6 @@ require "#{$SCRIPT_PATH}/lib/textboxes.rb"
 #where are settings located?
 $SETTINGS_PATHS = {
    :global   => File.join(Dir.home, ".ascii-invoicer.yml"),
-   :local    => ".settings.yml",
    :template => File.join($SCRIPT_PATH, "settings_template.yml")
 }
 
@@ -462,38 +461,11 @@ class Commander < Thor
     :lazy_default=> false,
     :required => false,
     :desc => "edit your local settings"
-
-  method_option :local,
-    :type=>:boolean, :aliases => "-l",
-    :lazy_default=> false,
-    :required => false,
-    :desc => "deal with local settings"
-
-  method_option :global,
-    :type=>:boolean, :aliases => "-g",
-    :lazy_default=> false,
-    :required => false,
-    :desc => "deal with global settings"
-
   def settings
     #puts $SETTINGS.to_yaml
 
     if options[:edit]
-
-      if    options[:local]
-        error "you are in #{Dir.home}, use --global instead" if Dir.home == FileUtils.pwd
-        path = $SETTINGS_PATHS[:local]
-        choice = :local
-
-      elsif options[:global]
-        path = $SETTINGS_PATHS[:global]
-        choice = :global
-
-
-
-      else
-        error "please choose between --local and --global"
-      end
+      path = $SETTINGS_PATHS[:global]
 
       if not File.exists? path and no? "There is no #{path} yet do you want to use a template? (YES/no)"
         error "templatefile #{$SETTINGS_PATHS[:template]} not found" unless File.exists? $SETTINGS_PATHS[:template]
@@ -517,7 +489,7 @@ class Commander < Thor
     #current = git.log.to_s.lines.to_a.last
     ##puts git.branch unless git.tags.include? current 
     #puts current
-    puts "ascii-invoicer 2.3.0 alpha"
+    puts "ascii-invoicer 2.3.1 alpha"
   end
 
 
