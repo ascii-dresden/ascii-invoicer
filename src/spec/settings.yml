@@ -10,6 +10,8 @@ templates:
   invoice: latex/ascii-rechnung.tex
   offer:   latex/ascii-angebot.tex
 
+personal_notes: |
+#  stuff that is to be printed into each project file
 
 #careful here
 project_file_extension: .yml

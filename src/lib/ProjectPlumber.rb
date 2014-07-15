@@ -80,16 +80,22 @@ class ProjectsPlumber
     end
   end
 
+  def _sanitize(name)
+    name = name.strip()
+    name = name.deumlautify
+    name.sub!(/^\./,'') # removes hidden_file_dot '.' from the begging
+    name.gsub!(/\//,'_') 
+    name.gsub!(/\//,'_') 
+    name
+  end
+
   ##
   # creates new project_dir and project_file
   # returns path to project_file
   def new_project(_name)
-    name = _name.strip()
-    name.sub!(/^\./,'') # removes hidden_file_dot '.' from the begging
-    name.gsub!(/\//,'_') 
-    name.gsub!(/\//,'_') 
+    name = _sanitize _name
 
-    event_name     = name
+    event_name     = _name
     personal_notes = @settings["personal_notes"]
     manager_name   = @settings["manager_name"]
     default_lang   = @settings["default_lang"]
@@ -129,6 +135,7 @@ class ProjectsPlumber
   #
   # untested
   def get_project_file_path(name, dir=:working, year=Date.today.year)
+    name = _sanitize name
     folder = get_project_folder(name, dir, year)
     if folder
       files = Dir.glob File.join folder, "*#{@settings['project_file_extension']}"
@@ -279,5 +286,38 @@ class String
   end
   def deprefix(prefix)
     self.partition(prefix)[2]
+  end
+
+  # TODO somebody find my a gem that works and I'll replace this
+  def deumlautify
+    return self.gsub(/[“”‘’„»«äöüÄÖÜßæÆœŒ€½¼¾©™®]/) do |match|
+      case match
+      when "“" then '"'
+      when "”" then '"'
+      when "‘" then "'"
+      when "’" then "'"
+      when "„" then '"'
+      when "»" then ">>"
+      when "«" then "<<"
+      when "ä" then "ae"
+      when "ö" then "oe"
+      when "ü" then "ue"
+      when "Ä" then "Ae"
+      when "Ö" then "Oe"
+      when "Ü" then "Ue"
+      when "ß" then "ss"
+      when "æ" then "ae"
+      when "Æ" then "AE"
+      when "œ" then "oe"
+      when "Œ" then "OE"
+      when "€" then "EUR"
+      when "½" then "1/2"
+      when "¼" then "1/4"
+      when "¾" then "3/4"
+      when "©" then "(c)"
+      when "™" then "(TM)"
+      when "®" then "(r)"
+      end
+    end
   end
 end
