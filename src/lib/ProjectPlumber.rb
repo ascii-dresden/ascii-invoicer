@@ -97,6 +97,7 @@ class ProjectsPlumber
 
     event_name     = _name
     personal_notes = @settings["personal_notes"]
+    personal_notes = (["\n"] + personal_notes.lines.to_a).join "#"
     manager_name   = @settings["manager_name"]
     default_lang   = @settings["default_lang"]
     default_tax    = @settings["default_tax"]
