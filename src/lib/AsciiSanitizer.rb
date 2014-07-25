@@ -24,7 +24,7 @@ class AsciiSanitizer
 
   # TODO somebody find my a gem that works and I'll replace this
   def self.deumlautify(string)
-    REPLACE_HASH.each{|k,v| string.gsub! k, v }
+    REPLACE_HASH.each{|k,v| string = string.gsub k, v }
     string.each_char.to_a.keep_if {|c| c.ascii_only?}
     return string
   end

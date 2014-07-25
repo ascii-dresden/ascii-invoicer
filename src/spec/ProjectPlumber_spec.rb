@@ -11,6 +11,9 @@ describe ProjectsPlumber do
   #this happens before every 'it'
   before do
     @plumber = described_class.new $SETTINGS
+    @plumber1 = described_class.new $SETTINGS
+    @plumber2 = described_class.new $SETTINGS
+    @plumber3 = described_class.new $SETTINGS
   end
 
   context "with no directories" do
@@ -105,11 +108,13 @@ describe ProjectsPlumber do
     describe described_class, "#new_project" do
       it "sanitizes names prior to creating new projects with forbidden characters" do
         subfolder     = @plumber.new_project("sub/folder")
-        hiddenproject = @plumber.new_project(".hidden_project")
+        hiddenproject = @plumber1.new_project(".hidden_project")
+        canceledproject = @plumber2.new_project("canceled catering")
         expect(subfolder).to be_truthy
         expect(hiddenproject).to be_truthy
         expect(@plumber.get_project_folder("sub_folder")).to be_truthy
-        expect(@plumber.get_project_folder("hidden_project")).to be_truthy
+        expect(@plumber1.get_project_folder("hidden_project")).to be_truthy
+        expect(@plumber2.get_project_folder("canceled catering")).to be_truthy
       end
 
       it "creates a new project" do

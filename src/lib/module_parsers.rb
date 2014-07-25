@@ -1,4 +1,5 @@
 # encoding: utf-8
+require 'date'
 module InvoiceParsers
 
   def parse_script_path
@@ -12,6 +13,9 @@ module InvoiceParsers
 
   def parse_canceled
     @data[:canceled] = @raw_data['canceled']
+    if @data[:canceled] and @data[:date].nil?
+      @data[:date] = DateTime.now unless parse :date
+    end
     fail_at :canceled if @raw_data['canceled']
     return @raw_data['canceled'] # this one works the other way around
   end
@@ -45,6 +49,7 @@ module InvoiceParsers
 
   ## Final := salary + total
   def parse_final choice = nil
+    return 0 if @data[:canceled]
     return @data[:salary_total] + @data[:total_invoice] if choice == :invoice
     return @data[:salary_total] + @data[:total_offer]   if choice == :offer
   end
