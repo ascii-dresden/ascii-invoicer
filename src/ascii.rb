@@ -158,6 +158,7 @@ class Commander < Thor
         paths = plumber.list_projects
       else
         paths = plumber.list_projects :archive, options[:archives]
+        puts "VORSICHT! paths enthält FALSE" if paths.include? false
       end
     end
 
@@ -209,9 +210,9 @@ class Commander < Thor
   method_option :offer, :type=>:boolean,
     :default=> false, :lazy_default=> true, :required => false,
     :desc => "Display Products parsed as OFFER"
-  method_option :invoice, :type=>:boolean,
+  method_option :caterers, :type=>:boolean,
     :default=> false, :lazy_default=> true, :required => false,
-    :desc => "Display Products parsed as INVOICE"
+    :desc => "Display Caterers"
   method_option :costs,:type=>:boolean,
     :default=> true, :lazy_default=> true, :required => false,
     :desc => ""
@@ -246,6 +247,14 @@ class Commander < Thor
       elsif options[:invoice]
         project.validate :invoice
         puts display_products project, :invoice
+      elsif options[:caterers]
+        project.validate :export
+        if project.data[:caterers]
+          puts project.data[:caterers]
+          puts project.data[:hours][:caterers].map{|name, hours|"#{name} (#{hours})"}.join ", "
+        else
+          error "Caterers not filled in, please do so."
+        end
       elsif options[:yaml]
 
         format_default = :full
