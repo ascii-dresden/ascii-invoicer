@@ -11,24 +11,6 @@ class FalseClass
   end
 end
 
-class Object
-  def ceil_up
-    return self unless self.class == Float
-    n = self
-    n = n*100
-    n = n.round().to_f()
-    n = n/100
-    return n
-  end
-
-end
-
-def do_ask
-  gets.strip
-rescue Interrupt
-  puts
-  exit
-end
 
 def error(msg)
   STDERR.puts("ERROR: #{msg}")
