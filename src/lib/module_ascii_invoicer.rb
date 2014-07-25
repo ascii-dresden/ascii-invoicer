@@ -189,26 +189,32 @@ module AsciiInvoicer
   #takes an array of invoices (@plumber.working_projects)
   def print_project_list_csv(projects)
     header = [
-      'date', 'invoice_long',
-      'offer',
-      'event', 'name', 'manager', 'hours', 'costs', 'total', 'valid'
+      'invoice_long',
+      'event',
+      'date',
+      'manager',
+      'hours',
+      'costs',
+      'total',
+      'valid'
     ]
-    puts header.to_csv
+    puts header.to_csv(col_sep:";")
     projects.each do |p|
+       caterers_string = ""
+       caterers_string = p.data[:hours][:caterers].map{|name, hours|"#{name} (#{hours})"}.join ", " if p.data[:caterers]
       line = [
-        p.data[:date],
-        p.data[:invoice_number_long],
-        p.data[:offer_number],
+        p.data[:invoice_number],
         p.data[:event],
-        p.name,
+        p.data[:date],
         p.data[:manager],
+        caterers_string,
         p.data[:hours][:time].to_s + 'h',
         p.data[:costs_invoice],
         p.data[:total_invoice],
-        p.valid_for[:invoice]
+      #  p.valid_for[:invoice]
       ]
       line.map! {|v| v ? v : "" } # wow, that looks cryptic
-      puts line.to_csv
+      puts line.to_csv(col_sep:";")
     end
   end
 
