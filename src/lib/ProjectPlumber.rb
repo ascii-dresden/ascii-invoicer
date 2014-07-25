@@ -2,6 +2,7 @@
 require 'fileutils'
 LIBPATH = File.split(__FILE__)[0]
 require "#{LIBPATH}/gitplumber.rb"
+require "#{LIBPATH}/AsciiSanitizer.rb"
 
 
 class ProjectsPlumber
@@ -80,20 +81,12 @@ class ProjectsPlumber
     end
   end
 
-  def _sanitize(name)
-    name = name.strip()
-    name = name.deumlautify
-    name.sub!(/^\./,'') # removes hidden_file_dot '.' from the begging
-    name.gsub!(/\//,'_') 
-    name.gsub!(/\//,'_') 
-    name
-  end
-
   ##
   # creates new project_dir and project_file
   # returns path to project_file
   def new_project(_name)
-    name = _sanitize _name
+    _name = AsciiSanitizer.process _name
+    name = AsciiSanitizer.clean_path _name
 
     event_name     = _name
     personal_notes = @settings["personal_notes"]
@@ -135,14 +128,17 @@ class ProjectsPlumber
   # there may only be one @settings['project_file_extension'] file per project folder
   #
   # untested
-  def get_project_file_path(name, dir=:working, year=Date.today.year)
-    name = _sanitize name
+  def get_project_file_path(_name, dir=:working, year=Date.today.year)
+    _name = AsciiSanitizer.process _name
+    name = AsciiSanitizer.clean_path _name
+
     folder = get_project_folder(name, dir, year)
     if folder
       files = Dir.glob File.join folder, "*#{@settings['project_file_extension']}"
       fail "ambiguous amount of #{@settings['project_file_extension']} files (#{name})" if files.length != 1
       return files[0]
     end
+    puts "NO FOLDER get_project_folder(name = #{name}, dir = #{dir}, year = #{year})"
     return false
   end
 
@@ -188,14 +184,17 @@ class ProjectsPlumber
   def list_projects(dir = :working, year=Date.today.year)
     return unless check_dir(dir)
     if dir == :working
-      paths = Dir.glob File.join @dirs[dir], "/*"
-      names = paths.map {|path| get_project_file_path File.basename path }
+      folders = Dir.glob File.join @dirs[dir], "/*"
+      paths = folders.map {|path| get_project_file_path File.basename path }
     elsif dir == :archive
-      paths = Dir.glob File.join @dirs[dir], year.to_s, "/*"
-      names = paths.map {|path| get_project_file_path (File.basename path), :archive, year }
+      folders = Dir.glob File.join @dirs[dir], year.to_s, "/*"
+      paths = folders.map {|path| get_project_file_path (File.basename path), :archive, year }
     else
       error "unknown path #{dir}"
     end
+
+    puts "WARNING! one folder is not correct" if paths.include? false
+    paths.keep_if{|v| v}
   end
 
   ##
@@ -279,46 +278,4 @@ class ProjectsPlumber
     end
   end
 
-end
-
-class String
-  def last
-    self.scan(/.$/)[0]
-  end
-  def deprefix(prefix)
-    self.partition(prefix)[2]
-  end
-
-  # TODO somebody find my a gem that works and I'll replace this
-  def deumlautify
-    return self.gsub(/[“”‘’„»«äöüÄÖÜßæÆœŒ€½¼¾©™®]/) do |match|
-      case match
-      when "“" then '"'
-      when "”" then '"'
-      when "‘" then "'"
-      when "’" then "'"
-      when "„" then '"'
-      when "»" then ">>"
-      when "«" then "<<"
-      when "ä" then "ae"
-      when "ö" then "oe"
-      when "ü" then "ue"
-      when "Ä" then "Ae"
-      when "Ö" then "Oe"
-      when "Ü" then "Ue"
-      when "ß" then "ss"
-      when "æ" then "ae"
-      when "Æ" then "AE"
-      when "œ" then "oe"
-      when "Œ" then "OE"
-      when "€" then "EUR"
-      when "½" then "1/2"
-      when "¼" then "1/4"
-      when "¾" then "3/4"
-      when "©" then "(c)"
-      when "™" then "(TM)"
-      when "®" then "(r)"
-      end
-    end
-  end
 end

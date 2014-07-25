@@ -120,6 +120,7 @@ describe ProjectsPlumber do
       it "creates a new project with spaces in name" do
         name = "  fun project "
         @plumber.new_project(name)
+        expect(@plumber.get_project_file_path(name)).to be_truthy
         expect(@plumber.get_project_file_path(name.strip)).to be_truthy
         expect(File).to exist @plumber.get_project_file_path(name.strip)
       end
