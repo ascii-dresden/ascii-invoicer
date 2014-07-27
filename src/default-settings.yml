@@ -1,7 +1,7 @@
 ---
 manager_name: "The Unnamed Manager"
 verbose:  false
-editor:   "vim -O"
+#editor:   "vim -O" #defaults to ENV['EDITOR']
 colors:   false
 
 personal_notes: |
