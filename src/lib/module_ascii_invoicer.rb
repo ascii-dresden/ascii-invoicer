@@ -19,6 +19,9 @@ module AsciiInvoicer
       project.validate validation
       projects.push project
     end
+    unsortable = Array.new(projects).delete_if  { |project| project.data[sort] }
+    unsortable.each   { |project| warn "#{project.data[:name]} not sortable by #{sort}"}
+    projects.keep_if  { |project| project.data[sort] }
     projects.sort_by! { |project| project.data[sort] }
     return projects
   end

@@ -135,7 +135,7 @@ class ProjectsPlumber
     folder = get_project_folder(name, dir, year)
     if folder
       files = Dir.glob File.join folder, "*#{@settings['project_file_extension']}"
-      fail "ambiguous amount of #{@settings['project_file_extension']} files (#{name})" if files.length != 1
+      warn "ambiguous amount of #{@settings['project_file_extension']} files (#{folder})" if files.length != 1
       return files[0]
     end
     puts "NO FOLDER get_project_folder(name = #{name}, dir = #{dir}, year = #{year})"

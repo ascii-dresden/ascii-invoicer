@@ -11,6 +11,10 @@ class FalseClass
   end
 end
 
+def warn (string)
+  puts Paint["WARNING: #{string}",:red]
+end
+
 
 def error(msg)
   STDERR.puts("ERROR: #{msg}")
