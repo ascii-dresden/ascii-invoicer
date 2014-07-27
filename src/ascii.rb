@@ -25,15 +25,26 @@ require "#{$SCRIPT_PATH}/lib/textboxes.rb"
 #where are settings located?
 $SETTINGS_PATHS = {
    :global   => File.join(Dir.home, ".ascii-invoicer.yml"),
+   :local    => ".settings.yml",
    :template => File.join($SCRIPT_PATH, "settings_template.yml")
 }
 
 # load default settings
-$SETTINGS = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
+begin
+  $SETTINGS = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
+rescue SyntaxError => error
+  warn "error parsing default-settings.yml. Do not modify those directly! Only overwrite settings in #{$SETTINGS_PATHS[:global]}"
+  puts error
+end
 # load local settings ( first realy local, than look at homedir)
 $SETTINGS_PATHS.values.each{ |path|
   if File.exists? path and path != $SETTINGS_PATHS[:template]
-    $personal_settings                  = YAML::load(File.open(path))
+    begin
+      $personal_settings                  = YAML::load(File.open(path))
+    rescue SyntaxError => error
+      warn "error parsing #{File.expand_path path}."
+      puts error
+    end
     $SETTINGS['personal_settings_path'] = path
   end
 }
