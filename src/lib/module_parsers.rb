@@ -14,7 +14,9 @@ module InvoiceParsers
   def parse_canceled
     @data[:canceled] = @raw_data['canceled']
     if @data[:canceled] and @data[:date].nil?
-      @data[:date] = DateTime.now unless parse :date
+      @STATUS = :canceled
+      @data[:date] = parse(:created) unless parse :date
+      @data[:date] = DateTime.now unless parse :created
     end
     fail_at :canceled if @raw_data['canceled']
     return @raw_data['canceled'] # this one works the other way around
@@ -244,6 +246,7 @@ module InvoiceParsers
       else return false
       end
     rescue
+      warn "failed to parse time (#{@data['name']})"
       return false
     end
   end
@@ -266,6 +269,7 @@ module InvoiceParsers
       else return false
       end
     rescue
+      warn "failed to parse date (#{@data['name']})"
       return false
     end
   end

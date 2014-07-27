@@ -4,13 +4,14 @@ require File.join File.dirname(__FILE__) + '/module_parsers.rb'
 require 'yaml'
 
 class InvoiceProject
-  attr_reader :project_path, :project_folder, :data, :raw_data, :errors, :valid_for, :requirements
+  attr_reader :project_path, :project_folder, :data, :raw_data, :STATUS, :errors, :valid_for, :requirements
   attr_writer :raw_data, :errors
 
   include InvoiceParsers
 
   def initialize(settings, project_path = nil, name = nil)
     @settings = settings
+    @STATUS   = :ok # :ok, :canceled, :unparsable
     @errors   = []
     @data     = {}
 
@@ -138,24 +139,28 @@ class InvoiceProject
     @project_folder = File.split(project_path)[0]
 
     if File.exists?(project_path)
-      begin
-        @raw_data        = YAML::load(File.open(project_path))
-      rescue
-        error "error reading #{project_path}"
-      end
-
-      @data[:valid] = true # at least for the moment 
-      @data[:project_path]  = project_path
-
       if name.nil?
         @data[:name]  = File.basename File.split(@project_path)[0]
       else @data[:name] = name
       end
 
-      @data[:lang]  = @raw_data['lang']? @raw_data['lang'] : @settings['default_lang']
-      @data[:lang]  = @data[:lang].to_sym
+      begin
+        @raw_data        = YAML::load(File.open(project_path))
+      rescue SyntaxError => error
+        warn "error parsing #{project_path}"
+        puts error
 
-      return @raw_data
+        @STATUS = :unparsable
+      else
+
+        @data[:valid] = true # at least for the moment
+        @data[:project_path]  = project_path
+
+        @data[:lang]  = @raw_data['lang']? @raw_data['lang'] : @settings['default_lang']
+        @data[:lang]  = @data[:lang].to_sym
+
+        return @raw_data
+      end
 
     else
       fail_at :project_path
@@ -172,7 +177,8 @@ class InvoiceProject
   # run validate() to initiate all parser functions.
   # If strikt = true the programm fails, otherise it returns false,
   def validate(type, print = false)
-    return true if @data[:type] == type and @data[:valid]
+    return true  if @data[:type] == type and @data[:valid]
+    return false if @STATUS == :unparsable
     @data[:type] = type
     @valid_for = {}
     @requirements[type].each { |req| parse req }
@@ -199,9 +205,10 @@ class InvoiceProject
   # little parse function
   def parse(key, parser = "parse_#{key}", parameter = nil)
     return @data[key] if @data[key]
+    warn "calling #{parser} eventhough this is unparsable" if @STATUS == :unparsable
     begin
       parser = method parser
-    rescue
+    rescue NameError => error
 
       # look for mapping in @parser_matches
       if @parser_matches.keys.include? key
