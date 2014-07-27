@@ -48,6 +48,7 @@ $SETTINGS_PATHS.values.each{ |path|
     $SETTINGS['personal_settings_path'] = path
   end
 }
+$SETTINGS["editor"] = ENV['EDITOR']
 
 $SETTINGS['script_path'] = $SCRIPT_PATH
 
