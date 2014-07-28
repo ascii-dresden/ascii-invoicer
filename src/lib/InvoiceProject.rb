@@ -111,6 +111,7 @@ class InvoiceProject
       rescue SyntaxError => error
         warn "error parsing #{project_path}"
         puts error
+
         @STATUS = :unparsable
       else
         init_parser()
