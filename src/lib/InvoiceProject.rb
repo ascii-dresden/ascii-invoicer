@@ -8,7 +8,7 @@ require 'yaml'
 
 class InvoiceProject
   attr_reader :project_path, :project_folder, :data, :raw_data, :STATUS, :errors, :valid_for, :requirements
-  attr_writer  :errors
+  attr_writer :raw_data, :errors
 
 
   def initialize(settings, project_path = nil, name = nil)
