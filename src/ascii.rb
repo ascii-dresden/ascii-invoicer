@@ -70,7 +70,8 @@ overwrite_settings $SETTINGS, $personal_settings if $personal_settings
 $SETTINGS['path']        = File.expand_path $SETTINGS['path']
 
 #error "settings:editor is an elaborate string: \"#{$SETTINGS['editor']}\"!\nDANGEROUS!" if $SETTINGS['editor'].include? " "
-error "settings:latex is an elaborate string: \"#{$SETTINGS['editor']}\"!\nDANGEROUS!" if $SETTINGS['latex'].include? " "
+error "settings:latex is an elaborate string: \"#{$SETTINGS['latex']}\"!\nDANGEROUS!" if $SETTINGS['latex'].include? " "
+error "settings:output_path is an elaborate string: \"#{$SETTINGS['output_path']}\"!\nDANGEROUS!" if $SETTINGS['output_path'].include? " "
 
 
 # bootstraping

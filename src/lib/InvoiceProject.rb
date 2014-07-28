@@ -217,6 +217,9 @@ class InvoiceProject
       error "Cannot create an \"#{choice.to_s}\" from #{@data[:name]}. (#{@errors.join ','})"
     end
 
+    output_path = File.expand_path @settings['output_path']
+    error "your output_path is not a directory! (#{output_path})" unless File.directory? output_path
+
     template = @template_invoice if choice == :invoice
     template = @template_offer   if choice == :offer
 
@@ -238,20 +241,30 @@ class InvoiceProject
     #TODO output directory is not generic
     system "#{@settings['latex']} \"#{path}\" -output-directory . #{silencer}"
 
+    output_path = File.expand_path @settings['output_path']
+    error "your output_path is not a directory! (#{output_path})" unless File.directory? output_path
 
+    pdf = filename.gsub('.tex','.pdf')
+    log = filename.gsub('.tex','.log')
+    aux = filename.gsub('.tex','.aux')
     unless @settings['keep_log']
-      log = filename.gsub('.tex','.log')
-      aux = filename.gsub('.tex','.aux')
       FileUtils.rm log if File.exists? log
       FileUtils.rm aux if File.exists? aux
+    else
+      unless File.expand_path output_path == FileUtils.pwd
+        FileUtils.mv log, output_path if File.exists? log
+        FileUtils.mv aux, output_path if File.exists? aux
+      end
     end
+    FileUtils.mv pdf, output_path if File.exists? pdf
 
-    puts "Created #{path} and .pdf"
+
+    puts "Created #{path}"
   end
 
   def write_to_file file_content, path
     begin
-    file = File.new path, "w"
+    file = File.new path, ?w
     file_content.lines.each do |line|
       file.write line
     end

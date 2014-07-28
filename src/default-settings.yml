@@ -8,6 +8,7 @@ personal_notes: |
 #  stuff that is to be printed into each project file
 
 path: "~"
+output_path: "."
 dirs:
   storage: caterings
   working: working
