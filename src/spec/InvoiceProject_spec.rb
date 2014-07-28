@@ -13,6 +13,7 @@ describe InvoiceProject do
   
   before :context do
     @settings = $SETTINGS
+    @settings['script_path'] = "."
     @test_project_path = File.join File.dirname(__FILE__), "test_projects"
 
     @projects = {}

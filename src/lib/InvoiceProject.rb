@@ -1,6 +1,7 @@
 # encoding: utf-8
 require File.join File.dirname(__FILE__) + '/rfc5322_regex.rb'
-require File.join File.dirname(__FILE__) + '/module_parsers.rb'
+require File.join File.dirname(__FILE__) + '/InvoiceParserBase.rb'
+require File.join File.dirname(__FILE__) + '/InvoiceParser_pre250.rb'
 require File.join File.dirname(__FILE__) + '/InvoiceParser.rb'
 require File.join File.dirname(__FILE__) + '/Euro.rb'
 require 'yaml'
@@ -49,6 +50,7 @@ class InvoiceProject
                     :address, :messages,
                     :event, :signature, :addressing,
                     :tex_table_offer,
+                    :script_path
                   ],
       :invoice => [ :canceled,
                     :tax, :date, :date_end, :raw_date, :manager, :name,
@@ -58,6 +60,7 @@ class InvoiceProject
                     :address, :messages,
                     :event, :signature, :addressing,
                     :tex_table_invoice,
+                    :script_path
                   ],
       :full    => [ :canceled,
                     :tax, :date, :date_end, :raw_date,
@@ -71,6 +74,7 @@ class InvoiceProject
                     :signature, :addressing,
                     :tex_table_offer, :tex_table_invoice,
                     :caterers, :messages, :request_message,:description,
+                    :script_path
                   ],
       :export  => [ :canceled,
                     :tax, :date, :date_end,
@@ -128,7 +132,7 @@ class InvoiceProject
   end
 
   def init_parser
-    @PARSER = InvoiceParser.new @settings, @raw_data, self
+    @PARSER = InvoiceParser_pre250.new @settings, @raw_data, self
   end
 
   def name
