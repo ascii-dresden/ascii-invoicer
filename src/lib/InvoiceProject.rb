@@ -1,13 +1,14 @@
 # encoding: utf-8
 require File.join File.dirname(__FILE__) + '/rfc5322_regex.rb'
 require File.join File.dirname(__FILE__) + '/module_parsers.rb'
+require File.join File.dirname(__FILE__) + '/InvoiceParser.rb'
+require File.join File.dirname(__FILE__) + '/Euro.rb'
 require 'yaml'
 
 class InvoiceProject
   attr_reader :project_path, :project_folder, :data, :raw_data, :STATUS, :errors, :valid_for, :requirements
-  attr_writer :raw_data, :errors
+  attr_writer  :errors
 
-  include InvoiceParsers
 
   def initialize(settings, project_path = nil, name = nil)
     @settings = settings
@@ -20,13 +21,14 @@ class InvoiceProject
     #fail_at :template_offer   unless File.exists? @settings['templates']['offer']
     #fail_at :template_invoice unless File.exists? @settings['templates']['invoice']
 
-    @gender_matches = {
+    @settings['gender_matches'] = {
       :herr        => :male,
       :frau        => :female,
       :professor   => :male,
       :professorin => :female
     }
-    @lang_addressing = {
+
+    @settings['lang_addressing'] = {
       :de => {
         :male   => "Sehr geehrter",
         :female => "Sehr geehrte"
@@ -36,7 +38,7 @@ class InvoiceProject
         :female => "Dear"
       }, }
 
-    @requirements = {
+    @settings['requirements'] = {
       :list    => [ :canceled, :tax, :date, :date_end, :manager, :name, :offer_number, :invoice_number ],
 
       :offer   => [ :canceled,
@@ -47,7 +49,6 @@ class InvoiceProject
                     :address, :messages,
                     :event, :signature, :addressing,
                     :tex_table_offer,
-                    :script_path
                   ],
       :invoice => [ :canceled,
                     :tax, :date, :date_end, :raw_date, :manager, :name,
@@ -57,7 +58,6 @@ class InvoiceProject
                     :address, :messages,
                     :event, :signature, :addressing,
                     :tex_table_invoice,
-                    :script_path
                   ],
       :full    => [ :canceled,
                     :tax, :date, :date_end, :raw_date,
@@ -70,7 +70,7 @@ class InvoiceProject
                     :address, :event, :offer_number, :costs,
                     :signature, :addressing,
                     :tex_table_offer, :tex_table_invoice,
-                    :caterers, :messages, :request_message,:description, :script_path
+                    :caterers, :messages, :request_message,:description,
                   ],
       :export  => [ :canceled,
                     :tax, :date, :date_end,
@@ -86,62 +86,20 @@ class InvoiceProject
       ],
     }
 
-    # TODO allow for alternative parser_matches
-    @parser_matches = {
-      #:key                => [parser,            parameters/key   ]
-      :time_end            => [:parse_time,       :end             ] ,
-      :date_end            => [:parse_date,       :end             ] ,
-      :manager             => [:parse_signature,  :manager         ] ,
-      :offer_number        => [:parse_numbers,    :offer           ] ,
-      :invoice_number      => [:parse_numbers,    :invoice         ] ,
-      :invoice_number_long => [:parse_numbers,    :invoice_long    ] ,
-      :address             => [:parse_simple,     :address         ] ,
-      :event               => [:parse_event,      :event           ] ,
-      :tax                 => [:parse_simple,     :tax             ] ,
-      :raw_date            => [:parse_simple,     :date            ] ,
-      :description         => [:parse_simple,     :description     ] ,
-      :request_message     => [:parse_simple,     :request_message ] ,
-      :canceled            => [:parse_simple,     :canceled        ] ,
-
-      :caterers            => [:parse_caterers,   :caterers        ] ,
-      :costs_offer         => [:parse_costs,      :offer           ] ,
-      :costs_invoice       => [:parse_costs,      :invoice         ] ,
-      :taxes_offer         => [:parse_taxes,      :offer           ] ,
-      :taxes_invoice       => [:parse_taxes,      :invoice         ] ,
-      :total_offer         => [:parse_total,      :offer           ] ,
-      :total_invoice       => [:parse_total,      :invoice         ] ,
-      :final_offer         => [:parse_final,      :offer           ] ,
-      :final_invoice       => [:parse_final,      :invoice         ] ,
-
-      :tex_table_invoice   => [:parse_tex_table,  :invoice         ] ,
-      :tex_table_offer     => [:parse_tex_table,  :offer           ] ,
-      :hours               => [:parse_hours,      :time            ] ,
-      :caterers            => [:parse_hours,      :caterers        ] ,
-      :salary              => [:parse_hours,      :salary          ] ,
-      :salary_total        => [:parse_hours,      :salary_total    ] ,
-    }
-
-    @parser_matches.each {|k,v| 
-      begin 
-        m = method v[0] 
-      rescue
-        puts "ERROR in parser_matches: #{v[0]} is no method"
-        exit
-      end
-      }
   end
 
   ## open given .yml and parse into @data
   def open(project_path, name = nil)
     #puts "opening \"#{project_path}\""
-    raise "already opened another project" if @project_path
+    raise "already opened another project" unless @project_path.nil?
     @project_path = project_path
     @project_folder = File.split(project_path)[0]
 
     if File.exists?(project_path)
       if name.nil?
         @data[:name]  = File.basename File.split(@project_path)[0]
-      else @data[:name] = name
+      else
+        @data[:name] = name
       end
 
       begin
@@ -149,9 +107,9 @@ class InvoiceProject
       rescue SyntaxError => error
         warn "error parsing #{project_path}"
         puts error
-
         @STATUS = :unparsable
       else
+        init_parser()
 
         @data[:valid] = true # at least for the moment
         @data[:project_path]  = project_path
@@ -169,78 +127,29 @@ class InvoiceProject
     return false
   end
 
+  def init_parser
+    @PARSER = InvoiceParser.new @settings, @raw_data, self
+  end
+
   def name
     @data[:canceled] ? "CANCELED: #{@data[:name]}" : @data[:name]
   end
 
-  ##
-  # run validate() to initiate all parser functions.
-  # If strikt = true the programm fails, otherise it returns false,
+  def valid_for
+    @PARSER.valid_for
+  end
+
   def validate(type, print = false)
-    return true  if @data[:type] == type and @data[:valid]
-    return false if @STATUS == :unparsable
-    @data[:type] = type
-    @valid_for = {}
-    @requirements[type].each { |req| parse req }
-    @requirements.each { |type, requirements|
-      @valid_for[type] = true
-      puts type.to_s if print
-      requirements.each { |req|
-        puts "   " +
-          (!@data[req].nil?).print + req.to_s.ljust(15) +
-          "(#{ @data[req].to_s.each_line.first.to_s.each_line.first })" +
-          "(#{@data[req].class})" if print
-        if @data[req].nil?
-          @valid_for[type] = false
-          #@errors.push req unless @errors.include? req
-        end
-      }
-      puts if print
-    }
-    return true if @data[:valid]
-    false
+    @PARSER.validate(type, print)
   end
 
-  ##
-  # little parse function
   def parse(key, parser = "parse_#{key}", parameter = nil)
-    return @data[key] if @data[key]
-    warn "calling #{parser} eventhough this is unparsable" if @STATUS == :unparsable
-    begin
-      parser = method parser
-    rescue NameError => error
-
-      # look for mapping in @parser_matches
-      if @parser_matches.keys.include? key
-        pm = @parser_matches[key]
-        return fail_at key unless pm[0] or pm[1]
-        parse(key, pm[0], pm[1])
-        return @data[key]
-
-      else
-        @data[key] = false
-        return fail_at key
-
-      end
-    end
-
-    unless parameter.nil?
-      @data[key] = parser.call(parameter)
-    else
-      @data[key] = parser.call() 
-    end
-    return @data[key]
+    return @PARSER.parse key, parser, parameter
   end
 
-  def parse_simple key
-    raw     = @raw_data[key.to_s]
-    default = $SETTINGS["default_#{key.to_s}"]
-    if raw
-      return raw.strip if raw.class == String
-      return raw
-    end
-    return default if default
-    return fail_at key
+  def raw_data= raw_data
+    @raw_data = raw_data
+    init_parser() unless @PARSER
   end
 
   ##
@@ -299,7 +208,7 @@ class InvoiceProject
     return fail_at :create_tex unless parse :products
     return fail_at :templates unless load_templates()
 
-    unless @valid_for[choice] or check
+    unless valid_for[choice] or check
       error "Cannot create an \"#{choice.to_s}\" from #{@data[:name]}. (#{@errors.join ','})"
     end
 

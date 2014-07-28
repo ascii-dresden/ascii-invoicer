@@ -12,11 +12,12 @@ module InvoiceParsers
   end
 
   def parse_canceled
-    @data[:canceled] = @raw_data['canceled']
-    if @data[:canceled] and @data[:date].nil?
+    return false if data[:canceled].nil?
+    data[:canceled] = @raw_data['canceled']
+    if data[:canceled] and data[:date].nil?
       @STATUS = :canceled
-      @data[:date] = parse(:created) unless parse :date
-      @data[:date] = DateTime.now unless parse :created
+      data[:date] = parse(:created) unless parse :date
+      data[:date] = DateTime.now unless parse :created
     end
     fail_at :canceled if @raw_data['canceled']
     return @raw_data['canceled'] # this one works the other way around
@@ -34,7 +35,7 @@ module InvoiceParsers
     costs[:taxes_invoice] = Euro.new 0.0
     costs[:taxes_offer]   = Euro.new 0.0
 
-    @data[:products].each { |name,product|
+    data[:products].each { |name,product|
       costs[:costs_invoice] += product.cost_invoice
       costs[:costs_offer]   += product.cost_offer
       costs[:taxes_invoice] += product.tax_invoice
@@ -51,9 +52,9 @@ module InvoiceParsers
 
   ## Final := salary + total
   def parse_final choice = nil
-    return 0 if @data[:canceled]
-    return @data[:salary_total] + @data[:total_invoice] if choice == :invoice
-    return @data[:salary_total] + @data[:total_offer]   if choice == :offer
+    return 0 if data[:canceled]
+    return data[:salary_total] + data[:total_invoice] if choice == :invoice
+    return data[:salary_total] + data[:total_offer]   if choice == :offer
   end
 
   def parse_total choice = nil
@@ -61,8 +62,8 @@ module InvoiceParsers
     return fail_at "costs_#{choice.to_s}" unless parse :costs
     return fail_at "costs_#{choice.to_s}" unless parse :costs, choice
 
-    return @data[:costs][:total_offer]   if choice == :offer
-    return @data[:costs][:total_invoice] if choice == :invoice
+    return data[:costs][:total_offer]   if choice == :offer
+    return data[:costs][:total_invoice] if choice == :invoice
     return false
   end
 
@@ -71,8 +72,8 @@ module InvoiceParsers
     return fail_at "taxes_#{choice.to_s}" unless parse :costs
     return fail_at "taxes_#{choice.to_s}" unless parse :costs, choice
 
-    return @data[:costs][:taxes_offer]   if choice == :offer
-    return @data[:costs][:taxes_invoice] if choice == :invoice
+    return data[:costs][:taxes_offer]   if choice == :offer
+    return data[:costs][:taxes_invoice] if choice == :invoice
     return false
   end
 
@@ -80,14 +81,14 @@ module InvoiceParsers
   def parse_products(choice = nil)
     return fail_at :products unless @raw_data['products']
     return fail_at :products unless parse :tax
-    tax_value = @data[:tax]
+    tax_value = data[:tax]
 
     products  = {}
     @raw_data['products'].each { |p|
       name = p[0]
       hash = p[1]
       return fail_at :products if hash.nil?
-      product = InvoiceProduct.new(name, hash, @data[:tax])
+      product = InvoiceProduct.new(name, hash, data[:tax])
       products[name] = product
       return fail_at :products unless product.valid
     }
@@ -99,28 +100,28 @@ module InvoiceParsers
     return fail_at :products_tex unless parse :products
     table = ""
     number = 0
-    @data[:products].each do |name, p|
+    data[:products].each do |name, p|
       number += 1
       table += "#{number} & #{name} & #{p.amount(choice)} & #{p.price} & #{p.cost(choice)} \\\\\n"
     end
 
-    if @data[:hours][:time] and @data[:hours][:time] > 0
+    if data[:hours][:time] and data[:hours][:time] > 0
       table += [ number+1 ,
                  " & Betreuung (Stunden)& " ,
-                 @data[:hours][:time].to_s.gsub('.',',') , " & " ,
-                 @data[:salary], " & " ,
-                 @data[:salary_total] ].join + " \\\\"
+                 data[:hours][:time].to_s.gsub('.',',') , " & " ,
+                 data[:salary], " & " ,
+                 data[:salary_total] ].join + " \\\\"
     end
     return table
   end
 
   ##
   def parse_numbers(choice = nil)
-    unless @data[:date] or @raw_data['manumber']
+    unless data[:date] or @raw_data['manumber']
       parse :date
-      return fail_at :offer_number unless @data[:date]
+      return fail_at :offer_number unless data[:date]
     end
-    year =  @data[:date].year
+    year =  data[:date].year
     numbers ={}
 
     if choice == :invoice or
@@ -153,7 +154,7 @@ module InvoiceParsers
   ##
   def parse_addressing()
     return fail_at :client unless parse :client
-    return @data[:client][:addressing]
+    return data[:client][:addressing]
   end
 
   ##
@@ -178,19 +179,19 @@ module InvoiceParsers
   def client_addressing
     names = @raw_data['client'].split("\n")
     type = names.first.downcase.to_sym
-    gender = @gender_matches[type]
-    lang = @data[:lang].to_sym
-    return @lang_addressing[lang][gender]
+    gender = @settings['gender_matches'][type]
+    lang = data[:lang].to_sym
+    return @settings['lang_addressing'][lang][gender]
   end
 
 
   def parse_messages
-    return fail_at "message_#{choice.to_s}" unless parse :messages, :parse_simple, :messages
+    return fail_at "message" unless parse :messages, :parse_simple, :messages
     # TODO muss man ja nicht übertreiben
-    @data[:message_invoice_1] = @data[:messages]['invoice'][0]
-    @data[:message_invoice_2] = @data[:messages]['invoice'][1]
-    @data[:message_offer_1]   = @data[:messages]['offer'][0]
-    @data[:message_offer_2]   = @data[:messages]['offer'][1]
+    data[:message_invoice_1] = data[:messages]['invoice'][0]
+    data[:message_invoice_2] = data[:messages]['invoice'][1]
+    data[:message_offer_1]   = data[:messages]['offer'][0]
+    data[:message_offer_2]   = data[:messages]['offer'][1]
   end
 
   ##
@@ -246,7 +247,7 @@ module InvoiceParsers
       else return false
       end
     rescue
-      warn "failed to parse time (#{@data['name']})"
+      #warn "failed to parse time (#{data['name']})"
       return false
     end
   end
@@ -269,7 +270,7 @@ module InvoiceParsers
       else return false
       end
     rescue
-      warn "failed to parse date (#{@data['name']})"
+      #warn "failed to parse date (#{data['name']})"
       return false
     end
   end

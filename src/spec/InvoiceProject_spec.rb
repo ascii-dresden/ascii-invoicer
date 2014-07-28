@@ -3,7 +3,7 @@ require 'ostruct'
 require 'fileutils'
 require File.dirname(__FILE__) + '/spec_helper'
 
-$SETTINGS = YAML::load(File.open(File.join File.dirname(__FILE__), "/settings.yml"))
+$SETTINGS = YAML::load(File.open(File.join File.dirname(__FILE__), "../default-settings.yml"))
 
 describe InvoiceProject do
   # it loads yml files
@@ -26,6 +26,7 @@ describe InvoiceProject do
   before :example do
     #puts "before example"
     @p_old = InvoiceProject.new @settings
+    @project       = InvoiceProject.new @settings
     @p_old.open @project_paths['alright']
     @p_250 = InvoiceProject.new @settings
     @p_250.open @project_paths['alright_250']
@@ -38,11 +39,11 @@ describe InvoiceProject do
   end
 
   after :example do
-    puts @project.errors  if @project.errors
-    puts @project2.errors if @project2.errors
-    puts @project3.errors if @project3.errors
-    puts @project4.errors if @project4.errors
-    puts @project5.errors if @project5.errors
+    #puts @project.errors  if @project.errors
+    #puts @project2.errors if @project2.errors
+    #puts @project3.errors if @project3.errors
+    #puts @project4.errors if @project4.errors
+    #puts @project5.errors if @project5.errors
   end
 
   describe "#initialize" do
@@ -64,14 +65,16 @@ describe InvoiceProject do
 
   describe "#strpdates" do
     it "parses single dates" do
-      dates = @project.strpdates("17.07.2013")
+      parser = InvoiceParser.new
+      dates = parser.strpdates("17.07.2013")
       expect(dates).to be_an_instance_of Array
       expect(dates[0]).to be_an_instance_of Date
       expect(dates[0]).to be == Date.new(2013,07,17)
     end
 
     it "parses pairs of dates" do
-      dates = @project.strpdates("17-18.07.2013")
+      parser = InvoiceParser.new
+      dates = parser.strpdates("17-18.07.2013")
       expect(dates).to be_an_instance_of Array
       expect(dates[0]).to be_an_instance_of Date
       expect(dates[0]).to be == Date.new(2013,07,17)
@@ -83,67 +86,79 @@ describe InvoiceProject do
   describe "#validate" do
 
     #it "prints the data" do
-    #  #expect(@p_old.parse_date()).to be_truthy
+    #  #expect(@p_old.parse :date).to be_truthy
     #  #@project.print_data()
     #  #puts @project.tex_product_table()
     #end
+
+    [:list, :offer, :invoice].each { |type|
+      it "validates for #{type.to_s}" do
+        
+        project       = InvoiceProject.new @settings
+        project.open @project_paths['alright']
+        project.validate type
+        puts project.errors unless@p_old.valid_for[type]
+        expect(project.valid_for[type]).to be true
+      end
+    }
 
     it "validates email addresses" do
       #expect(@p_old.parse :email).to eq "john.doe@example.com"
       #expect(@p_250.parse :email).to eq "john.doe@example.com"
 
       @project.raw_data = {'email' => "john.doe@com"}
-      expect(@project.parse_email()).to be_truthy
+      @project.init_parser()
+      expect(@project.parse :email).to be_truthy
 
-      @project.raw_data = {'email' => "john.doeexample.com"}
-      expect(@project.parse_email()).to be_falsey
+      @project2.raw_data = {'email' => "john.doeexample.com"}
+      expect(@project2.parse :email).to be_falsey
 
-      @project.raw_data = {'email' => "john.doe@@example.com"}
-      expect(@project.parse_email()).to be_falsey
+      @project3.raw_data = {'email' => "john.doe@@example.com"}
+      expect(@project3.parse :email).to be_falsey
 
-      @project.raw_data = {'email' => ".@.com"}
-      expect(@project.parse_email()).to be_falsey
+      @project4.raw_data = {'email' => ".@.com"}
+      expect(@project4.parse :email).to be_falsey
 
-      @project.raw_data =  {'email' => "john.doe@example.com"}
-      expect(@project.parse_email()).to be_truthy
+      @project5.raw_data =  {'email' => "john.doe@example.com"}
+      expect(@project5.parse :email).to be_truthy
     end
 
     it "validates the date" do
-      expect(@p_old.parse_date()).to be_truthy
+      expect(@p_old.parse :date).to be_truthy
       @p_old.parse :date
       expect(@p_old.data[:date]).to eq Date.new(2013,7,20)
 
       @project2.open @project_paths['missing_date']
-      expect(@project2.parse_date()).to be_falsey
+      expect(@project2.parse :date).to be_falsey
 
       @project3.open @project_paths['broken_date']
-      expect(@project3.parse_date()).to be_falsey
+      expect(@project3.parse :date).to be_falsey
     end
 
     it "validates date ranges" do
       @project2.open @project_paths['date_range']
-      expect(@project2.parse_date()).to be_truthy
+      expect(@project2.parse :date).to be_truthy
       @project2.parse :date
       @project2.parse :date_end, :parse_date,:end
       expect(@project2.data[:date]).to     eq Date.new(2013,7,20)
       expect(@project2.data[:date_end]).to eq Date.new(2013,7,26)
 
       @project3.open @project_paths['date_range2']
-      expect(@project3.parse_date()).to be_truthy
+      expect(@project3.parse :date).to be_truthy
       @project3.parse :date
       @project3.parse :date_end, :parse_date,:end
       expect(@project3.data[:date]).to     eq Date.new(2013,7,20)
       expect(@project3.data[:date_end]).to eq Date.new(2013,7,26)
 
       @project4.open @project_paths['date_range3']
-      expect(@project4.parse_date()).to be_truthy
+      expect(@project4.parse :date).to be_truthy
       @project4.parse :date
       @project4.parse :date_end, :parse_date,:end
       expect(@project4.data[:date]).to     eq Date.new(2013,7,20)
       expect(@project4.data[:date_end]).to eq Date.new(2013,7,26)
 
       @project5.open @project_paths['date_range_blank_end']
-      expect(@project5.parse_date()).to be_truthy
+      expect(@project5.parse :date).to be_truthy
       @project5.parse :date
       @project5.parse :date_end, :parse_date,:end
       expect(@project5.data[:date]).to     eq Date.new(2014,7,04)

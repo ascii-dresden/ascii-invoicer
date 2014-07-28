@@ -5,9 +5,13 @@ require 'erb'
 require 'yaml'
 
 
+settings_path = File.join(Dir.home, ".ascii-invoicer.yml")
+$SETTINGS = YAML::load File.open settings_path
+
 ## open given .yml and parse into @data
 def open(filename, name = nil)
   event_name     = "test event"
+  $VERSION       = "v2.5.0-alpha"
   personal_notes = ""
   manager_name   = "Hendrik"
   default_lang   = "de"
@@ -26,6 +30,7 @@ def open(filename, name = nil)
       lines.each_index {|i| puts "#{i}| #{lines[i]}"} 
     end
     pp @raw_data
+    #puts result
   else
     puts "no file"
   end

@@ -65,6 +65,6 @@ hours:
 signature: |
   Manager Bob
  
-message: | 
-  hiermit möchten wir Ihnen für die gastronomische Betreuung Ihrer Veranstaltung am $date$ folgendes Angebot unterbreiten: 
+#message: | 
+#  hiermit möchten wir Ihnen für die gastronomische Betreuung Ihrer Veranstaltung am $date$ folgendes Angebot unterbreiten: 
 ...

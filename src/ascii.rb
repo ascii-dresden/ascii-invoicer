@@ -49,6 +49,7 @@ $SETTINGS_PATHS.values.each{ |path|
   end
 }
 $SETTINGS["editor"] = ENV['EDITOR']
+$SETTINGS['version'] = "v2.5.0-alpha"
 
 $SETTINGS['script_path'] = $SCRIPT_PATH
 
@@ -510,7 +511,7 @@ class Commander < Thor
     #current = git.log.to_s.lines.to_a.last
     ##puts git.branch unless git.tags.include? current 
     #puts current
-    puts "ascii-invoicer 2.3.1 alpha"
+    puts $SETTINGS['version']
   end
 
 

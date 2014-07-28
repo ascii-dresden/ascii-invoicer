@@ -6,7 +6,7 @@ gem "paint",      "~> 0.8.6"
 gem "icalendar",  "~> 2.1.0"
 
 group :development do
-  #gem 'libnotify'
-  #gem 'guard-rspec'
+  gem 'libnotify'
+  gem 'guard-rspec'
   gem 'rspec'
 end

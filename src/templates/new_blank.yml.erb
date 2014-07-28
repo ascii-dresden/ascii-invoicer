@@ -1,14 +1,11 @@
---- 
-created: <%= Time.now.strftime "%d.%m.%Y" %>
-canceled: yes
+--- # ascii invoicer document  (<%= $VERSION  %>)
+version: 20140727
+created: <%= Date.today.strftime "%d.%m.%Y" %>
 
-# always include 'Herr' oder 'Frau' , defaults to male
-# look at lib/lang.yml for more, add if needed
 client: 
-
-  title: Herr
+  title:     Herr # Frau, Professor, Professorin
   firstname: Jon
-  lastname: Doe
+  lastname:  Doe
 
   email: jon.doe@example.com
   address: | 
@@ -17,29 +14,26 @@ client:
 
 event: 
   name: "<%= event_name %>"
+  location: # my be a list
   dates:
-  - begin: <%= (Time.now + (60*60*24*14)).strftime "%d.%m.%Y" %> # bezieht sich auf die veranstaltung selbst
+  - begin: <%= (Date.today+ 15).strftime "%d.%m.%Y" %> # bezieht sich auf die veranstaltung selbst
     #end: 
     #time:
     #  begin: #"13:00"
     #  end:   #"14:20"
 
-
-request_message: |
-description: |
+  description: |
 
 offer_number: <%= Time.now.strftime "A%Y%m%d-1" %>
 
-invoice_number: #27 
-invoice_date: #leave empty for auto date
-payed_date:
+invoice:
+  number: #27
+  date: #leave empty for auto date
+  payed_date:
 
 <%= personal_notes %>
-&parseme: test
-test: *parseme
 
 cataloge:
-
   product: &cafe
     name:  Kaffee
     price: 2.5
@@ -47,22 +41,23 @@ cataloge:
   product: &id010        { name: Tee             , price: 1.75 , unit: 1l   }
   product: &wasser_gross { name: Mineralwasser   , price: 0.61 , unit: 1l   }
   product: &wasser_klein { name: Mineralwasser   , price: 0.59 , unit: 1l   }
-  product: &id009        { name: Apfelsaft       , price: 1.65 , unit: 1l   }
-  product: &id002        { name: Orangensaft     , price: 1.82 , unit: 1l   }
+  product: &apfelsaft    { name: Apfelsaft       , price: 1.65 , unit: 1l   }
+  product: &orangensaft  { name: Orangensaft     , price: 1.82 , unit: 1l   }
 
-  product: &id004        { name: Bagel           , price: 2.19 , unit: stk  }
-  product: &id005        { name: Lachsbrötchen   , price: 1.38 , unit: stk  }
-  product: &id006        { name: Donut/Muffin    , price: 0.94 , unit: stk  }
-  product: &id007        { name: Kekse Lamberts  , price: 3.40 , unit: 400g }
-  product: &id011        { name: halbes Brötchen , price: 1.16 , unit: stk  }
-  product: &id012        { name: Kuchen          , price: 0.94 , unit: stk  }
-  product: &id013        { name: Brownie         , price: 1.10 , unit: stk  }
+  product: &bagel        { name: Bagel           , price: 2.19 , unit: stk  }
+  product: &kekse        { name: Kekse Lamberts  , price: 3.40 , unit: 400g }
+  product: &broetchen    { name: halbes Brötchen , price: 1.16 , unit: stk  }
+  product: &kuchen       { name: Kuchen          , price: 0.94 , unit: stk  }
 
 products:
+
   *cafe: { amount: 4, sold:   5 }
   *wasser_gross:
     amount: 4
     sold:   5
+  *kekse:
+    amount: 4
+    sold: 2
 
   "Orangensaft (1l)":
     amount:    8
@@ -81,9 +76,9 @@ hours:
   caterers:
     "Name" : 0 #Stunden
     
-signature: |
-  <%= manager_name %>
+manager: <%= manager_name %>
 
+#canceled: yes
 #lang: <%= default_lang %>
 #tax: <%= default_tax %>
 
