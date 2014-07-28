@@ -37,7 +37,7 @@ products:
     amount: 7
     price: 2.5
     # Kaffee geht nicht zurueck
-  "Mineralwasser": # 4.88 -> 0
+  "Mineralwasser (1l)": # 4.88 -> 0
     amount: 8
     price: 0.61
     sold: 0
