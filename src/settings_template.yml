@@ -8,15 +8,17 @@ manager_name: ""
 #  stuff that is to be printed into each project file
 
 #path: "~" #/where/you/want/to/put/the/dirs
+#output_path: "."
 #dirs:
 #  storage: caterings
 #  working: working
 #  archive: archive
 
-  
- 
 
-
+#templates:
+#  project: templates/blank.yml.erb
+#  invoice: templates/invoice.tex.erb
+#  offer:   templates/offer.tex.erb
 
 ## CAREFUL HERE
 #project_file_extension: .yml

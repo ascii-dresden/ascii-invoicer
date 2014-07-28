@@ -1,12 +1,4 @@
-TODO invoicer: higher level pendat to parser using existing values in @data
-TODO invoicer: add "canceled flag"
-TODO invoicer: yaml output
-
 TODO complete CSV export
 
-TODO output folder
-
 TODO display summary who owns how many projects ( open, closed, per time)
-TODO add watch mode
-TODO introduce git functionality
-TODO inotify
+TODO add watch mode, inotify
