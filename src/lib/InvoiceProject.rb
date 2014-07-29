@@ -7,7 +7,7 @@ require File.join File.dirname(__FILE__) + '/Euro.rb'
 require 'yaml'
 
 class InvoiceProject
-  attr_reader :project_path, :project_folder, :data, :raw_data, :STATUS, :errors, :valid_for, :requirements
+  attr_reader :project_path, :project_folder, :raw_data, :STATUS, :errors, :valid_for, :requirements, :PARSER
   attr_writer :raw_data, :errors
 
 
@@ -115,11 +115,21 @@ class InvoiceProject
   end
 
   def init_parser
-    @PARSER = InvoiceParser_pre250.new @settings, @raw_data, self
+    if @raw_data['version'].nil?  or @raw_data['version'] < 20140727
+      @PARSER = ProjectParser_pre250.new @settings, @raw_data, self
+    else
+      @PARSER = ProjectParser.new @settings, @raw_data, self
+    end
   end
 
   def name
     @data[:canceled] ? "CANCELED: #{@data[:name]}" : @data[:name]
+  end
+
+  def data key = nil
+    return @data if key.nil?
+    return @data[key] if @data.keys.include? key
+    return nil
   end
 
   def valid_for
@@ -262,9 +272,9 @@ class InvoiceProduct
   attr_reader :name, :hash, :tax, :valid, :returned,
     :cost_invoice, :cost_offer, :tax_invoice, :tax_offer, :price
 
-  def initialize(name, hash, tax_value)
-    @name = name
+  def initialize(hash, tax_value)
     @hash = hash
+    @name = hash['name']
     @tax_value = tax_value
 
     @valid = true

@@ -66,7 +66,7 @@ describe InvoiceProject do
 
   describe "#strpdates" do
     it "parses single dates" do
-      parser = InvoiceParser.new
+      parser = ProjectParser.new
       dates = parser.strpdates("17.07.2013")
       expect(dates).to be_an_instance_of Array
       expect(dates[0]).to be_an_instance_of Date
@@ -74,7 +74,7 @@ describe InvoiceProject do
     end
 
     it "parses pairs of dates" do
-      parser = InvoiceParser.new
+      parser = ProjectParser.new
       dates = parser.strpdates("17-18.07.2013")
       expect(dates).to be_an_instance_of Array
       expect(dates[0]).to be_an_instance_of Date
@@ -103,8 +103,13 @@ describe InvoiceProject do
       end
     }
 
+    it "distinguishes between old and new format" do
+      expect(@p_old.PARSER.class).to be ProjectParser_pre250
+      expect(@p_250.PARSER.class).to be ProjectParser
+    end
+
     it "validates email addresses" do
-      #expect(@p_old.parse :email).to eq "john.doe@example.com"
+      expect(@p_old.parse :email).to eq "john.doe@example.com"
       #expect(@p_250.parse :email).to eq "john.doe@example.com"
 
       @project.raw_data = {'email' => "john.doe@com"}

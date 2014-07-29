@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 
-class InvoiceParserBase
+class ProjectParserBase
   attr_reader :valid_for
   attr_writer :raw_data, :errors
 
@@ -131,7 +131,7 @@ class InvoiceParserBase
   end
 
   def fail_at(*criteria)
-    @parent.fail_at criteria
+    @parent.fail_at *criteria
   end
 end
 

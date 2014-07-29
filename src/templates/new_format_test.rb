@@ -29,8 +29,8 @@ def open(filename, name = nil)
       lines = result.lines.to_a
       lines.each_index {|i| puts "#{i}| #{lines[i]}"} 
     end
-    pp @raw_data
-    #puts result
+    #pp @raw_data
+    puts result
   else
     puts "no file"
   end

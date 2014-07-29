@@ -1,6 +1,6 @@
 # encoding: utf-8
 require 'date'
-module InvoiceParsers_pre250
+module ProjectParsers_pre250
 
   def parse_script_path
     return @settings['script_path']
