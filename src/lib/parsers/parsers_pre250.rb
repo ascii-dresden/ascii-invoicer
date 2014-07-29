@@ -79,6 +79,7 @@ module InvoiceParsers_pre250
 
   ##
   def parse_products(choice = nil)
+    return {} if @raw_data['products'].nil?
     return fail_at :products unless @raw_data['products']
     return fail_at :products unless parse :tax
     tax_value = data[:tax]
@@ -87,8 +88,9 @@ module InvoiceParsers_pre250
     @raw_data['products'].each { |p|
       name = p[0]
       hash = p[1]
+      hash['name'] = name if hash.class == Hash
       return fail_at :products if hash.nil?
-      product = InvoiceProduct.new(name, hash, data[:tax])
+      product = InvoiceProduct.new(hash, data[:tax])
       products[name] = product
       return fail_at :products unless product.valid
     }

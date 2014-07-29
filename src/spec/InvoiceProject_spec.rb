@@ -286,7 +286,7 @@ describe InvoiceProject do
       expect(@p_old.parse(:products)).to be_truthy
 
       @project2.open @project_paths['products_missing']
-      expect(@project2.parse(:products)).to be_falsey
+      expect(@project2.parse(:products)).to be {}
 
       @project3.open @project_paths['products_empty']
       expect(@project3.parse(:products)).to be_falsey
