@@ -3,7 +3,10 @@ require 'ostruct'
 require 'fileutils'
 require File.dirname(__FILE__) + '/spec_helper'
 
-$SETTINGS = YAML::load(File.open(File.join File.dirname(__FILE__), "/settings.yml"))
+$SETTINGS = YAML::load(File.open(File.join File.dirname(__FILE__), "../default-settings.yml"))
+$SETTINGS['script_path'] = $SETTINGS['path'] = "."
+$SETTINGS['dirs']['storage'] = "rspec_projects"
+
 reset_path = File.join $SETTINGS['path'], $SETTINGS['dirs']['storage']
 FileUtils.rm_rf reset_path if File.exists? reset_path
 
