@@ -34,4 +34,16 @@ default_messages:
   offer: 
     - "hiermit möchten wir Ihnen für die gastronomische Betreuung Ihrer Veranstaltung am <%= @data[:raw_date] %> folgendes Angebot unterbreiten:"
     - ""
+gender_matches:
+  :herr: :male
+  :frau: :female
+  :professor: :male
+  :professorin: :female
+lang_addressing:
+  :de:
+    :male: Sehr geehrter
+    :female: Sehr geehrte
+  :en:
+    :male: Dear
+    :female: Dear
 ...

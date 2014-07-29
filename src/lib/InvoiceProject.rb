@@ -22,23 +22,6 @@ class InvoiceProject
     #fail_at :template_offer   unless File.exists? @settings['templates']['offer']
     #fail_at :template_invoice unless File.exists? @settings['templates']['invoice']
 
-    @settings['gender_matches'] = {
-      :herr        => :male,
-      :frau        => :female,
-      :professor   => :male,
-      :professorin => :female
-    }
-
-    @settings['lang_addressing'] = {
-      :de => {
-        :male   => "Sehr geehrter",
-        :female => "Sehr geehrte"
-      },
-      :en => {
-        :male   => "Dear",
-        :female => "Dear"
-      }, }
-
     @settings['requirements'] = {
       :list    => [ :canceled, :tax, :date, :date_end, :manager, :name, :offer_number, :invoice_number ],
 
@@ -89,7 +72,6 @@ class InvoiceProject
                     :caterers, :request_message, :description
       ],
     }
-
   end
 
   ## open given .yml and parse into @data
