@@ -1,8 +1,8 @@
 # encoding: utf-8
 require File.join File.dirname(__FILE__) + '/rfc5322_regex.rb'
-require File.join File.dirname(__FILE__) + '/InvoiceParserBase.rb'
-require File.join File.dirname(__FILE__) + '/InvoiceParser_pre250.rb'
-require File.join File.dirname(__FILE__) + '/InvoiceParser.rb'
+require File.join File.dirname(__FILE__) + '/ProjectParserBase.rb'
+require File.join File.dirname(__FILE__) + '/ProjectParser_pre250.rb'
+require File.join File.dirname(__FILE__) + '/ProjectParser.rb'
 require File.join File.dirname(__FILE__) + '/Euro.rb'
 require 'yaml'
 
