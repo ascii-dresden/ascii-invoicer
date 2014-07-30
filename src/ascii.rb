@@ -484,6 +484,10 @@ class Commander < Thor
     :lazy_default=> false,
     :required => false,
     :desc => "edit your settings"
+  method_option :key,
+    :type=>:array, :aliases => "-k",
+    :required => false,
+    :desc => "edit a specific settings value"
   method_option :show,
     :type=>:string, :aliases => "-s",
     :required => false,
@@ -492,20 +496,37 @@ class Commander < Thor
     #puts $SETTINGS.to_yaml
 
     if options[:edit]
-      path = $SETTINGS_PATHS[:global]
+      if options[:key]
+        key   = options[:key][0]
+        value = options[:key][1]
+        if $SETTINGS.keys.include? key
+          $personal_settings[key] = value
+          puts $personal_settings.to_yaml
+        else
+          puts "\"#{key}\" is no valid key in settings"
+        end
 
-      if not File.exists? path and no? "There is no #{path} yet do you want to use a template? (YES/no)"
-        error "templatefile #{$SETTINGS_PATHS[:template]} not found" unless File.exists? $SETTINGS_PATHS[:template]
-        puts "ok, I copy over a template"
-        FileUtils.cp($SETTINGS_PATHS[:template], path)
+
+
+      else
+        path = $SETTINGS_PATHS[:global]
+        if not File.exists? path and no? "There is no #{path} yet do you want to use a template? (YES/no)"
+          error "templatefile #{$SETTINGS_PATHS[:template]} not found" unless File.exists? $SETTINGS_PATHS[:template]
+          puts "ok, I copy over a template"
+          FileUtils.cp($SETTINGS_PATHS[:template], path)
+        end
+        edit_files path
       end
-
-      edit_files path
 
     else
       if options[:show]
         if $SETTINGS.keys.include? options[:show]
-          puts $SETTINGS[options[:show]].to_yaml
+          value = $SETTINGS[options[:show]]
+          if value.class == Hash or value.class == Array
+            puts value.to_yaml
+          else
+            puts value
+          end
         else
           puts "\"#{options[:show]}\" is no valid key in settings"
         end
