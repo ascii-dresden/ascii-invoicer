@@ -483,7 +483,11 @@ class Commander < Thor
     :type=>:boolean, :aliases => "-e",
     :lazy_default=> false,
     :required => false,
-    :desc => "edit your local settings"
+    :desc => "edit your settings"
+  method_option :show,
+    :type=>:string, :aliases => "-s",
+    :required => false,
+    :desc => "show a specific settings value"
   def settings
     #puts $SETTINGS.to_yaml
 
@@ -499,7 +503,15 @@ class Commander < Thor
       edit_files path
 
     else
-      puts $SETTINGS.to_yaml
+      if options[:show]
+        if $SETTINGS.keys.include? options[:show]
+          puts $SETTINGS[options[:show]].to_yaml
+        else
+          puts "\"#{options[:show]}\" is no valid key in settings"
+        end
+      else
+        puts $SETTINGS.to_yaml
+      end
       #pp $SETTINGS
     end
   end
