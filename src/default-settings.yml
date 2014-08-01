@@ -24,26 +24,34 @@ project_file_extension: .yml
 use_git: true
 latex:    pdflatex
 
-default_lang: de
-default_tax: 0.19
-default_signature: Mit freundlichen Grüßen
-default_messages:
-  invoice: 
-    - "wir bedanken uns für Ihren Auftrag für das Catering am <%= @data[:raw_date] %> und erlauben uns ihnen folgende Rechnung zu stellen:"
-    - "Wir bitten um eine Begleichung des Betrags innerhalb von 14 Tagen nach Erhalt der Rechnung."
-  offer: 
-    - "hiermit möchten wir Ihnen für die gastronomische Betreuung Ihrer Veranstaltung am <%= @data[:raw_date] %> folgendes Angebot unterbreiten:"
-    - ""
+defaults:
+  tax: 1.19
+  lang: de
+  canceled: false
+  messages:
+    de:
+      invoice: 
+        - Rechnung
+        - "wir bedanken uns für Ihren Auftrag für das Catering am <%= @data[:raw_date] %> und erlauben uns ihnen folgende Rechnung zu stellen:"
+        - "Wir bitten um eine Begleichung des Betrags innerhalb von 14 Tagen nach Erhalt der Rechnung."
+      offer: 
+        - Angebot
+        - "hiermit möchten wir Ihnen für die gastronomische Betreuung Ihrer Veranstaltung am <%= @data[:raw_date] %> folgendes Angebot unterbreiten:"
+        - ""
+      signature: Mit freundlichen Grüßen
+
+
 gender_matches:
-  :herr: :male
-  :frau: :female
-  :professor: :male
-  :professorin: :female
+  herr: male
+  frau: female
+  professor: male
+  professorin: female
+
 lang_addressing:
-  :de:
-    :male: Sehr geehrter
-    :female: Sehr geehrte
-  :en:
-    :male: Dear
-    :female: Dear
+  de:
+    male: Sehr geehrter
+    female: Sehr geehrte
+  en:
+    male: Dear
+    female: Dear
 ...

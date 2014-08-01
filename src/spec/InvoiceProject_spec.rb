@@ -92,17 +92,6 @@ describe InvoiceProject do
     #  #puts @project.tex_product_table()
     #end
 
-    [:list, :offer, :invoice].each { |type|
-      it "validates for #{type.to_s}" do
-        
-        project       = InvoiceProject.new @settings
-        project.open @project_paths['alright']
-        project.validate type
-        puts project.errors unless@p_old.valid_for[type]
-        expect(project.valid_for[type]).to be true
-      end
-    }
-
     it "distinguishes between old and new format" do
       expect(@p_old.PARSER.class).to be ProjectParser_pre250
       expect(@p_250.PARSER.class).to be ProjectParser
@@ -303,6 +292,18 @@ describe InvoiceProject do
       #@project5.open @project_paths['products_name_twice']
       #@project5.parse(:products)).to be_falsey
     end
+
+    [:list, :offer, :invoice].each { |type|
+      it "validates for #{type.to_s}" do
+        
+        project       = InvoiceProject.new @settings
+        project.open @project_paths['alright']
+        project.validate type
+        puts project.errors unless@p_old.valid_for[type]
+        expect(project.valid_for[type]).to be true
+      end
+    }
+
 
     #it "sums up products" do
     #  @project.open @project_paths['alright']

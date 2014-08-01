@@ -4,15 +4,15 @@
 
 \Unterschrift        {<%= @data[:manager] %>}
 \Postvermerk         {}
-\Adresse             {<%= @data[:address].gsub("\n","\\newline ") %>}
+\Adresse             {<%= @data[:client][:address].gsub("\n","\\newline ") %>}
 
 \Betreff             {Rechnung} %% [Angebot|Rechnung]
 
 \Datum               {\today}
 \AngebotManuel       {<%= @data[:offer_number] %>} %% Manuel ueberschreibbar ansonsten automatisch heute
-\Veranstaltung       {<%= @data[:event] %>}
+\Veranstaltung       {<%= @data[:event_name] %>}
 \RechnungsNummer     {<%= @data[:invoice_number_long] %>} %% bei Angeboten leer lassen
-\Anrede              {<%= @data[:addressing] %>, }
+\Anrede              {<%= @data[:client][:addressing] %>, }
 \Gruss               {<%= @data[:signature] %>}{1cm}
 
 %\Anlagen             {Anlagen}
@@ -21,7 +21,7 @@
 \begin{document}
 \begin{ascii-brief}
 
-<%= @data[:message_invoice_1] %>
+<%= @data[:messages]['invoice'][0] %>
 
 \begin{center}
 \begin{tabular}{rp{7cm}rrr}
@@ -37,7 +37,7 @@
 \end{tabular}
 \end{center}
 
-<%= @data[:message_invoice_2] %>
+<%= @data[:messages]['invoice'][1] %>
 
 \end{ascii-brief}
 \end{document}

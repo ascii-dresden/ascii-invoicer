@@ -8,19 +8,7 @@ module ProjectParsers_pre250
  
   def parse_event
     return fail_at :event unless @raw_data['event']
-    return @raw_data['canceled'] ? "CANCELED: #{@raw_data['event']}" : @raw_data['event']
-  end
-
-  def parse_canceled
-    return false if data[:canceled].nil?
-    data[:canceled] = @raw_data['canceled']
-    if data[:canceled] and data[:date].nil?
-      @STATUS = :canceled
-      data[:date] = parse(:created) unless parse :date
-      data[:date] = DateTime.now unless parse :created
-    end
-    fail_at :canceled if @raw_data['canceled']
-    return @raw_data['canceled'] # this one works the other way around
+    return data[:canceled] ? "CANCELED: #{@raw_data['event']}" : @raw_data['event']
   end
 
   ##
@@ -154,14 +142,9 @@ module ProjectParsers_pre250
   end
 
   ##
-  def parse_addressing()
-    return fail_at :client unless parse :client
-    return data[:client][:addressing]
-  end
-
-  ##
   def parse_client()
     return fail_at :client unless @raw_data['client']
+    return fail_at :client unless parse :lang
 
     names  = @raw_data['client'].split("\n")
     titles = @raw_data['client'].split("\n")
@@ -175,26 +158,18 @@ module ProjectParsers_pre250
      client[:titles],
      client[:last_name]
     ].join ' '
+    client[:address] = parse :address
     return client
   end
 
   def client_addressing
     names = @raw_data['client'].split("\n")
-    type = names.first.downcase.to_sym
+    type = names.first.downcase
     gender = @settings['gender_matches'][type]
-    lang = data[:lang].to_sym
+    lang = data[:lang]
     return @settings['lang_addressing'][lang][gender]
   end
 
-
-  def parse_messages
-    return fail_at "message" unless parse :messages, :parse_simple, :messages
-    # TODO muss man ja nicht übertreiben
-    data[:message_invoice_1] = data[:messages]['invoice'][0]
-    data[:message_invoice_2] = data[:messages]['invoice'][1]
-    data[:message_offer_1]   = data[:messages]['offer'][0]
-    data[:message_offer_2]   = data[:messages]['offer'][1]
-  end
 
   ##
   # returns valid :email or false
