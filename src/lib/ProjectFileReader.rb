@@ -71,10 +71,13 @@ module ProjectFileReader
     end
   end
 
-  def apply_filter path, value
+  def apply_generator(path, value)
+    apply_filter path, value, "generate_"
+  end
+
+  def apply_filter(path, value, prefix = "filter_")
     path = path.join('_') if path.class == Array
     path = path.to_s      if path.class == Symbol
-    prefix = "filter_"
     parser = prefix+path
     begin parser = method(parser)
     rescue NameError

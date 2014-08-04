@@ -51,7 +51,8 @@ class Hash
     end
   end
 
-  def set path, value, delimiter = ?/, data = self
+  def set path, value, delimiter = ?/, symbols = false
+    data = self
     path = path[1..-1] if path.class == String and path[0] == delimiter
     path = path.to_s.split(delimiter) if [String, Symbol].include? path.class
     return nil unless path.class == Array
@@ -61,7 +62,7 @@ class Hash
         value = []
         value[key.to_i] = v
       else
-        key = key[1..-1].to_sym if key[0] == ?:
+        key = key.to_sym if symbols
         value = {key => value}
       end
     end
@@ -72,6 +73,12 @@ end
 class Array
   def graft a
     a.each_index{|i| self[i] = a[i] unless a[i].nil? }
+  end
+end
+
+class String
+  def words
+    self.split " "
   end
 end
 

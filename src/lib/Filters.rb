@@ -36,22 +36,12 @@ module Filters
     email
   end
 
-  def filter_client_addressing data
-    #pp data[:client]
-    lang       = data[:lang]
-    client     = data[:client]
-    title      = client[:title].downcase
-    gender     = $SETTINGS['gender_matches'][title]
-    addressing = $SETTINGS['lang_addressing'][lang][gender]
-    "#{addressing} #{client[:title]} #{client[:last_name]}"
-  end
-
   def filter_manager string
-    string
+    string.strip
   end
 
   def filter_messages messages
-    
+    messages[ @data[:lang].to_sym ]
   end
 
   def filter_products products
@@ -69,7 +59,8 @@ module Filters
       end
     }
 
-    return new_products
+    new_products
+    {}
   end
 
   def filter_created date
@@ -91,6 +82,24 @@ module Filters
 
   def filter_invoice_payed_date date
     strpdates date
+  end
+
+  def generate_hours_total full_data
+    hours = full_data[:hours]
+    sum = 0
+    hours[:caterers].values.each{|v| sum += v}
+    hours[:total]
+    sum
+  end
+
+  def generate_client_addressing full_data
+    #pp data[:client]
+    lang       = full_data[:lang]
+    client     = full_data[:client]
+    title      = client[:title].downcase
+    gender     = $SETTINGS['gender_matches'][title]
+    addressing = $SETTINGS['lang_addressing'][lang][gender]
+    "#{addressing} #{client[:title]} #{client[:last_name]}"
   end
 
 end

@@ -7,7 +7,7 @@ require File.join File.dirname(__FILE__) + '/texwriter.rb'
 require 'yaml'
 
 ## TODO requirements and validity
-## TODO open, parse, [transform, ] read_all, validate
+## TODO open, YAML::parse, [transform, ] read_all, generate, validate
 ## TODO statemachine!!
 # http://www.zenspider.com/Languages/Ruby/QuickRef.html
 class InvoiceProject
@@ -30,7 +30,8 @@ class InvoiceProject
   ]
 
   @@dynamic_keys=[
-    :client_addressing
+    :client_addressing,
+    :hours_total
   ]
 
   def initialize(settings, project_path = nil, name = nil)
@@ -53,75 +54,69 @@ class InvoiceProject
     @PROJECT_PATH = project_path
     @PROJECT_FOLDER = File.split(project_path)[0]
 
-    if File.exists?(project_path)
+    error "FILE \"#{project_path}\" does not exist!" unless File.exists?(project_path)
 
-      ## setting the name
-      if name.nil?
-        @data[:name]  = File.basename File.split(@PROJECT_PATH)[0]
-      else
-        @data[:name] = name
-      end
-
-      ## opening the project file
-      begin
-        @raw_data        = YAML::load(File.open(project_path))
-      rescue SyntaxError => error
-        warn "error parsing #{project_path}"
-        puts error
-        @STATUS = :unparsable
-        return false
-      else
-        @data[:valid] = true # at least for the moment
-        @data[:project_path]  = project_path
-
-        #load format and transform or not
-        @data[:format] = @raw_data[:format] ? @raw_data[:format] : "1.0.0"
-        if @data[:format] < "2.4.0"
-          @raw_data = transform_data @raw_data
-        end
-
-        return @raw_data
-      end
-
+    ## setting the name
+    if name.nil?
+      @data[:name]  = File.basename File.split(@PROJECT_PATH)[0]
     else
-      error "FILE \"#{project_path}\" does not exist!"
-
+      @data[:name] = name
     end
-    return false
+
+    ## opening the project file
+    begin
+      @raw_data        = YAML::load(File.open(project_path))
+    rescue SyntaxError => error
+      warn "error parsing #{project_path}"
+      puts error
+      @STATUS = :unparsable
+      return false
+    else
+      @data[:valid] = true # at least for the moment
+      @data[:project_path]  = project_path
+    end
+
+    #load format and transform or not
+    @data[:format] = @raw_data['format'] ? @raw_data['format'] : "1.0.0"
+    if @data[:format] < "2.4.0"
+      @raw_data = transform_data @raw_data
+    end
+
+    return @raw_data
   end
 
 
   ## currently only from 1.0.0 to 2.4.0 Format
   def transform_data data
     new_data = {}
-    puts "transforming happily away"
 
     transformations = [
-      { old:"address",   new:"client/address" },
-      { old:"email",     new:"client/email"   },
-      { old:"event",     new:"event/name"     },
-      { old:"date",      new:"event/date"     },
-      { old:"manumber",  new:"offer/number"   },
-      { old:"anumber",   new:"offer/appendix" },
-      { old:"rnumber",   new:"invoice/number" },
-      { old:"signature", new:"manager"        }, #trim
+      { old:"client",     new:"client/fullname" },
+      { old:"address",    new:"client/address"  },
+      { old:"email",      new:"client/email"    },
+      { old:"event",      new:"event/name"      },
+      { old:"date",       new:"event/date"      },
+      { old:"manumber",   new:"offer/number"    },
+      { old:"anumber",    new:"offer/appendix"  },
+      { old:"rnumber",    new:"invoice/number"  },
+      { old:"signature",  new:"manager"         }, #trim
+      #{ old:"hours/time", new:"hours/total"     },
     ]
 
-    transformations.each {|t|
-      new_data.set(t[:new],  data.get(t[:old]))
-    }
+    transformations.each {|t| new_data.set(t[:new],  data.get(t[:old])) }
+    new_data.set("client/title", new_data.get("client/fullname").words[0])
+    new_data.set("client/last_name", new_data.get("client/fullname").words[1])
 
-    pp new_data
-    exit
-    return new_data
+    data.graft new_data
+    return data
   end
 
 
   def prepare_data
     @@known_keys.each {|key| read key }
     @@dynamic_keys.each {|key|
-      value = apply_filter key, @data
-      puts key,value
+      value = apply_generator key, @data
+      @data.set key, value, ?_, true # symbols = true
     }
   end
 

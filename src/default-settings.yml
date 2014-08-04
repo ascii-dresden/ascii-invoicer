@@ -14,6 +14,7 @@ dirs:
   working: working
   archive: archive
 
+
 templates:
   project: templates/blank.yml.erb
   invoice: templates/invoice.tex.erb
