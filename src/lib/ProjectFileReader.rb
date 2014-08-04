@@ -1,67 +1,7 @@
 # encoding: utf-8
 
 require './lib/tweaks.rb'
-
-class Hash
-  def graft a
-    a.each { |k,v|
-      if self[k].class == Hash and a[k].class == Hash
-        self[k].graft a[k]
-
-      elsif self[k].class == Array and a[k].class == Array
-        self[k].graft a[k]
-
-      else
-        self[k] = a[k]
-
-      end
-    }
-    return self
-  end
-
-  def get path, data = self, delimiter = ?/
-    path = path.split(delimiter)if [String, Symbol].include? path.class
-    return nil unless path.class == Array
-    while key = path.shift
-       if data.class == Hash and not data[key].nil?
-         data = data[key]
-         return data[key] if path.length == 0
-
-       elsif data.class == Hash and not data[key.to_sym].nil?
-         data = data[key.to_sym]
-         return data if path.length == 0
-
-       elsif data.class == Array and key =~ /^\d*$/ and not data[key.to_i].nil?
-         data = data[key.to_i]
-         return data if path.length == 0
-
-       else
-         return nil
-       end
-    end
-  end
-
-  def set path, value, data = self, delimiter = ?/
-    path = path.split(delimiter) if [String, Symbol].include? path.class
-    return nil unless path.class == Array
-    while key = path.pop
-      if key =~ /^\d*$/
-        v = value
-        value = []
-        value[key.to_i] = v
-      else
-        value = {key => value}
-      end
-    end
-    data.graft value
-  end
-end
-
-class Array
-  def graft a
-    a.each_index{|i| self[i] = a[i] unless a[i].nil? }
-  end
-end
+require 'paint'
 
 module ProjectFileReader
   # reads    @raw_data
@@ -107,14 +47,12 @@ module ProjectFileReader
       logs "    FOUND DEFAULT #{key}"
       return data[key] = walk(default, [key])
     end
-    
+
     # otherwise fail
     return data[key] = fail_at(key)
   end
 
   private
- 
-
   def walk(tree= @raw_data, path = [])
     catch :filter_error do
       if tree.class == Hash
@@ -135,6 +73,7 @@ module ProjectFileReader
 
   def apply_filter path, value
     path = path.join('_') if path.class == Array
+    path = path.to_s      if path.class == Symbol
     prefix = "filter_"
     parser = prefix+path
     begin parser = method(parser)

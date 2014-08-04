@@ -22,15 +22,16 @@ class InvoiceProject
   include Filters
   include ProjectFileReader
 
-  @@known_keys=
-    [:format, :created, :client,
-     :event,
-     :offer,
-     :invoice,
-     :messages,
-     :products,
-     :hours,
-     :manager]
+  @@known_keys= [
+    :format,    :lang,      :created,
+    :client,    :event,     :manager,
+    :offer,     :invoice,
+    :messages,  :products,  :hours,
+  ]
+
+  @@dynamic_keys=[
+    :client_addressing
+  ]
 
   def initialize(settings, project_path = nil, name = nil)
     @SETTINGS = settings
@@ -53,23 +54,31 @@ class InvoiceProject
     @PROJECT_FOLDER = File.split(project_path)[0]
 
     if File.exists?(project_path)
+
+      ## setting the name
       if name.nil?
         @data[:name]  = File.basename File.split(@PROJECT_PATH)[0]
       else
         @data[:name] = name
       end
 
+      ## opening the project file
       begin
         @raw_data        = YAML::load(File.open(project_path))
       rescue SyntaxError => error
         warn "error parsing #{project_path}"
         puts error
-
         @STATUS = :unparsable
+        return false
       else
-
         @data[:valid] = true # at least for the moment
         @data[:project_path]  = project_path
+
+        #load format and transform or not
+        @data[:format] = @raw_data[:format] ? @raw_data[:format] : "1.0.0"
+        if @data[:format] < "2.4.0"
+          @raw_data = transform_data @raw_data
+        end
 
         return @raw_data
       end
@@ -81,8 +90,39 @@ class InvoiceProject
     return false
   end
 
+
+  ## currently only from 1.0.0 to 2.4.0 Format
+  def transform_data data
+    new_data = {}
+    puts "transforming happily away"
+
+    transformations = [
+      { old:"address",   new:"client/address" },
+      { old:"email",     new:"client/email"   },
+      { old:"event",     new:"event/name"     },
+      { old:"date",      new:"event/date"     },
+      { old:"manumber",  new:"offer/number"   },
+      { old:"anumber",   new:"offer/appendix" },
+      { old:"rnumber",   new:"invoice/number" },
+      { old:"signature", new:"manager"        }, #trim
+    ]
+
+    transformations.each {|t|
+      new_data.set(t[:new],  data.get(t[:old]))
+    }
+
+    pp new_data
+    exit
+    return new_data
+  end
+
+
   def prepare_data
     @@known_keys.each {|key| read key }
+    @@dynamic_keys.each {|key|
+      value = apply_filter key, @data
+      puts key,value
+    }
   end
 
 

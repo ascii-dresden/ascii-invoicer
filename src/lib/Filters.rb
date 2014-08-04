@@ -1,5 +1,6 @@
 # encoding: utf-8
 require 'date'
+#require File.join File.dirname(__FILE__) + '/rfc5322_regex.rb'
 
 module Filters
 
@@ -26,8 +27,31 @@ module Filters
     end
   end
 
+  def check_email email
+    email =~ $RFC5322
+  end
+
+  def filter_client_email email
+    fail_at :client_email unless check_email email
+    email
+  end
+
+  def filter_client_addressing data
+    #pp data[:client]
+    lang       = data[:lang]
+    client     = data[:client]
+    title      = client[:title].downcase
+    gender     = $SETTINGS['gender_matches'][title]
+    addressing = $SETTINGS['lang_addressing'][lang][gender]
+    "#{addressing} #{client[:title]} #{client[:last_name]}"
+  end
+
   def filter_manager string
     string
+  end
+
+  def filter_messages messages
+    
   end
 
   def filter_products products
@@ -68,6 +92,5 @@ module Filters
   def filter_invoice_payed_date date
     strpdates date
   end
-
 
 end
