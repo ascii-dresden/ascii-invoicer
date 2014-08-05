@@ -1,10 +1,12 @@
 # encoding: utf-8
-require File.join File.dirname(__FILE__) + '/rfc5322_regex.rb'
+require 'yaml'
+
 require File.join File.dirname(__FILE__) + '/ProjectFileReader.rb'
 require File.join File.dirname(__FILE__) + '/HashTransform.rb'
 require File.join File.dirname(__FILE__) + '/Euro.rb'
+
+require File.join File.dirname(__FILE__) + '/rfc5322_regex.rb'
 require File.join File.dirname(__FILE__) + '/texwriter.rb'
-require 'yaml'
 
 ## TODO requirements and validity
 ## TODO open, YAML::parse, [transform, ] read_all, generate, validate
@@ -87,7 +89,8 @@ class InvoiceProject
       @raw_data = import_100 @raw_data
     end
 
-    return @raw_data
+    prepare_data()
+    return true
   end
 
 
@@ -128,9 +131,14 @@ class InvoiceProject
     }
   end
 
+  def to_s
+    "#{@data[:event][:date]} #{name} #{@data[:format]}"
+  end
+
 
   def name
     @data[:canceled] ? "CANCELED: #{@data[:name]}" : @data[:name]
+    @data[:name]
   end
 
   def date

@@ -5,17 +5,24 @@ require "#{LIBPATH}/gitplumber.rb"
 require "#{LIBPATH}/AsciiSanitizer.rb"
 
 
+## requires a project_class
+# project_class must implement: name, date
 class ProjectsPlumber
 
-  attr_reader :dirs
+  attr_reader :dirs, :opened_projects, :opened_dir, :opened_sort
+  attr_writer :project_class
+
   include GitPlumber
 
-  def initialize(settings)
-    @settings = settings
-    @dirs = {}
 
-    @dirs[:template] = File.join @settings['script_path'], @settings['templates']['project']
-    @dirs[:storage]  = File.join @settings['path'], @settings['dirs']['storage']
+  def initialize(settings = $SETTINGS, project_class = nil)
+    @settings = settings
+    @opened_projects = []
+    @project_class = project_class
+
+    @dirs           = {}
+    @dirs[:template] = File.expand_path File.join @settings['script_path'], @settings['templates']['project']
+    @dirs[:storage]  = File.expand_path File.join @settings['path'], @settings['dirs']['storage']
     @dirs[:working]  = File.join @dirs[:storage], @settings['dirs']['working']
     @dirs[:archive]  = File.join @dirs[:storage], @settings['dirs']['archive']
   end
@@ -24,17 +31,12 @@ class ProjectsPlumber
   # *wrapper* for puts()
   # depends on @settings.silent = true|false
 
-  def logs message, force = false
-    puts "#{__FILE__}:\n\t#{message}" if @settings['verbose'] or force
-  end
-
   ##
   # Checks the existens of one of the three basic dirs.
   # dir can be either :storage, :working or :archive
   # and also :template
   def check_dir(dir)
-    return true if File.exists? "#{@dirs[dir]}"
-    false
+    File.exists? "#{@dirs[dir]}"
   end
 
   ##
@@ -122,16 +124,69 @@ class ProjectsPlumber
   end
 
 
+  ##
+  # produces an Array of @project_class objects
+  # sorted by date (projects must implement date())
+  # if sort is foobar, projects must implement foobar()
+  # output of (foobar must be comparable)
+  #
+  # untested
+  def open_projects(dir=:working, sort = :date)
+    paths = list_projects
+    @opened_dir = dir
+    @opened_projects = paths.map {|path| @project_class.new path }
+    sort_projects(sort)
+    return true
+  end
 
+  ##
+  # produces an Array of @project_class objects
+  #
+  # untested
+  def open_projects_all(sort = :date)
+      paths = list_projects_all
+      @opened_dir = :all
+      @opened_sort = sort
+      @opened_projects = paths.map {|path| @project_class.new path }
+      return true
+  end
+  
+  def [] name
+    lookup name
+  end
+
+  def lookup(name, sort = nil)
+      sort_projects sort unless sort == nil or @opened_sort == sort
+      
+      if name.class == String
+          name_map = {}
+          @opened_projects.each {|project| name_map[project.name] = project}
+          return name_map[name]
+      elsif name.class == Fixnum
+          return @opened_projects[name]
+      end
+      
+  end
+  
+  
+  def sort_projects(sort = :date)
+      fail "sort must be a Symbol" unless sort.class == Symbol
+      if @project_class.method_defined? sort
+          @opened_projects.sort_by! {|project| project.method(sort).call}
+      else fail "#{@project_class} does not implement #{sort}()"
+      end
+      return true
+  end
+  
   ##
   # path to project file
   # there may only be one @settings['project_file_extension'] file per project folder
   #
   # untested
   def get_project_file_path(_name, dir=:working, year=Date.today.year)
-    _name = AsciiSanitizer.process _name
-    name = AsciiSanitizer.clean_path _name
-
+      _name = AsciiSanitizer.process _name
+      name = AsciiSanitizer.clean_path _name
+      
     folder = get_project_folder(name, dir, year)
     if folder
       files = Dir.glob File.join folder, "*#{@settings['project_file_extension']}"

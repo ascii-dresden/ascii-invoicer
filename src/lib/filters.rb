@@ -37,6 +37,7 @@ module Filters
   end
 
   def filter_event_description string
+    return "" unless string
     string.strip
   end
 
@@ -91,8 +92,12 @@ module Filters
   def generate_hours_total full_data
     hours = full_data[:hours]
     sum = 0
-    hours[:caterers].values.each{|v| sum += v}
-    hours[:total]
+    if hours[:caterers]
+      hours[:caterers].values.each{|v| sum += v}
+      return sum
+    elsif hours[:time]
+      return hours[:time]
+    end
     sum
   end
 

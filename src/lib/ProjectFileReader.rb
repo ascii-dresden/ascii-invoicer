@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-require File.join File.dirname(__FILE__) + '/Filters.rb'
+require File.join File.dirname(__FILE__) + '/filters.rb'
 require './lib/tweaks.rb'
 require 'paint'
 
@@ -86,6 +86,7 @@ module ProjectFileReader
   end
 
   def apply_filter(path, value, prefix = "filter_")
+    begin
     path = path.join('_') if path.class == Array
     path = path.to_s      if path.class == Symbol
     parser = prefix+path
@@ -96,6 +97,10 @@ module ProjectFileReader
       logs Paint[path, :yellow] if $SETTINGS['DEBUG']
       return parser.call(value)
     end
+  end
+  rescue => error
+    fail_at path
+    puts error
   end
 
   def fail_at(*criteria)

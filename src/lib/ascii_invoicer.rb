@@ -11,21 +11,6 @@ module AsciiInvoicer
     end
   end
 
-  def open_projects(paths, validation = :list, sort = :date)
-    projects = []
-    paths.each do |path|
-      project = InvoiceProject.new path
-      project.validate validation
-      projects.push project
-    end
-    #unsortable = Array.new(projects).delete_if  { |project| project.data[sort] }
-    #unsortable.each   { |project| warn "#{project.data[:name]} not sortable by #{sort}"}
-    #projects.keep_if  { |project| project.data[sort] }
-    # TODO implement sortability in Project Plumber
-    projects.sort_by! { |project| project.date }
-    return projects
-  end
-
   def color_from_date(date)
     return nil      unless $SETTINGS['colors']
     return :blue    if date - Date.today < -14
@@ -46,8 +31,8 @@ module AsciiInvoicer
         (i+1).to_s+".", 
         p.name.ljust(35), 
         p.data[:manager], 
-        p.data[:invoice_number], 
-        p.data[:date].strftime("%d.%m.%Y"), 
+        p.data[:event][:invoice_number], 
+        p.data[:event][:date].strftime("%d.%m.%Y"), 
       ], color_from_date(p.data[:date]))
     end
     table.set_alignments(:r, :l, :l)
@@ -140,6 +125,38 @@ module AsciiInvoicer
     end
   end
 
+  #takes an array of invoices (@plumber.working_projects)
+  def print_project_list_csv(projects)
+    header = [
+      'invoice_long',
+      'event',
+      'date',
+      'manager',
+      'hours',
+      'costs',
+      'total',
+      'valid'
+    ]
+    puts header.to_csv(col_sep:";")
+    projects.each do |p|
+       caterers_string = ""
+       caterers_string = p.data[:hours][:caterers].map{|name, hours|"#{name} (#{hours})"}.join ", " if p.data[:caterers]
+      line = [
+        p.data[:invoice_number],
+        p.data[:event],
+        p.data[:date],
+        p.data[:manager],
+        caterers_string,
+        p.data[:hours][:time].to_s + 'h',
+        p.data[:costs_invoice],
+        p.data[:total_invoice],
+      #  p.valid_for[:invoice]
+      ]
+      line.map! {|v| v ? v : "" } # wow, that looks cryptic
+      puts line.to_csv(col_sep:";")
+    end
+  end
+
   def display_products project, choice = :offer
     table = TableBox.new
     table.style[:border] = true
@@ -189,38 +206,6 @@ module AsciiInvoicer
     return box
   end
 
-  #takes an array of invoices (@plumber.working_projects)
-  def print_project_list_csv(projects)
-    header = [
-      'invoice_long',
-      'event',
-      'date',
-      'manager',
-      'hours',
-      'costs',
-      'total',
-      'valid'
-    ]
-    puts header.to_csv(col_sep:";")
-    projects.each do |p|
-       caterers_string = ""
-       caterers_string = p.data[:hours][:caterers].map{|name, hours|"#{name} (#{hours})"}.join ", " if p.data[:caterers]
-      line = [
-        p.data[:invoice_number],
-        p.data[:event],
-        p.data[:date],
-        p.data[:manager],
-        caterers_string,
-        p.data[:hours][:time].to_s + 'h',
-        p.data[:costs_invoice],
-        p.data[:total_invoice],
-      #  p.valid_for[:invoice]
-      ]
-      line.map! {|v| v ? v : "" } # wow, that looks cryptic
-      puts line.to_csv(col_sep:";")
-    end
-  end
-
   def pick_paths( hash, archive = nil)
     paths = hash.map { |index|
       if options[:file]
@@ -235,6 +220,7 @@ module AsciiInvoicer
   end
 
   def pick_project(selection, year = nil)
+    fail "IMPLEMENT ME"
     index = selection.to_i
 
     plumber = ProjectsPlumber.new $SETTINGS
@@ -279,15 +265,6 @@ module AsciiInvoicer
     logs "Opening #{paths} in #{editor}"
     pid = spawn "#{editor} #{paths}"
     Process.wait pid
-  end
-
-  def error(msg)
-    STDERR.puts("ERROR: #{msg}")
-    exit 1
-  end
-
-  def logs message, force = false
-    puts "#{__FILE__}: #{message}" if $SETTINGS['verbose'] or force
   end
 
 end
