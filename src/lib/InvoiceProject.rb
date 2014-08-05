@@ -1,7 +1,7 @@
 # encoding: utf-8
 require File.join File.dirname(__FILE__) + '/rfc5322_regex.rb'
 require File.join File.dirname(__FILE__) + '/ProjectFileReader.rb'
-require File.join File.dirname(__FILE__) + '/Filters.rb'
+require File.join File.dirname(__FILE__) + '/HashTransform.rb'
 require File.join File.dirname(__FILE__) + '/Euro.rb'
 require File.join File.dirname(__FILE__) + '/texwriter.rb'
 require 'yaml'
@@ -22,6 +22,10 @@ class InvoiceProject
   include Filters
   include ProjectFileReader
 
+  def validate *stuff
+    #warn " #{ caller[0] }validate is not yet implemented"
+  end
+
   @@known_keys= [
     :format,    :lang,      :created,
     :client,    :event,     :manager,
@@ -31,10 +35,11 @@ class InvoiceProject
 
   @@dynamic_keys=[
     :client_addressing,
-    :hours_total
+    :hours_total,
+    :event_date
   ]
 
-  def initialize(settings, project_path = nil, name = nil)
+  def initialize(project_path = nil, settings = $SETTINGS, name = nil)
     @SETTINGS = settings
     @STATUS   = :ok # :ok, :canceled, :unparsable
     @ERRORS   = []
@@ -60,7 +65,7 @@ class InvoiceProject
     if name.nil?
       @data[:name]  = File.basename File.split(@PROJECT_PATH)[0]
     else
-      @data[:name] = name
+      error "FILE \"#{project_path}\" does not exist!"
     end
 
     ## opening the project file
@@ -79,7 +84,7 @@ class InvoiceProject
     #load format and transform or not
     @data[:format] = @raw_data['format'] ? @raw_data['format'] : "1.0.0"
     if @data[:format] < "2.4.0"
-      @raw_data = transform_data @raw_data
+      @raw_data = import_100 @raw_data
     end
 
     return @raw_data
@@ -87,28 +92,31 @@ class InvoiceProject
 
 
   ## currently only from 1.0.0 to 2.4.0 Format
-  def transform_data data
-    new_data = {}
-
-    transformations = [
-      { old:"client",     new:"client/fullname" },
-      { old:"address",    new:"client/address"  },
-      { old:"email",      new:"client/email"    },
-      { old:"event",      new:"event/name"      },
-      { old:"date",       new:"event/date"      },
-      { old:"manumber",   new:"offer/number"    },
-      { old:"anumber",    new:"offer/appendix"  },
-      { old:"rnumber",    new:"invoice/number"  },
-      { old:"signature",  new:"manager"         }, #trim
-      #{ old:"hours/time", new:"hours/total"     },
+  def import_100 hash
+    rules = [
+      { old:"client",       new:"client/fullname"   },
+      { old:"address",      new:"client/address"    },
+      { old:"email",        new:"client/email"      },
+      { old:"event",        new:"event/name"        },
+      { old:"date",         new:"event/date"        },
+      { old:"location",     new:"event/location"    },
+      { old:"description",  new:"event/description" }, #trim
+      { old:"manumber",     new:"offer/number"      },
+      { old:"anumber",      new:"offer/appendix"    },
+      { old:"rnumber",      new:"invoice/number"    },
+      { old:"signature",    new:"manager"           }, #trim
+      { old:"date",    new:"event/dates/0/begin"           }, #trim
+      #{ old:"hours/time",  new:"hours/total"       },
     ]
+    ht = HashTransform.new :rules => rules, :original_hash => hash
+    debug "test"
+    new_hash = ht.transform()
 
-    transformations.each {|t| new_data.set(t[:new],  data.get(t[:old])) }
-    new_data.set("client/title", new_data.get("client/fullname").words[0])
-    new_data.set("client/last_name", new_data.get("client/fullname").words[1])
+    new_hash.set("client/title", new_hash.get("client/fullname").words[0])
+    new_hash.set("client/last_name", new_hash.get("client/fullname").words[1])
+    new_hash.set("offer/date", nil)
 
-    data.graft new_data
-    return data
+    return hash
   end
 
 
@@ -123,6 +131,10 @@ class InvoiceProject
 
   def name
     @data[:canceled] ? "CANCELED: #{@data[:name]}" : @data[:name]
+  end
+
+  def date
+    @data[:event][:date] if @data[:event]
   end
 
   def export_filename choice, ext=""

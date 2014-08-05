@@ -14,15 +14,15 @@ module AsciiInvoicer
   def open_projects(paths, validation = :list, sort = :date)
     projects = []
     paths.each do |path|
-      project = InvoiceProject.new $SETTINGS
-      project.open path
+      project = InvoiceProject.new path
       project.validate validation
       projects.push project
     end
-    unsortable = Array.new(projects).delete_if  { |project| project.data[sort] }
-    unsortable.each   { |project| warn "#{project.data[:name]} not sortable by #{sort}"}
-    projects.keep_if  { |project| project.data[sort] }
-    projects.sort_by! { |project| project.data[sort] }
+    #unsortable = Array.new(projects).delete_if  { |project| project.data[sort] }
+    #unsortable.each   { |project| warn "#{project.data[:name]} not sortable by #{sort}"}
+    #projects.keep_if  { |project| project.data[sort] }
+    # TODO implement sortability in Project Plumber
+    projects.sort_by! { |project| project.date }
     return projects
   end
 

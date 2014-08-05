@@ -83,7 +83,6 @@ describe InvoiceProject do
   end
 
   describe "#validate" do
-
     it "distinguishes between old and new format" do
       #expect(true).to be false
     end

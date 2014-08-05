@@ -36,6 +36,10 @@ module Filters
     email
   end
 
+  def filter_event_description string
+    string.strip
+  end
+
   def filter_manager string
     string.strip
   end
@@ -59,7 +63,7 @@ module Filters
       end
     }
 
-    new_products
+    return new_products
     {}
   end
 
@@ -100,6 +104,10 @@ module Filters
     gender     = $SETTINGS['gender_matches'][title]
     addressing = $SETTINGS['lang_addressing'][lang][gender]
     "#{addressing} #{client[:title]} #{client[:last_name]}"
+  end
+
+  def generate_event_date  full_data
+    Date.parse full_data[:event][:dates][0][:begin]
   end
 
 end
