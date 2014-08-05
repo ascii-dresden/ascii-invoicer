@@ -1,7 +1,9 @@
 # encoding: utf-8
 
+require File.join File.dirname(__FILE__) + '/Filters.rb'
 require './lib/tweaks.rb'
 require 'paint'
+
 
 module ProjectFileReader
   # reads    @raw_data
@@ -26,25 +28,25 @@ module ProjectFileReader
     return nil unless key.class == Symbol
 
     # data has already been read
-    logs Paint["KNOWN KEY: #{key}",:cyan] if data[key]
+    logs Paint["KNOWN KEY: #{key}",:cyan] if data[key] if $SETTINGS['DEBUG']
     return data[key]         if data[key]
 
-    logs Paint["reading :#{key}", :green, :bold]
+    logs Paint["reading :#{key}", :green, :bold] if $SETTINGS['DEBUG']
 
     raw     = @raw_data[key.to_s]
     default = @DEFAULTS[key.to_s]
 
     # if key is in raw_data walk it trough applying filters
     if raw
-      logs "    FOUND RAW #{key}"
-      logs "     walking #{key}"
+      logs "    FOUND RAW #{key}" if $SETTINGS['DEBUG']
+      logs "     walking #{key}" if $SETTINGS['DEBUG']
       return data[key]  = walk(raw, [key])
       #fail "#{self.class} DOES NOT KNOW WHAT TO DO WITH #{raw.class}"
     end
 
     # or the default from the settings
     unless default.nil?
-      logs "    FOUND DEFAULT #{key}"
+      logs "    FOUND DEFAULT #{key}" if $SETTINGS['DEBUG']
       return data[key] = walk(default, [key])
     end
 
@@ -61,6 +63,14 @@ module ProjectFileReader
           k = k.to_sym if k.class == String
           k = walk(k, path+[k] )if k.class == Hash
           new_tree[k] = walk(v, path+[k])
+        }
+        new_tree = apply_filter path, new_tree
+        return new_tree
+      elsif tree.class == Array
+        new_tree = []
+        tree.each_index{|i|
+          v = tree[i]
+          new_tree[i] = walk(v, path+[i])
         }
         new_tree = apply_filter path, new_tree
         return new_tree
@@ -83,7 +93,7 @@ module ProjectFileReader
     rescue NameError
       return value
     else
-      logs Paint[path, :yellow]
+      logs Paint[path, :yellow] if $SETTINGS['DEBUG']
       return parser.call(value)
     end
   end
