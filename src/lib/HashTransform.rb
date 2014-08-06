@@ -77,12 +77,18 @@ class Hash
         value = {key => value}
       end
     end
+    #puts "setting #{path} #{value}"
     data.graft value
   end
 end
 
 class Array
   def graft a
-    a.each_index{|i| self[i] = a[i] unless a[i].nil? }
+    a.each_index{|i|
+      if self[i].class == Hash and a[i].class == Hash
+        self[i].graft a[i]
+      else self[i] = a[i] unless a[i].nil?
+      end
+    }
   end
 end

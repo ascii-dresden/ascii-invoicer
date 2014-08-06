@@ -1,5 +1,6 @@
 # encoding: utf-8
 require 'yaml'
+require 'date'
 
 require File.join File.dirname(__FILE__) + '/HashTransform.rb'
 require File.join File.dirname(__FILE__) + '/Euro.rb'
@@ -39,6 +40,8 @@ class InvoiceProject
     :client_addressing,
     :hours_total,
     :event_date,
+    :event_prettydate,
+    :offer_number,
     :offer_cost, :offer_tax, :offer_total,
     :invoice_cost, :invoice_tax, :invoice_total,
   ]
@@ -103,23 +106,30 @@ class InvoiceProject
       { old:"address",      new:"client/address"    },
       { old:"email",        new:"client/email"      },
       { old:"event",        new:"event/name"        },
-      { old:"date",         new:"event/date"        },
       { old:"location",     new:"event/location"    },
       { old:"description",  new:"event/description" }, #trim
       { old:"manumber",     new:"offer/number"      },
       { old:"anumber",      new:"offer/appendix"    },
       { old:"rnumber",      new:"invoice/number"    },
       { old:"signature",    new:"manager"           }, #trim
-      { old:"date",    new:"event/dates/0/begin"           }, #trim
       #{ old:"hours/time",  new:"hours/total"       },
     ]
     ht = HashTransform.new :rules => rules, :original_hash => hash
-    debug "test"
     new_hash = ht.transform()
 
-    new_hash.set("client/title", new_hash.get("client/fullname").words[0])
-    new_hash.set("client/last_name", new_hash.get("client/fullname").words[1])
-    new_hash.set("offer/date", nil)
+    date = strpdates(hash['date'])
+    new_hash.set("event/dates/0/begin", date[0])
+    new_hash.set("event/dates/0/end",   date[1]) unless date[1].nil?
+
+    if new_hash.get("client/fullname").class == String and
+    new_hash.get("client/fullname").words.class == Array
+      new_hash.set("client/title", new_hash.get("client/fullname").words[0])
+      new_hash.set("client/last_name", new_hash.get("client/fullname").words[1])
+    else
+      fail_at :client_fullname
+    end
+    new_hash.set("offer/date", Date.today)
+    new_hash.set("invoice/date", Date.today)
 
     return hash
   end
@@ -135,6 +145,10 @@ class InvoiceProject
 
   def to_s
     name
+  end
+
+  def to_yaml
+    @raw_data.to_yaml
   end
 
 

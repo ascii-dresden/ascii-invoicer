@@ -5,7 +5,7 @@ require 'date'
 module Filters
 
   def strpdates(string,pattern = nil)
-    return Date.today unless string
+    return [Date.today] unless string.class == String
     if pattern 
       return [Date.strptime(string, pattern).to_date]
     else
@@ -32,8 +32,15 @@ module Filters
   end
 
   def filter_client_email email
-    fail_at :client_email unless check_email email
+    return fail_at :client_email unless check_email email
     email
+  end
+
+  def filter_event_dates dates
+    dates.each {|d|
+      d[:begin] = Date.parse(d[:begin]) if d[:begin].class == String
+      d[:end]   = Date.parse(d[:end])   if d[:end].class   == String }
+    dates
   end
 
   def filter_event_description string
@@ -68,11 +75,12 @@ module Filters
   end
 
   def filter_created date
-    strpdates date
+    Date.parse date
   end
 
   def filter_offer_date date
-    strpdates date
+    date = Date.parse date if date.class == String
+    date
   end
 
   def filter_invoice_number number
@@ -81,11 +89,13 @@ module Filters
   end
 
   def filter_invoice_date date
-    strpdates date
+    date = Date.parse date if date.class == String
+    date = Date.today if date.nil?
+    return date
   end
 
   def filter_invoice_payed_date date
-    strpdates date
+    Date.parse date
   end
 
   def generate_hours_total full_data
@@ -101,7 +111,9 @@ module Filters
   end
 
   def generate_client_addressing full_data
-    #pp data[:client]
+    return "empty"
+    return fail_at(:client_addressing) unless full_data[:client]
+    return fail_at(:client_title) unless full_data[:client][:title]
     lang       = full_data[:lang]
     client     = full_data[:client]
     title      = client[:title].downcase
@@ -116,8 +128,28 @@ module Filters
 
   def sum_money key
     sum = 0
-    @data[:products].each{|p| sum += p.hash[key]}
+    @data[:products].each{|p| sum += p.hash[key]} if @data[:products].class == Array
     sum.to_euro
+  end
+
+  def generate_event_date full_data
+    full_data[:event][:dates][0][:begin]
+  end
+
+  def generate_event_prettydate full_data
+    date = full_data[:event][:dates][0]
+    first = date[:begin]
+    last = full_data[:event][:dates].last[:end]
+    last = full_data[:event][:dates].last[:begin] if last.nil?
+
+    return "#{first.strftime "%d"}-#{last.strftime "%d.%m.%Y"}" if first != last
+    return first.strftime "%d.%m.%Y" if first.class == Date
+    return first
+  end
+
+  def generate_offer_number full_data
+    appendix  = full_data[:offer][:appendix]
+    full_data[:offer][:date].strftime "A%Y%m%d-#{appendix}"
   end
 
   def generate_offer_total full_data

@@ -19,8 +19,23 @@ class String
   end
 end
 
+class Date
+  def to_s
+    self.strftime "!DATEi: %d.%m.%Y"
+  end
+end
+
+def purrs(*strings)
+  puts *strings
+  puts "MEOW!!"
+end
+
 def logs(*strings)
   puts *strings
+end
+
+def debug_f(*string)
+  puts Paint["DEBUG: #{caller.last} #{string}",:yellow, :bold]
 end
 
 def debug(*string)

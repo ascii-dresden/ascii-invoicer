@@ -33,7 +33,7 @@ offer:
 
 invoice:
   number: 27
-  date: #leave empty for auto date
+  date: 15.03.1987 #leave empty for auto date
   payed_date: 25.08.2014
 
 
@@ -73,9 +73,9 @@ products:
     amount:    8
     price:     1.65
     sold:      0
-  "Belegte Brötchen":
-    amount:    0
-    price:     1.16
+  #"Belegte Brötchen":
+  #  amount:    0
+  #  price:     1.16
 
 hours: 
   salary: 8.00
