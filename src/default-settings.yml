@@ -26,7 +26,7 @@ use_git: true
 latex:    pdflatex
 
 defaults:
-  tax: 1.19
+  tax: 0.19
   lang: de
   canceled: false
   messages:

@@ -1,10 +1,10 @@
 # encoding: utf-8
 require 'yaml'
 
-require File.join File.dirname(__FILE__) + '/ProjectFileReader.rb'
 require File.join File.dirname(__FILE__) + '/HashTransform.rb'
 require File.join File.dirname(__FILE__) + '/Euro.rb'
 
+require File.join File.dirname(__FILE__) + '/projectFileReader.rb'
 require File.join File.dirname(__FILE__) + '/rfc5322_regex.rb'
 require File.join File.dirname(__FILE__) + '/texwriter.rb'
 
@@ -38,7 +38,9 @@ class InvoiceProject
   @@dynamic_keys=[
     :client_addressing,
     :hours_total,
-    :event_date
+    :event_date,
+    :offer_cost, :offer_tax, :offer_total,
+    :invoice_cost, :invoice_tax, :invoice_total,
   ]
 
   def initialize(project_path = nil, settings = $SETTINGS, name = nil)
@@ -132,7 +134,7 @@ class InvoiceProject
   end
 
   def to_s
-    "#{@data[:event][:date]} #{name} #{@data[:format]}"
+    name
   end
 
 
@@ -165,15 +167,24 @@ end
 
 class InvoiceProduct
   attr_reader :name, :hash, :tax, :valid, :returned,
-    :cost_invoice, :cost_offer, :tax_invoice, :tax_offer, :price
+    :total_invoice, :cost_offer, :cost_invoice, :cost_offer, :tax_invoice, :tax_offer,
+    :price
 
   def initialize(hash, tax_value = $SETTINGS['defaults']['tax'])
     @hash      = hash
     @name      = hash[:name]
+    @price     = hash[:price]
+    @amount    = hash[:amount]
     @tax_value = tax_value
+    fail "TAX MUST NOT BE > 1" if @tax_value > 1
+
 
     @valid = true
     validate() unless hash.nil?
+  end
+
+  def to_s
+    "#{@amount}|#{@sold} #{@name}, #{@price} cost (#{@cost_offer}|#{@cost_invoice}) total(#{@total_offer}|#{@total_invoice}) "
   end
 
   def validate()
@@ -215,23 +226,15 @@ class InvoiceProduct
   end
 
   def calculate()
-    @cost_invoice = (@price * @sold).to_euro
-    @cost_offer   = (@price * @amount).to_euro
+    @hash[:cost_offer]   = @cost_offer   = (@price * @amount).to_euro
+    @hash[:cost_invoice] = @cost_invoice = (@price * @sold).to_euro
 
-    @tax_invoice  = (@cost_invoice * @tax_value)
-    @tax_offer    = (@cost_offer   * @tax_value)
-  end
+    @hash[:tax_offer]    = @tax_offer    = (@cost_offer   * @tax_value)
+    @hash[:tax_invoice]  = @tax_invoice  = (@cost_invoice * @tax_value)
 
-  #TODO implement InvoiceProduct.+()
-  def + other
-    {
-      :amount_offer   => self.amount(  :offer   ) + other.amount(  :offer   ) ,
-      :amount_invoice => self.amount(  :invoice ) + other.amount(  :invoice ) ,
-      :cost_offer     => self.cost(    :offer   ) + other.cost(    :offer   ) ,
-      :cost_invoice   => self.cost(    :invoice ) + other.cost(    :invoice ) ,
-      :tax_offer      => self.tax(     :offer   ) + other.tax(     :offer   ) ,
-      :tax_invoice    => self.tax(     :invoice ) + other.tax(     :invoice ) ,
-    }
+    @hash[:total_offer]    = @total_offer    = (@cost_offer   + @tax_offer)
+    @hash[:total_invoice]  = @total_invoice  = (@cost_invoice + @tax_invoice)
+    self.freeze
   end
 
 end

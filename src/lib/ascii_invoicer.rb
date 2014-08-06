@@ -46,11 +46,11 @@ module AsciiInvoicer
       p  = projects[i]
       table.add_row([
         (i+1).to_s+".",
-        p.data[:event] ? p.data[:event] : "",
+        p.data[:event][:name] ? p.data[:event][:name] : "",
         p.name,
         p.data[:manager],
         p.data[:invoice_number],
-        p.data[:date].strftime("%d.%m.%Y"),
+        p.data[:event][:date].strftime("%d.%m.%Y"),
         p.data[:valid].print,
       ], color_from_date(p.data[:date]))
     end
@@ -143,8 +143,8 @@ module AsciiInvoicer
        caterers_string = p.data[:hours][:caterers].map{|name, hours|"#{name} (#{hours})"}.join ", " if p.data[:caterers]
       line = [
         p.data[:invoice_number],
-        p.data[:event],
-        p.data[:date],
+        p.data[:event][:name],
+        p.data[:event][:date],
         p.data[:manager],
         caterers_string,
         p.data[:hours][:time].to_s + 'h',

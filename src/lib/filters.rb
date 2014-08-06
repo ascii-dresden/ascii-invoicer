@@ -65,7 +65,6 @@ module Filters
     }
 
     return new_products
-    {}
   end
 
   def filter_created date
@@ -113,6 +112,36 @@ module Filters
 
   def generate_event_date  full_data
     Date.parse full_data[:event][:dates][0][:begin]
+  end
+
+  def sum_money key
+    sum = 0
+    @data[:products].each{|p| sum += p.hash[key]}
+    sum.to_euro
+  end
+
+  def generate_offer_total full_data
+    sum_money :total_offer
+  end
+
+  def generate_offer_tax full_data
+    sum_money :tax_offer
+  end
+
+  def generate_offer_cost full_data
+    sum_money :cost_offer
+  end
+
+  def generate_invoice_total full_data
+    sum_money :total_invoice
+  end
+
+  def generate_invoice_tax full_data
+    sum_money :tax_invoice
+  end
+
+  def generate_invoice_cost full_data
+    sum_money :cost_invoice
   end
 
 end
