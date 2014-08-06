@@ -131,7 +131,7 @@ class ProjectsPlumber
   # output of (foobar must be comparable)
   #
   # untested
-  def open_projects(dir=:working, sort = :date)
+  def open_projects(dir=:working, year=Date.today.year, sort = :date)
     paths = list_projects
     @opened_dir = dir
     @opened_projects = paths.map {|path| @project_class.new path }

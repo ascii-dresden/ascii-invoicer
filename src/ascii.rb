@@ -13,12 +13,13 @@ begin
 rescue
   $SCRIPT_PATH = File.split(File.expand_path(__FILE__))[0]
 end
-require "#{$SCRIPT_PATH}/lib/tweaks.rb"
 require "#{$SCRIPT_PATH}/lib/Euro.rb"
 require "#{$SCRIPT_PATH}/lib/InvoiceProject.rb"
-require "#{$SCRIPT_PATH}/lib/ProjectPlumber.rb"
-require "#{$SCRIPT_PATH}/lib/module_ascii_invoicer.rb"
-require "#{$SCRIPT_PATH}/lib/textboxes.rb"
+require "#{$SCRIPT_PATH}/lib/ProjectsPlumber.rb"
+require "#{$SCRIPT_PATH}/lib/Textboxes.rb"
+
+require "#{$SCRIPT_PATH}/lib/tweaks.rb"
+require "#{$SCRIPT_PATH}/lib/ascii_invoicer.rb"
 
 ## all about settings
 
@@ -75,11 +76,11 @@ error "settings:output_path is an elaborate string: \"#{$SETTINGS['output_path']
 
 
 # bootstraping
-plumber = ProjectsPlumber.new $SETTINGS
-plumber.create_dir :storage unless plumber.check_dir :storage
-plumber.create_dir :working unless plumber.check_dir :working
-plumber.create_dir :archive unless plumber.check_dir :archive
-error "template not found!\n#{plumber.dirs[:template]}"   unless plumber.check_dir :template
+$PLUMBER = ProjectsPlumber.new $SETTINGS, InvoiceProject
+$PLUMBER.create_dir :storage unless $PLUMBER.check_dir :storage
+$PLUMBER.create_dir :working unless $PLUMBER.check_dir :working
+$PLUMBER.create_dir :archive unless $PLUMBER.check_dir :archive
+error "template not found!\n#{$PLUMBER.dirs[:template]}"   unless $PLUMBER.check_dir :template
 
 
 
@@ -116,9 +117,8 @@ class Commander < Thor
     :desc => "do not edit a new file after creation"
 
   def new(name)
-    plumber = ProjectsPlumber.new $SETTINGS
-    puts "creating a new project name #{name}" if puts plumber.new_project name
-    edit_files plumber.get_project_file_path name unless options[:dont_edit]
+    puts "creating a new project name #{name}" if puts $PLUMBER.new_project name
+    edit_files $PLUMBER.get_project_file_path name unless options[:dont_edit]
   end
 
 
@@ -132,7 +132,6 @@ class Commander < Thor
     :desc => "Open File from archive YEAR"
   def edit( *hash )
     # TODO implement edit --archive
-    plumber = ProjectsPlumber.new $SETTINGS
     paths = pick_paths hash, options[:archive]
 
     if paths.size > 0
@@ -163,39 +162,33 @@ class Commander < Thor
     method_option :no_color, :type=>:boolean, :aliases => '-n',
       :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
   def list
-    plumber = ProjectsPlumber.new $SETTINGS
 
     if options[:all]
-      paths = plumber.list_projects_all
+      $PLUMBER.open_projects_all
     else
       unless options[:archives]
-        paths = plumber.list_projects
+        $PLUMBER.open_projects
       else
-        paths = plumber.list_projects :archive, options[:archives]
-        puts "VORSICHT! paths enthält FALSE" if paths.include? false
+        $PLUMBER.open_projects :archive, options[:archive]
       end
     end
 
     $SETTINGS['colors'] = true  if options[:color]
     $SETTINGS['colors'] = false if options[:no_color]
 
+    projects = $PLUMBER.opened_projects
+
     if options[:csv] 
-      projects = open_projects paths, :export, :date
       print_project_list_csv projects
     elsif options[:paths] 
-      projects = open_projects paths, :export , :date
       print_project_list_paths projects
     elsif options[:yaml] 
-      projects = open_projects paths, :export , :date
       print_project_list_yaml projects
     elsif options[:simple]
-      projects = open_projects paths, :list, :date
       print_project_list_simple projects
     elsif options[:verbose] or $SETTINGS['verbose']
-      projects = open_projects paths, :invoice, :date
       print_project_list_verbose projects
     else
-      projects = open_projects paths, :list, :date
       print_project_list_simple projects
     end
   end
@@ -203,13 +196,12 @@ class Commander < Thor
   desc "calendar", "creates a calendar from all caterings"
   def calendar
     require 'icalendar'
-    plumber = ProjectsPlumber.new $SETTINGS
-    paths = plumber.list_projects :archive, 2013
-    paths += plumber.list_projects :archive, 2014
-    paths += plumber.list_projects
+    #paths = $PLUMBER.list_projects :archive, 2013
+    #paths += $PLUMBER.list_projects :archive, 2014
+    #paths += $PLUMBER.list_projects
 
-    projects = open_projects paths, :full, :date
-    print_project_list_ical projects
+    #projects = open_projects paths, :full, :date
+    #print_project_list_ical projects
 
   end
 
@@ -296,7 +288,6 @@ class Commander < Thor
     :desc => "Force archiving projects that are invalid."
   def archive(name)
     # TODO implement archive Project
-    plumber = ProjectsPlumber.new $SETTINGS
     path = pick_project(name)
 
     project = InvoiceProject.new $SETTINGS, path
@@ -312,7 +303,7 @@ class Commander < Thor
     end
 
     if yes? "Do you want to move \"#{prefix}_#{name}\" into the archives of #{year}? (yes|No)"
-      new_path = plumber.archive_project name, year, prefix
+      new_path = $PLUMBER.archive_project name, year, prefix
       puts new_path
 
     else puts "ok, so not"
@@ -324,10 +315,9 @@ class Commander < Thor
   desc "reopen YEAR NAME", "Reopen an archived project."
   def reopen(year, name)
     # TODO finish reopen
-    plumber = ProjectsPlumber.new $SETTINGS
     project = InvoiceProject.new $SETTINGS, pick_project(name,year)
     name = project.data[:name]
-    unless plumber.unarchive_project name, year
+    unless $PLUMBER.unarchive_project name, year
       error "Can't unarchive #{name}, checks names of current projects for duplicates!"
     end
   end
@@ -406,9 +396,8 @@ class Commander < Thor
 
   desc "status", "Git Integration."
   def status
-    plumber = ProjectsPlumber.new $SETTINGS
-    if plumber.check_git()
-      plumber.git_status()
+    if $PLUMBER.check_git()
+      $PLUMBER.git_status()
     else
       puts "problems with git"
     end
@@ -417,15 +406,14 @@ class Commander < Thor
 
   desc "add NAME", "Git Integration."
   def add index
-    plumber = ProjectsPlumber.new $SETTINGS
     if options[:file]
       path = options[:file]
     else
       project = InvoiceProject.new $SETTINGS, pick_project(index)
       path = project.project_folder
     end
-    if plumber.check_git()
-      plumber.git_update_path(path)
+    if $PLUMBER.check_git()
+      $PLUMBER.git_update_path(path)
     else
       puts "problems with git"
     end
@@ -434,9 +422,8 @@ class Commander < Thor
 
   desc "commit message", "Git Integration."
   def commit message
-    plumber = ProjectsPlumber.new $SETTINGS
-    if plumber.check_git()
-      plumber.git_commit(message)
+    if $PLUMBER.check_git()
+      $PLUMBER.git_commit(message)
     else
       puts "problems with git"
     end
@@ -445,17 +432,15 @@ class Commander < Thor
 
   desc "push", "Git Integration."
   def push
-    plumber = ProjectsPlumber.new $SETTINGS
-    if plumber.check_git()
-      plumber.git_push()
+    if $PLUMBER.check_git()
+      $PLUMBER.git_push()
     end
   end
 
   desc "pull", "Git Integration."
   def pull
-    plumber = ProjectsPlumber.new $SETTINGS
-    if plumber.check_git()
-      plumber.git_pull()
+    if $PLUMBER.check_git()
+      $PLUMBER.git_pull()
     end
   end
 
@@ -468,9 +453,8 @@ class Commander < Thor
     :required => false,
     :desc => "Max count of history entries"
   def history
-    plumber = ProjectsPlumber.new $SETTINGS
-    if plumber.check_git()
-      plumber.git_log(options[:count])
+    if $PLUMBER.check_git()
+      $PLUMBER.git_log(options[:count])
     else
       puts "problems with git"
     end
@@ -547,8 +531,6 @@ class Commander < Thor
     #puts current
     puts $SETTINGS['version']
   end
-
-
 end
 
 Commander.start

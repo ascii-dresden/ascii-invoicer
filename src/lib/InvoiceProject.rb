@@ -194,14 +194,14 @@ class InvoiceProduct
 
 
     @valid = true
-    validate() unless hash.nil?
+    calculate() unless hash.nil?
   end
 
   def to_s
     "#{@amount}|#{@sold} #{@name}, #{@price} cost (#{@cost_offer}|#{@cost_invoice}) total(#{@total_offer}|#{@total_invoice}) "
   end
 
-  def validate()
+  def calculate()
     return false if @hash.nil?
     @valid    = false unless @hash[:sold].nil? or @hash[:returned].nil?
     @valid    = false unless @hash[:amount] and @hash[:price]
@@ -219,7 +219,15 @@ class InvoiceProduct
       @returned = 0
     end
 
-    calculate()
+    @hash[:cost_offer]   = @cost_offer   = (@price * @amount).to_euro
+    @hash[:cost_invoice] = @cost_invoice = (@price * @sold).to_euro
+
+    @hash[:tax_offer]    = @tax_offer    = (@cost_offer   * @tax_value)
+    @hash[:tax_invoice]  = @tax_invoice  = (@cost_invoice * @tax_value)
+
+    @hash[:total_offer]    = @total_offer    = (@cost_offer   + @tax_offer)
+    @hash[:total_invoice]  = @total_invoice  = (@cost_invoice + @tax_invoice)
+    self.freeze
   end
 
   def amount choice
@@ -233,22 +241,4 @@ class InvoiceProduct
     return @cost_offer   if choice == :offer
     return -1.to_euro
   end
-
-  def tax choice
-    return @tax_offer   if choice == :offer
-    return @tax_invoice if choice == :invoice
-  end
-
-  def calculate()
-    @hash[:cost_offer]   = @cost_offer   = (@price * @amount).to_euro
-    @hash[:cost_invoice] = @cost_invoice = (@price * @sold).to_euro
-
-    @hash[:tax_offer]    = @tax_offer    = (@cost_offer   * @tax_value)
-    @hash[:tax_invoice]  = @tax_invoice  = (@cost_invoice * @tax_value)
-
-    @hash[:total_offer]    = @total_offer    = (@cost_offer   + @tax_offer)
-    @hash[:total_invoice]  = @total_invoice  = (@cost_invoice + @tax_invoice)
-    self.freeze
-  end
-
 end

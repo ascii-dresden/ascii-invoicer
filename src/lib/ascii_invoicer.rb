@@ -49,9 +49,10 @@ module AsciiInvoicer
         p.data[:event][:name] ? p.data[:event][:name] : "",
         p.name,
         p.data[:manager],
-        p.data[:invoice_number],
+        p.data[:invoice][:number],
         p.data[:event][:date].strftime("%d.%m.%Y"),
         p.data[:valid].print,
+        p.ERRORS,
       ], color_from_date(p.data[:date]))
     end
     table.set_alignment(0, :r)

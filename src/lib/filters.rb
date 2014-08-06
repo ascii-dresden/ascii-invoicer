@@ -84,8 +84,8 @@ module Filters
   end
 
   def filter_invoice_number number
-    "R#{number}" unless number.nil? or number[0] == ?R
-    @data[:invoice]
+    return fail_at :invoice_number if number.nil?
+    "R#{number.to_s.rjust(3, ?0)}"
   end
 
   def filter_invoice_date date
