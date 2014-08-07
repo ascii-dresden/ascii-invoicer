@@ -134,8 +134,8 @@ describe ProjectsPlumber do
       end
     end
 
+## TODO test get_project_folder for :archive
     describe described_class, "#get_project_folder" do
-      #TODO test get_project_folder for :archive
       it "returns false for missing project folder" do
         expect(@plumber.get_project_folder("nonexistent_project")).to be_falsey
       end

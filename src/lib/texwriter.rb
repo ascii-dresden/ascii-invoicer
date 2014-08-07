@@ -31,7 +31,7 @@ module TexWriter
     logs "Rendering #{path} with #{@settings['latex']}"
     silencer = @settings['verbose'] ? "" : "> /dev/null" 
 
-    #TODO output directory is not generic
+## TODO output directory is not generic
     system "#{@settings['latex']} \"#{path}\" -output-directory . #{silencer}"
 
     output_path = File.expand_path @settings['output_path']

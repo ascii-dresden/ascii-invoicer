@@ -296,7 +296,7 @@ class Commander < Thor
     :lazy_default=> true, :required => false,
     :desc => "Force archiving projects that are invalid."
   def archive(name)
-    # TODO implement archive Project
+## TODO implement archive Project
     path = pick_project(name)
 
     project = InvoiceProject.new $SETTINGS, path
@@ -323,7 +323,7 @@ class Commander < Thor
 
   desc "reopen YEAR NAME", "Reopen an archived project."
   def reopen(year, name)
-    # TODO finish reopen
+## TODO finish reopen
     project = InvoiceProject.new $SETTINGS, pick_project(name,year)
     name = project.data[:name]
     unless $PLUMBER.unarchive_project name, year
@@ -347,7 +347,7 @@ class Commander < Thor
     :desc => "check"
   def offer( *hash )
     $SETTINGS['verbose'] = true if options[:verbose]
-    # TODO implement offer --archive
+## TODO implement offer --archive
     if options[:file]
       path = options[:file]
       name = File.basename path, ".yml"

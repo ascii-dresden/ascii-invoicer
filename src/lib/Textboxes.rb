@@ -12,8 +12,8 @@ class TableBox
   attr_reader :width, :column_widths, :column_count, :content_width,
     :padding_horizontal, :rows
 
-  # TODO take :box or :table or :aligning for matching defaults
-  # TODO style[:column_borders,:row_borders]
+## TODO take :box or :table or :aligning for matching defaults
+## TODO style[:column_borders,:row_borders]
   def initialize(hash = {})
 
     @borders          = {}

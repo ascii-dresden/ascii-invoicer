@@ -196,25 +196,23 @@ describe InvoiceProject do
     end
 
     it "validates description" do
-      # TODO implement
       expect(@project.open @project_paths['described'])
       expect(@project.read(:description)).to be_truthy
       #expect(@project.data[:description]).to eq "test\ntest"
       expect(@project.data[:description]).to eq "Hi there, this is what we're going to do:\nFirst we will pack our swimsuites, then we will go to Freiberger Straße\nand then we will äëïöü!\n\nDanke"
     end
 
+## TODO implement canceld catering test
     #it "passes a canceled catering" do
-    #  # TODO implement
     #  expect(false).to eq true
     #end
 
+## TODO implement validates time test
     #it "validates time" do
-    #  # TODO implement
     #  expect(false).to eq true
     #end
 
     it "validates caterer" do
-      # TODO implement
       expect(@p_old.read(:caterers)).to be_truthy
 
       expect(@p_old.data[:caterers][0]).to eq "Name"

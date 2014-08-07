@@ -74,6 +74,7 @@ module AsciiInvoicer
     puts table
   end
 
+## TODO print_project_list_ical(projects) add products list
   def print_project_list_ical(projects)
     require 'icalendar'
     cal = Icalendar::Calendar.new
