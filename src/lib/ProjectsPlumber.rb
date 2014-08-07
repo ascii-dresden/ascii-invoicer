@@ -168,9 +168,15 @@ class ProjectsPlumber
     lookup name
   end
 
+  def lookup_path(name, sort = nil)
+    p = lookup(name)
+    @project_paths[p.name] unless p.nil?
+  end
+  
+  
   def lookup(name, sort = nil)
     sort_projects sort unless sort == nil or @opened_sort == sort
-
+    name = name.to_i - 1 if name =~ /^\d*$/
     if name.class == String
       name_map = {}
       @opened_projects.each {|project| name_map[project.name] = project}
@@ -291,6 +297,7 @@ class ProjectsPlumber
   ##
   #  Move to archive directory
   #  @name 
+## ProjectsPlumber.archive_project should use AsciiSanitizer
   def archive_project(name, year = Date.today.year, prefix = '')
     name.strip!
     name.sub!(/^\./,'') # removes hidden_file_dot '.' from the begging
@@ -306,16 +313,24 @@ class ProjectsPlumber
       target = File.join year_folder, name
     end
 
-    return false unless project_folder
-    return false if list_project_names(:archive, year).include? name
+    if yes? "Do you want to move \"#{prefix}_#{project.name}\" into the archives of #{year}? (yes|No)"
+      new_path = $PLUMBER.archive_project name, year, prefix
+      puts new_path
 
-    logs "moving: #{project_folder} to #{target}" if target and project_folder
-    FileUtils.mv project_folder, target
-    if check_git()
-      git_update_path project_folder
-      git_update_path target
+
+      return false unless project_folder
+      return false if list_project_names(:archive, year).include? name
+
+      logs "moving: #{project_folder} to #{target}" if target and project_folder
+      FileUtils.mv project_folder, target
+      if check_git()
+        git_update_path project_folder
+        git_update_path target
+      end
+      return target
+    else
+      puts "ok, did not archive #{name}"
     end
-    return target
   end
 
   ##

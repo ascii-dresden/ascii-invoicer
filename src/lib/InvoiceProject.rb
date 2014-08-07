@@ -25,15 +25,6 @@ class InvoiceProject
   include Filters
   include ProjectFileReader
 
-  def validate choice = :invoice
-    invalidators = {
-      :invoice => [:invoice_number, :products],
-      :offer=> [:offer_number]
-    }[choice] - @ERRORS
-
-    invalidators.length > 0
-  end
-
   @@known_keys= [
     :format,    :lang,      :created,
     :client,    :event,     :manager,
@@ -148,6 +139,13 @@ class InvoiceProject
       value = apply_generator key, @data
       @data.set key, value, ?_, true # symbols = true
     }
+  end
+
+  def validate choice = :invoice
+    (invalidators = { # self explaiatory ain't it? :D
+      :invoice   => [:invoice_number, :products],
+      :offer     => [:offer_number]
+    }[choice] & @ERRORS).length==0
   end
 
   def to_s

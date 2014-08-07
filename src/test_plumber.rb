@@ -23,8 +23,7 @@ plumber = ProjectsPlumber.new $SETTINGS, InvoiceProject
 plumber.open_projects :archive, 2014
 plumber.sort_projects :name
 
-projects = plumber.opened_projects
-pp projects
+pp plumber.lookup("R002_weinhold")
 
 
 #print_project_list_simple  projects

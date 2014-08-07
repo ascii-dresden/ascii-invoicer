@@ -277,22 +277,22 @@ class Commander < Thor
     :lazy_default=> true, :required => false,
     :desc => "Force archiving projects that are invalid."
   def archive(name)
-## TODO implement archive Project
-    path = pick_project(name)
+    ## TODO implement archive Project
+    $PLUMBER.open_projects
+    project = $PLUMBER.lookup name
 
-    project = InvoiceProject.new $SETTINGS, path
-    project.validate(:invoice)
+    puts "is valid" if project.validate(:invoice)
 
-    data   = project.data
-    year   = data[:date].year
-    prefix = data[:invoice_number].nil? ? "" : data[:invoice_number]
-    name   = data[:name]
+    year   = project.date.year
+    prefix = project.data[:invoice][:number]
+    prefix ||= ""
+    prefix  += "canceled" if project.data[:canceled]
 
-    unless data[:valid] or options[:force]
-      error "\"#{name}\" contains errors\n(#{project.errors.join(',')})"
+    unless project.validate(:invoice) or options[:force]
+      error "\"#{project.name}\" contains errors\n(#{project.ERRORS.join(',')})"
     end
 
-    if yes? "Do you want to move \"#{prefix}_#{name}\" into the archives of #{year}? (yes|No)"
+    if yes? "Do you want to move \"#{prefix}_#{project.name}\" into the archives of #{year}? (yes|No)"
       new_path = $PLUMBER.archive_project name, year, prefix
       puts new_path
 

@@ -51,7 +51,7 @@ module AsciiInvoicer
         p.data[:manager],
         p.data[:invoice][:number],
         p.data[:event][:date].strftime("%d.%m.%Y"),
-        p.data[:valid].print,
+        p.validater(:invoice).print,
         p.ERRORS,
       ], color_from_date(p.date))
     end
