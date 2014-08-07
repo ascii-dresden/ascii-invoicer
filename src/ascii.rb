@@ -15,6 +15,7 @@ rescue
 end
 require "#{$SCRIPT_PATH}/lib/Euro.rb"
 require "#{$SCRIPT_PATH}/lib/InvoiceProject.rb"
+require "#{$SCRIPT_PATH}/lib/HashTransform.rb"
 require "#{$SCRIPT_PATH}/lib/ProjectsPlumber.rb"
 require "#{$SCRIPT_PATH}/lib/Textboxes.rb"
 
@@ -50,23 +51,11 @@ $SETTINGS_PATHS.values.each{ |path|
   end
 }
 
-# loading $SETTINGS and personal_settings
-def overwrite_settings(default, custom)
-  default.each do |k,v|
-    if custom[k].class == Hash
-      overwrite_settings default[k], custom[k]
-    else
-      default[k] = custom[k] unless custom[k].nil?
-    end
-  end
-end
-
-# mixing local and default settings
-overwrite_settings $SETTINGS, $personal_settings if $personal_settings
-
+## loading $SETTINGS and grafting $personal_settings to them
+$SETTINGS.graft $personal_settings if $personal_settings
 
 ## Default editor if not set ins settings files
-$SETTINGS["editor"] = ENV['EDITOR']
+$SETTINGS["editor"] ||= ENV['EDITOR']
 
 ## Version of the software
 $SETTINGS['version'] = "v2.4.0-alpha"
@@ -110,10 +99,8 @@ class Commander < Thor
 
   class_option :file,      :aliases=> "-f", :type => :string
   class_option :verbose,   :aliases=> "-v", :type => :boolean
-  class_option :editor,                     :type => :string
+  class_option :editor,                     :type => :string, :default => $SETTINGS['editor']
   #class_option "keep-log", :aliases=> "-k", :type => :boolean
-
-
 
   desc "new NAME", "creating a new project" 
   method_option :dont_edit,
@@ -136,20 +123,14 @@ class Commander < Thor
     :required => false,
     :desc => "Open File from archive YEAR"
   def edit( *hash )
-
     if options[:archive]
       $PLUMBER.open_projects(:archive, options[:archive])
     else
       $PLUMBER.open_projects()
     end
 
-    pp $PLUMBER.opened_projects
-    hash.each{ |name|
-      name = name.to_i - 1 if name =~ /^\d$/
-      project = $PLUMBER.lookup name
-    }
+    paths= hash.map { |name| $PLUMBER.lookup_path(name) }
 
-    exit
     if paths.size > 0
       edit_files paths, options[:editor]
     else
@@ -382,22 +363,14 @@ class Commander < Thor
     if options[:file]
       path = options[:file]
       name = File.basename path, ".yml"
-      project = InvoiceProject.new $SETTINGS, path, name
+      project = InvoiceProject.new path, name
       project.create_tex choice, options[:check], false
     else
       paths = pick_paths hash, options[:archive]
-      if options[:print]
-        paths.each { |path|
-          project = InvoiceProject.new $SETTINGS, path
-          project.validate :full
-          puts project.name, project.valid_for, project.errors
-        }
-      else
-        paths.each { |path|
-          project = InvoiceProject.new $SETTINGS, path
-          render_project project, :invoice
-        }
-      end
+      paths.each { |path|
+        project = InvoiceProject.new path
+        render_project project, :invoice
+      }
     end
   end
 
