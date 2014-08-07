@@ -25,8 +25,13 @@ class InvoiceProject
   include Filters
   include ProjectFileReader
 
-  def validate *stuff
-    #warn " #{ caller[0] }validate is not yet implemented"
+  def validate choice = :invoice
+    invalidators = {
+      :invoice => [:invoice_number, :products],
+      :offer=> [:offer_number]
+    }[choice] - @ERRORS
+
+    invalidators.length > 0
   end
 
   @@known_keys= [
@@ -120,6 +125,8 @@ class InvoiceProject
     date = strpdates(hash['date'])
     new_hash.set("event/dates/0/begin", date[0])
     new_hash.set("event/dates/0/end",   date[1]) unless date[1].nil?
+    new_hash.set("event/dates/0/time/begin", new_hash.get("time"))     if date[1].nil?
+    new_hash.set("event/dates/0/time/end",   new_hash.get("time_end")) if date[1].nil?
 
     if new_hash.get("client/fullname").class == String and
     new_hash.get("client/fullname").words.class == Array

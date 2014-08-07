@@ -21,7 +21,7 @@ end
 
 class Date
   def to_s
-    self.strftime "!DATEi: %d.%m.%Y"
+    self.strftime "%d.%m.%Y"
   end
 end
 
