@@ -1,5 +1,10 @@
 # encoding: utf-8
+libpath = File.dirname __FILE__
+require File.join libpath, "shell.rb"
+
 module AsciiInvoicer
+
+  include Shell
   ## Use Option parser or leave it if only one argument is given
 
   def render_project project, choice
@@ -11,6 +16,7 @@ module AsciiInvoicer
     end
   end
 
+  ##TODO turn color_from_date(date) into a loopuk into $SETTINGS
   def color_from_date(date)
     return nil      unless $SETTINGS['colors']
     return :blue    if date - Date.today < -14
@@ -51,8 +57,8 @@ module AsciiInvoicer
         p.data[:manager],
         p.data[:invoice][:number],
         p.data[:event][:date].strftime("%d.%m.%Y"),
-        p.validater(:invoice).print,
-        p.ERRORS,
+        p.validate(:invoice).print,
+        #p.ERRORS,
       ], color_from_date(p.date))
     end
     table.set_alignment(0, :r)
@@ -212,8 +218,7 @@ module AsciiInvoicer
   def check_project(path)
     project = InvoiceProject.new $SETTINGS
     project.open path
-    project.validate(:offer)
-    unless project.data[:valid]
+    unless project.validate(:offer)
       puts "\nWARNING: the file you just edited contains errors! (#{project.errors})"
       unless no? "would you like to edit it again? [y|N]"
         edit_files path

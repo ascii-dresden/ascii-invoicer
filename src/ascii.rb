@@ -13,12 +13,14 @@ begin
 rescue
   $SCRIPT_PATH = File.split(File.expand_path(__FILE__))[0]
 end
+
 require "#{$SCRIPT_PATH}/lib/Euro.rb"
 require "#{$SCRIPT_PATH}/lib/InvoiceProject.rb"
 require "#{$SCRIPT_PATH}/lib/HashTransform.rb"
 require "#{$SCRIPT_PATH}/lib/ProjectsPlumber.rb"
 require "#{$SCRIPT_PATH}/lib/Textboxes.rb"
 
+require "#{$SCRIPT_PATH}/lib/shell.rb"
 require "#{$SCRIPT_PATH}/lib/tweaks.rb"
 require "#{$SCRIPT_PATH}/lib/ascii_invoicer.rb"
 
@@ -281,8 +283,6 @@ class Commander < Thor
     $PLUMBER.open_projects
     project = $PLUMBER.lookup name
 
-    puts "is valid" if project.validate(:invoice)
-
     year   = project.date.year
     prefix = project.data[:invoice][:number]
     prefix ||= ""
@@ -290,14 +290,11 @@ class Commander < Thor
 
     unless project.validate(:invoice) or options[:force]
       error "\"#{project.name}\" contains errors\n(#{project.ERRORS.join(',')})"
-    end
-
-    if yes? "Do you want to move \"#{prefix}_#{project.name}\" into the archives of #{year}? (yes|No)"
-      new_path = $PLUMBER.archive_project name, year, prefix
+    else
+      new_path = $PLUMBER.archive_project project, prefix
       puts new_path
-
-    else puts "ok, so not"
     end
+
   end
 
 
@@ -305,9 +302,11 @@ class Commander < Thor
   desc "reopen YEAR NAME", "Reopen an archived project."
   def reopen(year, name)
 ## TODO finish reopen
-    project = InvoiceProject.new $SETTINGS, pick_project(name,year)
+    $PLUMBER.open_projects :archive, year
+    project = $PLUMBER.lookup name
+
     name = project.data[:name]
-    unless $PLUMBER.unarchive_project name, year
+    unless $PLUMBER.unarchive_project project, year
       error "Can't unarchive #{name}, checks names of current projects for duplicates!"
     end
   end
@@ -329,16 +328,17 @@ class Commander < Thor
   def offer( *hash )
     $SETTINGS['verbose'] = true if options[:verbose]
 ## TODO implement offer --archive
+
     if options[:file]
       path = options[:file]
       name = File.basename path, ".yml"
       project = InvoiceProject.new $SETTINGS, path, name
-      render_project project, :offer
+      render_project 
     else
       paths = pick_paths hash, options[:archive]
       paths.each { |path|
         project = InvoiceProject.new $SETTINGS, path
-        render_project project, :offer
+        render_project
       }
     end
   end
@@ -365,11 +365,12 @@ class Commander < Thor
       name = File.basename path, ".yml"
       project = InvoiceProject.new path, name
       project.create_tex choice, options[:check], false
+      render_project
     else
       paths = pick_paths hash, options[:archive]
       paths.each { |path|
         project = InvoiceProject.new path
-        render_project project, :invoice
+        render_project
       }
     end
   end

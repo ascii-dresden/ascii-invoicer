@@ -1,13 +1,14 @@
 # encoding: utf-8
 require 'yaml'
 require 'date'
+libpath = File.dirname __FILE__
 
-require File.join File.dirname(__FILE__) + '/HashTransform.rb'
-require File.join File.dirname(__FILE__) + '/Euro.rb'
+require File.join libpath, 'HashTransform.rb'
+require File.join libpath, 'Euro.rb'
 
-require File.join File.dirname(__FILE__) + '/projectFileReader.rb'
-require File.join File.dirname(__FILE__) + '/rfc5322_regex.rb'
-require File.join File.dirname(__FILE__) + '/texwriter.rb'
+require File.join libpath, 'projectFileReader.rb'
+require File.join libpath, 'rfc5322_regex.rb'
+require File.join libpath, 'texwriter.rb'
 
 ## TODO requirements and validity
 ## TODO open, YAML::parse, [transform, ] read_all, generate, validate

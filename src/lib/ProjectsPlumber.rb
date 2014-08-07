@@ -1,8 +1,9 @@
 # encoding: utf-8
 require 'fileutils'
-LIBPATH = File.split(__FILE__)[0]
-require "#{LIBPATH}/gitplumber.rb"
-require "#{LIBPATH}/AsciiSanitizer.rb"
+libpath = File.dirname __FILE__
+require File.join libpath, "gitplumber.rb"
+require File.join libpath, "AsciiSanitizer.rb"
+require File.join libpath, "shell.rb"
 
 
 ## requires a project_class
@@ -19,6 +20,7 @@ class ProjectsPlumber
   attr_writer :project_class
 
   include GitPlumber
+  include Shell
 
 
   def initialize(settings = $SETTINGS, project_class = nil)
@@ -297,48 +299,44 @@ class ProjectsPlumber
   ##
   #  Move to archive directory
   #  @name 
-## ProjectsPlumber.archive_project should use AsciiSanitizer
-  def archive_project(name, year = Date.today.year, prefix = '')
-    name.strip!
-    name.sub!(/^\./,'') # removes hidden_file_dot '.' from the begging
-    name.gsub!(/\//,'_') 
-    name.gsub!(/\//,'_') 
+  ## ProjectsPlumber.archive_project should use AsciiSanitizer
+  def archive_project(project, prefix = '')
+    return false unless project.class == @project_class
+
+    year = project.date.year
     year_folder = File.join @dirs[:archive], year.to_s
     FileUtils.mkdir year_folder unless File.exists? year_folder
 
-    project_folder = get_project_folder name, :working
+    project_folder = get_project_folder project.name, :working
     if prefix and prefix.length > 0
-      target = File.join year_folder, name.prepend(prefix + "_")
+      archived_name = project.name.prepend(prefix + "_")
+      target = File.join year_folder, archived_name
     else
-      target = File.join year_folder, name
+      target = File.join year_folder, project.name
     end
 
-    if yes? "Do you want to move \"#{prefix}_#{project.name}\" into the archives of #{year}? (yes|No)"
-      new_path = $PLUMBER.archive_project name, year, prefix
-      puts new_path
+    return false unless project_folder
+    return false if list_project_names(:archive, year).include? project.name
 
+    logs "moving: #{project_folder} to #{target}" if target and project_folder
 
-      return false unless project_folder
-      return false if list_project_names(:archive, year).include? name
-
-      logs "moving: #{project_folder} to #{target}" if target and project_folder
-      FileUtils.mv project_folder, target
-      if check_git()
-        git_update_path project_folder
-        git_update_path target
-      end
-      return target
-    else
-      puts "ok, did not archive #{name}"
+    FileUtils.mv project_folder, target
+    if check_git()
+      git_update_path project_folder
+      git_update_path target
     end
+    return target
   end
 
   ##
   #  Move to archive directory
-  def unarchive_project(name, year = Date.today.year)
-    name.strip!
+  def unarchive_project(project, year = Date.today.year)
+    return false unless project.class == @project_class
+    name = project.name
 
-    path = get_project_file_path(name, :archive, year)
+    path = project.data :project_path
+    pp path
+
     cleaned_name = File.basename(path,@settings['project_file_extension'])
 
     source = get_project_folder name, :archive, year
