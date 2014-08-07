@@ -19,7 +19,7 @@ event:
   name: "test event"
   location: Dresden
   dates:
-  - begin: 13.08.2014 # leht sich auf die veranstaltung selbst
+  - begin: 13.08.2014
     #end: 
     #time:
     #  begin: #"13:00"

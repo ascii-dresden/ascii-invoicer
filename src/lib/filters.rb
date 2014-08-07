@@ -38,8 +38,24 @@ module Filters
 
   def filter_event_dates dates
     dates.each {|d|
+      unless d[:time].nil? or d[:end].nil? ## time and end is missleading
+        warn "#{name} missleading: time and end_date"
+        return fail_at :event_dates
+      end
+
       d[:begin] = Date.parse(d[:begin]) if d[:begin].class == String
-      d[:end]   = Date.parse(d[:end])   if d[:end].class   == String }
+
+      if not d[:time].nil?
+        d[:time][:begin] = DateTime.strptime("#{d[:time][:begin]} #{d[:begin]}", "%H:%M %d.%m.%Y" ) if d[:time][:begin]
+        d[:time][:end]   = DateTime.strptime("#{d[:time][:end]  } #{d[:begin]}", "%H:%M %d.%m.%Y" ) if d[:time][:end]
+      end
+
+      if d[:end].class == String
+        d[:end] = Date.parse(d[:end])
+      else
+        d[:end] = d[:begin] 
+      end
+    }
     dates
   end
 
@@ -123,7 +139,7 @@ module Filters
   end
 
   def generate_event_date  full_data
-    Date.parse full_data[:event][:dates][0][:begin]
+    Date.parse full_data[:event][:dates][0][:begin]  unless full_data[:event][:dates].nil?
   end
 
   def sum_money key
@@ -133,10 +149,11 @@ module Filters
   end
 
   def generate_event_date full_data
-    full_data[:event][:dates][0][:begin]
+    full_data[:event][:dates][0][:begin] unless full_data[:event][:dates].nil?
   end
 
   def generate_event_prettydate full_data
+    return fail_at :event_prettydate if full_data[:event][:dates].nil?
     date = full_data[:event][:dates][0]
     first = date[:begin]
     last = full_data[:event][:dates].last[:end]

@@ -1,8 +1,9 @@
 # encoding: utf-8
 
-require File.join File.dirname(__FILE__) + '/filters.rb'
-require './lib/tweaks.rb'
 require 'paint'
+
+require File.join File.dirname(__FILE__) + '/tweaks.rb'
+require File.join File.dirname(__FILE__) + '/filters.rb'
 
 
 module ProjectFileReader
@@ -106,7 +107,7 @@ module ProjectFileReader
   def fail_at(*criteria)
     @data[:valid] = false
     criteria.each  {|c|
-      @ERRORS.push c unless @ERRORS.include? c
+      @ERRORS.push c.to_sym unless @ERRORS.include? c
     }
     return nil
   end

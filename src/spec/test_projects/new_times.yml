@@ -1,0 +1,96 @@
+--- # ascii invoicer document  (v2.4.0-alpha)
+format: 2.4.0
+version: 20140727
+created: 29.07.2014
+#canceled: yes
+
+client: 
+  title:      Herr # Frau, Professor, Professorin
+  first_name: John
+  last_name:  Doe
+
+  email: jon.doe@example.com
+  address: | 
+    John Doe
+    Street Number
+    01234 City
+
+event: 
+  name: "test event"
+  location: Dresden
+  dates:
+  - begin: 07.08.2014
+    time:
+      begin: "09:20"
+      end:   "12:20"
+  - begin: 07.08.2014
+    time:
+      begin: "13:00"
+      end:   "14:20"
+
+  description: |
+
+offer:
+  date: 01.08.2014 #leave empty for auto date
+  appendix: 1
+
+invoice:
+  number: 27
+  date: 15.03.1987 #leave empty for auto date
+  payed_date: 25.08.2014
+
+
+catalogue:
+  product: &cafe
+    name:  Kaffee
+    price: 2.5
+    unit:  1l
+  product: &id010        { name: Tee             , price: 1.75 , unit: 1l   ,tax: 0.15}
+  product: &wasser_gross { name: Mineralwasser   , price: 0.61 , unit: 1l   }
+  product: &wasser_klein { name: Mineralwasser   , price: 0.59 , unit: 1l   }
+  product: &apfelsaft    { name: Apfelsaft       , price: 1.65 , unit: 1l   }
+  product: &orangensaft  { name: Orangensaft     , price: 1.82 , unit: 1l   }
+
+  product: &bagel        { name: Bagel           , price: 2.19 , unit: stk  }
+  product: &kekse        { name: Kekse Lamberts  , price: 3.40 , unit: 400g }
+  product: &broetchen    { name: halbes Brötchen , price: 1.16 , unit: stk  }
+  product: &kuchen       { name: Kuchen          , price: 0.94 , unit: stk  }
+
+products:
+
+  *cafe: { amount: 4, sold:   5 }
+  *wasser_gross:
+    amount: 4
+    sold:   5
+  *kekse:
+    amount: 4
+    sold: 2
+  *id010:
+    amount: 4
+
+  "Orangensaft (1l)":
+    amount:    8
+    price:     1.82
+    returned:  0
+  "Apfelsaft (1l)":
+    amount:    8
+    price:     1.65
+    sold:      0
+  #"Belegte Brötchen":
+  #  amount:    0
+  #  price:     1.16
+
+hours: 
+  salary: 8.00
+  caterers:
+    "Name" : 0 #Stunden
+    
+manager: Hendrik
+
+#canceled: yes
+#lang: de
+#tax: 0.19
+
+#messages: # read default-settings.yml on how to overwrite
+
+...

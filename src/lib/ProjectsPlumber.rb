@@ -9,7 +9,13 @@ require "#{LIBPATH}/AsciiSanitizer.rb"
 # project_class must implement: name, date
 class ProjectsPlumber
 
-  attr_reader :dirs, :opened_projects, :opened_dir, :opened_sort
+  attr_reader :dirs,
+    :opened_projects,
+    :project_paths,
+    :opened_paths,
+    :opened_sort,
+    :opened_dir
+
   attr_writer :project_class
 
   include GitPlumber
@@ -132,9 +138,19 @@ class ProjectsPlumber
   #
   # untested
   def open_projects(dir=:working, year=Date.today.year, sort = :date)
-    paths = list_projects
-    @opened_dir = dir
-    @opened_projects = paths.map {|path| @project_class.new path }
+    if dir==:all
+      @opened_paths    = list_projects_all
+    else
+      @opened_paths    = list_projects dir, year 
+    end
+
+    @opened_dir      = dir
+    @project_paths   = {}
+    @opened_paths.each {|path|
+      project = @project_class.new path
+      @opened_projects = @opened_projects + [ project ]
+      @project_paths[project.name] = path
+    }
     sort_projects(sort)
     return true
   end
@@ -144,28 +160,24 @@ class ProjectsPlumber
   #
   # untested
   def open_projects_all(sort = :date)
-      paths = list_projects_all
-      @opened_dir = :all
-      @opened_sort = sort
-      @opened_projects = paths.map {|path| @project_class.new path }
-      return true
+    @opened_paths    = list_projects_all
+    open_projects :all, year=nil, sort
   end
-  
+
   def [] name
     lookup name
   end
 
   def lookup(name, sort = nil)
-      sort_projects sort unless sort == nil or @opened_sort == sort
-      
-      if name.class == String
-          name_map = {}
-          @opened_projects.each {|project| name_map[project.name] = project}
-          return name_map[name]
-      elsif name.class == Fixnum
-          return @opened_projects[name]
-      end
-      
+    sort_projects sort unless sort == nil or @opened_sort == sort
+
+    if name.class == String
+      name_map = {}
+      @opened_projects.each {|project| name_map[project.name] = project}
+      return name_map[name]
+    elsif name.class == Fixnum
+      return @opened_projects[name]
+    end
   end
   
   

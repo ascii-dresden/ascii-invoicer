@@ -23,14 +23,14 @@ require "#{$SCRIPT_PATH}/lib/ascii_invoicer.rb"
 
 ## all about settings
 
-#where are settings located?
+## where are settings located?
 $SETTINGS_PATHS = {
    :global   => File.join(Dir.home, ".ascii-invoicer.yml"),
    :local    => ".settings.yml",
    :template => File.join($SCRIPT_PATH, "settings_template.yml")
 }
 
-# load default settings
+## load default settings
 begin
   $SETTINGS = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
 rescue SyntaxError => error
@@ -49,10 +49,6 @@ $SETTINGS_PATHS.values.each{ |path|
     $SETTINGS['personal_settings_path'] = path
   end
 }
-$SETTINGS["editor"] = ENV['EDITOR']
-$SETTINGS['version'] = "v2.5.0-alpha"
-
-$SETTINGS['script_path'] = $SCRIPT_PATH
 
 # loading $SETTINGS and personal_settings
 def overwrite_settings(default, custom)
@@ -68,14 +64,26 @@ end
 # mixing local and default settings
 overwrite_settings $SETTINGS, $personal_settings if $personal_settings
 
+
+## Default editor if not set ins settings files
+$SETTINGS["editor"] = ENV['EDITOR']
+
+## Version of the software
+$SETTINGS['version'] = "v2.4.0-alpha"
+
+## path to the source code
+$SETTINGS['script_path'] = $SCRIPT_PATH
+
+## path to the project File, here we expand the "~"
 $SETTINGS['path']        = File.expand_path $SETTINGS['path']
 
+## security
 #error "settings:editor is an elaborate string: \"#{$SETTINGS['editor']}\"!\nDANGEROUS!" if $SETTINGS['editor'].include? " "
 error "settings:latex is an elaborate string: \"#{$SETTINGS['latex']}\"!\nDANGEROUS!" if $SETTINGS['latex'].include? " "
 error "settings:output_path is an elaborate string: \"#{$SETTINGS['output_path']}\"!\nDANGEROUS!" if $SETTINGS['output_path'].include? " "
 
 
-# bootstraping
+## bootstraping the plumber, first run creates all folders
 $PLUMBER = ProjectsPlumber.new $SETTINGS, InvoiceProject
 $PLUMBER.create_dir :storage unless $PLUMBER.check_dir :storage
 $PLUMBER.create_dir :working unless $PLUMBER.check_dir :working
@@ -86,7 +94,7 @@ error "template not found!\n#{$PLUMBER.dirs[:template]}"   unless $PLUMBER.check
 
 
 
-# here coms thor
+## here coms thor
 class Commander < Thor
   include Thor::Actions
   include AsciiInvoicer
@@ -107,15 +115,12 @@ class Commander < Thor
 
 
 
-
-
   desc "new NAME", "creating a new project" 
   method_option :dont_edit,
     :type=>:boolean, :aliases => "-d",
     :lazy_default=> true,
     :required => false,
     :desc => "do not edit a new file after creation"
-
   def new(name)
     puts "creating a new project name #{name}" if puts $PLUMBER.new_project name
     edit_files $PLUMBER.get_project_file_path name unless options[:dont_edit]
@@ -131,9 +136,20 @@ class Commander < Thor
     :required => false,
     :desc => "Open File from archive YEAR"
   def edit( *hash )
-    # TODO implement edit --archive
-    paths = pick_paths hash, options[:archive]
 
+    if options[:archive]
+      $PLUMBER.open_projects(:archive, options[:archive])
+    else
+      $PLUMBER.open_projects()
+    end
+
+    pp $PLUMBER.opened_projects
+    hash.each{ |name|
+      name = name.to_i - 1 if name =~ /^\d$/
+      project = $PLUMBER.lookup name
+    }
+
+    exit
     if paths.size > 0
       edit_files paths, options[:editor]
     else
@@ -144,33 +160,31 @@ class Commander < Thor
 
 
   desc "list", "List current Projects."
-    method_option :archives,
-      :type=>:numeric, :aliases => "-a",
-      :lazy_default=> Date.today.year, :required => false, :desc => "list archived projects"
-    method_option :all, :type=>:boolean,
-      :lazy_default=> true, :required => false, :desc => "lists all projects, ever (indezies wont work)"
-    method_option :paths, :type=>:boolean, :aliases => '-p',
-      :lazy_default=> true, :required => false, :desc => "list paths to .yml files"
-    method_option :simple, :type=>:boolean, :aliases => '-s',
-      :lazy_default=> true, :required => false, :desc => "ignore global verbose setting"
-    method_option :csv, :type=>:boolean, 
-      :lazy_default=> true, :required => false, :desc => "output as csv"
-    method_option :yaml, :type=>:boolean,
-      :lazy_default=> true, :required => false, :desc => "output as yaml"
-    method_option :color, :type=>:boolean, :aliases => '-c',
-      :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
-    method_option :no_color, :type=>:boolean, :aliases => '-n',
-      :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
-  def list
+  method_option :archive,
+    :type=>:numeric, :aliases => "-a",
+    :lazy_default=> Date.today.year, :required => false, :desc => "list archived projects"
+  method_option :all, :type=>:boolean,
+    :lazy_default=> true, :required => false, :desc => "lists all projects, ever (indezies wont work)"
+  method_option :paths, :type=>:boolean, :aliases => '-p',
+    :lazy_default=> true, :required => false, :desc => "list paths to .yml files"
+  method_option :simple, :type=>:boolean, :aliases => '-s',
+    :lazy_default=> true, :required => false, :desc => "ignore global verbose setting"
+  method_option :csv, :type=>:boolean, 
+    :lazy_default=> true, :required => false, :desc => "output as csv"
+  method_option :yaml, :type=>:boolean,
+    :lazy_default=> true, :required => false, :desc => "output as yaml"
+  method_option :color, :type=>:boolean, :aliases => '-c',
+    :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
+  method_option :no_color, :type=>:boolean, :aliases => '-n',
+    :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
 
+  def list
     if options[:all]
-      $PLUMBER.open_projects_all
+      $PLUMBER.open_projects_all()
+    elsif options[:archive]
+      $PLUMBER.open_projects(:archive, options[:archive])
     else
-      unless options[:archives]
-        $PLUMBER.open_projects
-      else
-        $PLUMBER.open_projects :archive, options[:archive]
-      end
+      $PLUMBER.open_projects()
     end
 
     $SETTINGS['colors'] = true  if options[:color]
@@ -195,14 +209,9 @@ class Commander < Thor
 
   desc "calendar", "creates a calendar from all caterings"
   def calendar
-    require 'icalendar'
-    #paths = $PLUMBER.list_projects :archive, 2013
-    #paths += $PLUMBER.list_projects :archive, 2014
-    #paths += $PLUMBER.list_projects
+    $PLUMBER.open_projects_all()
 
-    #projects = open_projects paths, :full, :date
-    #print_project_list_ical projects
-
+    print_project_list_ical $PLUMBER.opened_projects
   end
 
 
@@ -523,6 +532,11 @@ class Commander < Thor
 
 
 
+  desc "path", "display projects storage path"
+  def path
+    puts File.join $SETTINGS['path'], $SETTINGS['dirs']['storage']
+  end
+
   desc "version", "display Version"
   def version
     #git = Git.open $SCRIPT_PATH+'/..'
@@ -531,6 +545,7 @@ class Commander < Thor
     #puts current
     puts $SETTINGS['version']
   end
+
 end
 
 Commander.start

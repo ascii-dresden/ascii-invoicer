@@ -1,5 +1,5 @@
-require File.dirname(__FILE__) + '/../lib/ProjectPlumber'
+require File.dirname(__FILE__) + '/../lib/ProjectsPlumber'
 require File.dirname(__FILE__) + '/../lib/InvoiceProject'
 require File.dirname(__FILE__) + '/../lib/Euro'
 require File.dirname(__FILE__) + '/../lib/AsciiSanitizer'
-require File.dirname(__FILE__) + '/../lib/Filters'
+require File.dirname(__FILE__) + '/../lib/filters'

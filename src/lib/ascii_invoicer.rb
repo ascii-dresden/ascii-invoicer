@@ -33,7 +33,7 @@ module AsciiInvoicer
         p.data[:manager], 
         p.data[:event][:invoice_number], 
         p.data[:event][:date].strftime("%d.%m.%Y"), 
-      ], color_from_date(p.data[:date]))
+      ], color_from_date(p.date))
     end
     table.set_alignments(:r, :l, :l)
     puts table
@@ -53,7 +53,7 @@ module AsciiInvoicer
         p.data[:event][:date].strftime("%d.%m.%Y"),
         p.data[:valid].print,
         p.ERRORS,
-      ], color_from_date(p.data[:date]))
+      ], color_from_date(p.date))
     end
     table.set_alignment(0, :r)
     table.set_alignment(5, :r)
@@ -75,45 +75,46 @@ module AsciiInvoicer
   end
 
   def print_project_list_ical(projects)
+    require 'icalendar'
     cal = Icalendar::Calendar.new
     projects.each_index do |i|
       p  = projects[i]
-      event = Icalendar::Event.new
 
-      if p.data[:time]
-        event.dtstart     = p.data[:time]
-        event.dtend       = p.data[:time_end]
-      else
-        event.dtstart = Icalendar::Values::Date.new p.data[:date].strftime "%Y%m%d"
-        event.dtend   = Icalendar::Values::Date.new((p.data[:date_end]+1).strftime "%Y%m%d")
-      end 
-      event.description = ""
-      if p.data[:event]
-        event.summary      = p.data[:event]
-        #event.description += "(#{p.data[:name]})\n"
-      else
-        event.summary     = p.name
-      end
+      p.data[:event][:dates].each { |date|
+        event = Icalendar::Event.new
 
-      event.description += "Verantwortung: " + p.data[:manager]      + "\n" if p.data[:manager]
-      if p.data[:caterers]
-        event.description +=  "Caterer:\n"
-        p.data[:caterers].each {|caterer|
-          event.description +=  " - #{ caterer}\n"
-        }
-      end
+        if date[:time] and date[:time][:begin]
+          ## set specific times
+          event.dtstart     = date[:time][:begin]
+          event.dtend       = date[:time][:end]
 
-      if p.data[:products]
-        event.description +=  "Produkte:\n"
-        p.data[:products].each {|name, product|
-          event.description +=  " - #{ product.amount :offer } #{ name}\n"
-        }
-      end
+        else
+          ## set full day event
+          event.dtstart = Icalendar::Values::Date.new( date[:begin].strftime  "%Y%m%d")
+          event.dtend   = Icalendar::Values::Date.new((date[:end]+1).strftime "%Y%m%d")
+        end 
 
+        event.description = ""
+        event.summary     = p.data[:event][:name]
+        event.summary   ||= p.name
 
-      event.description += p.data[:description]  + "\n" if p.data[:description]
+        event.description += "Verantwortung: " + p.data[:manager]      + "\n" if p.data[:manager]
+        if p.data[:caterers]
+          event.description +=  "Caterer:\n"
+          p.data[:caterers].each {|caterer|
+            event.description +=  " - #{ caterer}\n"
+          }
+        end
 
-      cal.add_event event
+        if p.data[:products]
+          event.description +=  "Produkte:\n"
+        end
+
+        event.description += p.data[:description]  + "\n" if p.data[:description]
+
+        cal.add_event event unless event.dtstart.nil?
+      }
+
     end
     puts cal.to_ical
   end
@@ -140,8 +141,8 @@ module AsciiInvoicer
     ]
     puts header.to_csv(col_sep:";")
     projects.each do |p|
-       caterers_string = ""
-       caterers_string = p.data[:hours][:caterers].map{|name, hours|"#{name} (#{hours})"}.join ", " if p.data[:caterers]
+      caterers_string = ""
+      caterers_string = p.data[:hours][:caterers].map{|name, hours|"#{name} (#{hours})"}.join ", " if p.data[:caterers]
       line = [
         p.data[:invoice_number],
         p.data[:event][:name],
@@ -151,7 +152,7 @@ module AsciiInvoicer
         p.data[:hours][:time].to_s + 'h',
         p.data[:costs_invoice],
         p.data[:total_invoice],
-      #  p.valid_for[:invoice]
+        #  p.valid_for[:invoice]
       ]
       line.map! {|v| v ? v : "" } # wow, that looks cryptic
       puts line.to_csv(col_sep:";")
@@ -162,7 +163,7 @@ module AsciiInvoicer
     table = TableBox.new
     table.style[:border] = true
     table.title = "Project:" + "\"#{project.data[:event]}\"".rjust(25)
-      table.add_row ["#", "name", "price", "cost"]
+    table.add_row ["#", "name", "price", "cost"]
     project.data[:products].each {|name, product|
       amount = product.amount choice
       price = product.price
@@ -203,48 +204,10 @@ module AsciiInvoicer
     box.add_row  ["Final        :","#{fo} -> #{fi}"]
     box.footer = "Errors: #{project.errors.length} (#{ project.errors.join ',' })" if project.errors.length >0
     box.set_alignment 1, :r
- 
+
     return box
   end
 
-  def pick_paths( hash, archive = nil)
-    paths = hash.map { |index|
-      if options[:file]
-        options[:file]
-      else
-        pick_project index, archive
-      end
-    }
-    #project = InvoiceProject.new $SETTINGS, path
-    paths.select! {|item| not item.nil?}
-    return paths
-  end
-
-  def pick_project(selection, year = nil)
-    fail "IMPLEMENT ME"
-    index = selection.to_i
-
-    plumber = ProjectsPlumber.new $SETTINGS
-    names = []; paths = []
-
-    if(year)
-      unsorted_paths = plumber.list_projects :archive, year
-    else
-      unsorted_paths = plumber.list_projects
-    end
-    projects = open_projects unsorted_paths
-    projects.each {|p| names.push p.data[:name]; paths.push p.data[:project_path] }
-
-
-    if index == 0 and names.include? selection
-      return paths[names.index selection]
-    elsif index > 0 
-      return paths[index-1]
-    else
-      error "Invalid selection \"#{selection}\""
-    end
-  end
-  
   def check_project(path)
     project = InvoiceProject.new $SETTINGS
     project.open path
