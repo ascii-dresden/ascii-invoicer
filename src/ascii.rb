@@ -104,6 +104,31 @@ class Commander < Thor
   class_option :editor,                     :type => :string, :default => $SETTINGS['editor']
   #class_option "keep-log", :aliases=> "-k", :type => :boolean
 
+  no_commands{
+    def open_projects(names, options)
+      $SETTINGS['verbose'] = true if options[:verbose]
+      if options[:file]
+        project = InvoiceProject.new options[:file], (File.basename options[:file], ".yml")
+      else
+        if options[:archive]
+          $PLUMBER.open_projects(:archive, options[:archive])
+        else
+          $PLUMBER.open_projects()
+        end
+
+        return names.map{|name| $PLUMBER.lookup name } if names.class == Array
+        return $PLUMBER.lookup names if names.class == String
+        return nil
+      end
+    end
+
+    def render_projects(projects, type)
+      puts "TODO implement actual rendering to pdf"
+      puts projects
+    end
+  }
+
+
   desc "new NAME", "creating a new project" 
     method_option :dont_edit,
       :type=>:boolean, :aliases => "-d",
@@ -260,15 +285,10 @@ class Commander < Thor
     method_option :yaml, :type=>:string,
       :default => nil, :lazy_default=> "", :required => false,
       :desc => "output key or all as yaml"
-  def display(index=nil)
-    if options[:file]
-      project = InvoiceProject.new options[:file], (File.basename options[:file], ".yml")
-    else
-      $PLUMBER.open_projects
-      project = $PLUMBER.lookup index
-    end
-   
-    error("No project found!") if project.nil?
+  def display(*names)
+    projects =  open_projects names, options
+    projects.each{ |project|
+      error("No project found!") if project.nil?
     
     unless options[:yaml] or options[:costs] or options[:caterers] or options[:invoice] or options[:offer]
       fallback= true
@@ -292,6 +312,7 @@ class Commander < Thor
         end
       end
     end
+    }
   end
 
   desc "offer NAME", "Create an offer from project file."
@@ -306,22 +327,9 @@ class Commander < Thor
       :lazy_default=> true,
       :required => false,
       :desc => "check"
-  def offer( *hash )
-    $SETTINGS['verbose'] = true if options[:verbose]
-## TODO implement offer --archive
-
-    if options[:file]
-      path = options[:file]
-      name = File.basename path, ".yml"
-      project = InvoiceProject.new $SETTINGS, path, name
-      render_project 
-    else
-      paths = pick_paths hash, options[:archive]
-      paths.each { |path|
-        project = InvoiceProject.new $SETTINGS, path
-        render_project
-      }
-    end
+  def offer( *names)
+    projects = open_projects names, options
+    render_projects projects, :offer
   end
 
   desc "invoice NAME", "Create an invoice from project file."
@@ -336,22 +344,9 @@ class Commander < Thor
       :lazy_default=> true,
       :required => false,
       :desc => "print"
-  def invoice( *hash )
-    $SETTINGS['verbose'] = true if options[:verbose]
-
-    if options[:file]
-      path = options[:file]
-      name = File.basename path, ".yml"
-      project = InvoiceProject.new path, name
-      project.create_tex choice, options[:check], false
-      render_project
-    else
-      paths = pick_paths hash, options[:archive]
-      paths.each { |path|
-        project = InvoiceProject.new path
-        render_project
-      }
-    end
+  def invoice( *names)
+    projects = open_projects names, options
+    render_projects projects, :invoice
   end
 
 
