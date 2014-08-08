@@ -120,6 +120,8 @@ class InvoiceProject
     new_hash.set("event/dates/0/time/begin", new_hash.get("time"))     if date[1].nil?
     new_hash.set("event/dates/0/time/end",   new_hash.get("time_end")) if date[1].nil?
 
+    new_hash['manager']= new_hash['manager'].lines.to_a[1] if new_hash['manager'].lines.to_a.length > 1
+
     if new_hash.get("client/fullname").class == String and
     new_hash.get("client/fullname").words.class == Array
       new_hash.set("client/title", new_hash.get("client/fullname").words[0])
@@ -144,7 +146,7 @@ class InvoiceProject
 
   def validate choice = :invoice
     (invalidators = { # self explaiatory ain't it? :D
-      :invoice   => [:invoice_number, :products],
+      :invoice   => [:invoice_number, :products, :manager],
       :offer     => [:offer_number]
     }[choice] & @ERRORS).length==0
   end
