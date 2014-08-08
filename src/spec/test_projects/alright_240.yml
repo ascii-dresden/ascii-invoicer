@@ -80,7 +80,8 @@ products:
 hours: 
   salary: 8.00
   caterers:
-    "Name" : 0 #Stunden
+    "Pete" : 0.7 #Stunden
+    "Jack" : 1.4 #Stunden
     
 manager: Hendrik
 

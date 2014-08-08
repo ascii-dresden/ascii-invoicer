@@ -114,13 +114,23 @@ module Filters
     Date.parse date
   end
 
+  def filter_hours_salary salary
+    salary.to_euro
+  end
+
   def generate_hours_total full_data
+    hours = full_data[:hours]
+    hours[:salary] * hours[:time]
+  end
+
+  def generate_hours_time full_data
     hours = full_data[:hours]
     sum = 0
     if hours[:caterers]
-      hours[:caterers].values.each{|v| sum += v}
-      return sum
+      hours[:caterers].values.each{|v| sum += v.rationalize}
+      return sum.to_f
     elsif hours[:time]
+      fail_at :caterers
       return hours[:time]
     end
     sum
@@ -169,28 +179,46 @@ module Filters
     full_data[:offer][:date].strftime "A%Y%m%d-#{appendix}"
   end
 
-  def generate_offer_total full_data
-    sum_money :total_offer
+
+  # cost: price of all products summed up
+  # tax:  price of all products taxs summed up ( e.g. price*0.19 )
+  # total: cost + tax
+  # final: total + salary * hours
+
+
+  def generate_offer_cost full_data
+    sum_money :cost_offer
   end
 
   def generate_offer_tax full_data
     sum_money :tax_offer
   end
 
-  def generate_offer_cost full_data
-    sum_money :cost_offer
+  def generate_offer_total full_data
+    sum_money :total_offer
   end
 
-  def generate_invoice_total full_data
-    sum_money :total_invoice
+  def generate_offer_final full_data
+    full_data[:offer][:total] + full_data[:hours][:total]
+  end
+
+
+
+
+  def generate_invoice_cost full_data
+    sum_money :cost_invoice
   end
 
   def generate_invoice_tax full_data
     sum_money :tax_invoice
   end
 
-  def generate_invoice_cost full_data
-    sum_money :cost_invoice
+  def generate_invoice_total full_data
+    sum_money :total_invoice
+  end
+
+  def generate_invoice_final full_data
+    full_data[:invoice][:total] + full_data[:hours][:total]
   end
 
 end

@@ -12,7 +12,7 @@ module AsciiInvoicer
     if project.valid_for[choice]
       project.create_tex choice, options[:check]
     else
-      error "#{project.name} is not ready for creating an #{choice.to_s}! #{project.data[:valid]} #{project.errors if project.errors.length > 0}"
+      error "#{project.name} is not ready for creating an #{choice.to_s}! #{project.data[:valid]} #{project.ERRORS if project.ERRORS.length > 0}"
     end
   end
 
@@ -45,12 +45,12 @@ module AsciiInvoicer
     puts table
   end
 
-  def print_project_list_verbose(projects)
+  def print_project_list_verbose(projects, show_errors = false)
     table = TableBox.new
     table.style[:border] = false
     projects.each_index do |i|
       p  = projects[i]
-      table.add_row([
+      row = [
         (i+1).to_s+".",
         p.data[:event][:name] ? p.data[:event][:name] : "",
         p.name,
@@ -58,8 +58,9 @@ module AsciiInvoicer
         p.data[:invoice][:number],
         p.data[:event][:date].strftime("%d.%m.%Y"),
         p.validate(:invoice).print,
-        #p.ERRORS,
-      ], color_from_date(p.date))
+      ]
+      row += [p.ERRORS] if show_errors
+      table.add_row( row , color_from_date(p.date))
     end
     table.set_alignment(0, :r)
     table.set_alignment(5, :r)
@@ -106,7 +107,7 @@ module AsciiInvoicer
         event.summary   ||= p.name
 
         event.description += "Verantwortung: " + p.data[:manager]      + "\n" if p.data[:manager]
-        if p.data[:caterers]
+        if p.data[:hours][:caterers]
           event.description +=  "Caterer:\n"
           p.data[:caterers].each {|caterer|
             event.description +=  " - #{ caterer}\n"
@@ -136,8 +137,6 @@ module AsciiInvoicer
 
   #takes an array of invoices (@plumber.working_projects)
   def print_project_list_csv(projects)
-    puts "TODO implement print_project_list_csv()"
-    return
     header = [
       'invoice',
       'event',
@@ -150,7 +149,7 @@ module AsciiInvoicer
     puts header.to_csv(col_sep:";")
     projects.each do |p|
       caterers_string = ""
-      caterers_string = p.data[:hours][:caterers].map{|name, hours|"#{name} (#{hours})"}.join ", " if p.data[:caterers]
+      caterers_string = p.data[:hours][:caterers].map{|name, hours|"#{name} (#{hours})"}.join ", " if p.data[:hours][:caterers]
       line = [
         p.data[:invoice][:number],
         p.data[:event][:name],
@@ -170,13 +169,14 @@ module AsciiInvoicer
   def display_products project, choice = :offer
     table = TableBox.new
     table.style[:border] = true
-    table.title = "Project:" + "\"#{project.data[:event]}\"".rjust(25)
+    table.title = "Project:" + "\"#{project.data[:event][:name]}\"".rjust(25)
     table.add_row ["#", "name", "price", "cost"]
-    project.data[:products].each {|name, product|
+    table.set_alignments :r, :l, :r, :r
+    project.data[:products].each {|product|
       amount = product.amount choice
       price = product.price
       cost  = product.cost choice
-      table.add_row [amount, name, price, cost]
+      table.add_row [amount, product.name, price, cost]
     }
 
     return table
@@ -185,24 +185,24 @@ module AsciiInvoicer
   def display_costs project 
     data = project.data
 
-    ci   = data[:costs_invoice ].to_s.rjust(7)
-    co   = data[:costs_offer   ].to_s.rjust(7)
+    co   = data[:offer][:cost].to_s.rjust(7)
+    ci   = data[:invoice][:cost].to_s.rjust(7)
 
-    ti   = data[:taxes_invoice ].to_s.rjust(7)
-    to   = data[:taxes_offer   ].to_s.rjust(7)
+    to   = data[:offer][:tax].to_s.rjust(7)
+    ti   = data[:invoice][:tax].to_s.rjust(7)
 
-    fi   = data[:final_invoice ].to_s.rjust(7)
-    fo   = data[:final_offer   ].to_s.rjust(7)
+    fo   = data[:offer][:final].to_s.rjust(7)
+    fi   = data[:invoice][:final].to_s.rjust(7)
 
-    toto = data[:total_offer   ].to_s.rjust(7)
-    toti = data[:total_invoice ].to_s.rjust(7)
+    toto = data[:offer][:total].to_s.rjust(7)
+    toti = data[:invoice][:total].to_s.rjust(7)
 
-    st   = data[:salary_total  ].to_s.rjust(18)
+    st   = data[:hours][:total].to_s.rjust(18)
 
     box = TableBox.new
     box.padding_horizontal = 3
     box.style[:border] = true
-    box.title = "Project:" + "\"#{data[:event]}\"".rjust(25)
+    box.title = "Project:" + "\"#{data[:event][:name]}\"".rjust(25)
 
     box.add_row  ["Kosten       :","#{co} -> #{ci}"]
     box.add_row  ["MWST         :","#{to} -> #{ti}"]
@@ -210,7 +210,7 @@ module AsciiInvoicer
     box.add_row  [nil, "-----------------"]
     box.add_row  ["Netto        :","#{toto} -> #{toti}"]
     box.add_row  ["Final        :","#{fo} -> #{fi}"]
-    box.footer = "Errors: #{project.errors.length} (#{ project.errors.join ',' })" if project.errors.length >0
+    box.footer = "Errors: #{project.ERRORS.length} (#{ project.ERRORS.join ',' })" if project.ERRORS.length >0
     box.set_alignment 1, :r
 
     return box
@@ -220,7 +220,7 @@ module AsciiInvoicer
     project = InvoiceProject.new $SETTINGS
     project.open path
     unless project.validate(:offer)
-      puts "\nWARNING: the file you just edited contains errors! (#{project.errors})"
+      puts "\nWARNING: the file you just edited contains errors! (#{project.ERRORS})"
       unless no? "would you like to edit it again? [y|N]"
         edit_files path
       end

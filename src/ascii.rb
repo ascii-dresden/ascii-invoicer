@@ -105,11 +105,11 @@ class Commander < Thor
   #class_option "keep-log", :aliases=> "-k", :type => :boolean
 
   desc "new NAME", "creating a new project" 
-  method_option :dont_edit,
-    :type=>:boolean, :aliases => "-d",
-    :lazy_default=> true,
-    :required => false,
-    :desc => "do not edit a new file after creation"
+    method_option :dont_edit,
+      :type=>:boolean, :aliases => "-d",
+      :lazy_default=> true,
+      :required => false,
+      :desc => "do not edit a new file after creation"
   def new(name)
     puts "creating a new project name #{name}" if puts $PLUMBER.new_project name
     edit_files $PLUMBER.get_project_file_path name unless options[:dont_edit]
@@ -118,12 +118,12 @@ class Commander < Thor
 
 
   desc "edit index", "Edit project file."
-  method_option :archive,
-    :type=>:numeric, :aliases => "-a",
-    :default => nil,
-    :lazy_default=> Date.today.year,
-    :required => false,
-    :desc => "Open File from archive YEAR"
+    method_option :archive,
+      :type=>:numeric, :aliases => "-a",
+      :default => nil,
+      :lazy_default=> Date.today.year,
+      :required => false,
+      :desc => "Open File from archive YEAR"
   def edit( *hash )
     if options[:archive]
       $PLUMBER.open_projects(:archive, options[:archive])
@@ -143,24 +143,25 @@ class Commander < Thor
 
 
   desc "list", "List current Projects."
-  method_option :archive,
-    :type=>:numeric, :aliases => "-a",
-    :lazy_default=> Date.today.year, :required => false, :desc => "list archived projects"
-  method_option :all, :type=>:boolean,
-    :lazy_default=> true, :required => false, :desc => "lists all projects, ever (indezies wont work)"
-  method_option :paths, :type=>:boolean, :aliases => '-p',
-    :lazy_default=> true, :required => false, :desc => "list paths to .yml files"
-  method_option :simple, :type=>:boolean, :aliases => '-s',
-    :lazy_default=> true, :required => false, :desc => "ignore global verbose setting"
-  method_option :csv, :type=>:boolean, 
-    :lazy_default=> true, :required => false, :desc => "output as csv"
-  method_option :yaml, :type=>:boolean,
-    :lazy_default=> true, :required => false, :desc => "output as yaml"
-  method_option :color, :type=>:boolean, :aliases => '-c',
-    :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
-  method_option :no_color, :type=>:boolean, :aliases => '-n',
-    :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
-
+    method_option :archive,
+      :type=>:numeric, :aliases => "-a",
+      :lazy_default=> Date.today.year, :required => false, :desc => "list archived projects"
+    method_option :all, :type=>:boolean,
+      :lazy_default=> true, :required => false, :desc => "lists all projects, ever (indezies wont work)"
+    method_option :paths, :type=>:boolean, :aliases => '-p',
+      :lazy_default=> true, :required => false, :desc => "list paths to .yml files"
+    method_option :simple, :type=>:boolean, :aliases => '-s',
+      :lazy_default=> true, :required => false, :desc => "ignore global verbose setting"
+    method_option :csv, :type=>:boolean, 
+      :lazy_default=> true, :required => false, :desc => "output as csv"
+    method_option :yaml, :type=>:boolean,
+      :lazy_default=> true, :required => false, :desc => "output as yaml"
+    method_option :show_errors, :type=>:boolean, :aliases => '-e',
+      :lazy_default=> true, :required => false, :desc => "list errors in verbose listing"
+    method_option :color, :type=>:boolean, :aliases => '-c',
+      :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
+    method_option :no_color, :type=>:boolean, :aliases => '-n',
+      :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
   def list
     if options[:all]
       $PLUMBER.open_projects_all()
@@ -184,7 +185,7 @@ class Commander < Thor
     elsif options[:simple]
       print_project_list_simple projects
     elsif options[:verbose] or $SETTINGS['verbose']
-      print_project_list_verbose projects
+      print_project_list_verbose projects, options[:show_errors]
     else
       print_project_list_simple projects
     end
@@ -198,88 +199,13 @@ class Commander < Thor
   end
 
 
-  desc "display NAME", "Shows information about a Project in different ways."
-  method_option :archive,
-    :type=>:numeric, :aliases => "-a",
-    :default => nil,
-    :lazy_default=> Date.today.year,
-    :required => false,
-    :desc => "Open File from archive YEAR"
-  method_option :offer, :type=>:boolean,
-    :default=> false, :lazy_default=> true, :required => false,
-    :desc => "Display Products parsed as OFFER"
-  method_option :caterers, :type=>:boolean,
-    :default=> false, :lazy_default=> true, :required => false,
-    :desc => "Display Caterers"
-  method_option :costs,:type=>:boolean,
-    :default=> true, :lazy_default=> true, :required => false,
-    :desc => ""
-
-  method_option :yaml, :type=>:boolean,
-    :lazy_default=> true, :required => false,
-    :desc => "output as yaml"
-
-  method_option :format, :type=>:string,
-    :default=> "full", :required => false,
-    :desc => "used by --yaml"
-
-  def display(index=nil)
-    if options[:file]
-      path = options[:file]
-      name = File.basename path, ".yml"
-      project = InvoiceProject.new $SETTINGS, path, name
-    else
-      path = pick_project index, options[:archive]
-      project = InvoiceProject.new $SETTINGS, path
-    end
-    #data = project.data
-    if options[:verbose]
-      project.validate :full, true
-      #pp project.data#.keep_if{|k,v| k != :products}
-      puts project.valid_for
-      puts project.errors
-    else
-      if options[:offer]
-        project.validate :offer
-        puts display_products project, :offer
-      elsif options[:invoice]
-        project.validate :invoice
-        puts display_products project, :invoice
-      elsif options[:caterers]
-        project.validate :export
-        if project.data[:caterers]
-          puts project.data[:caterers]
-          puts project.data[:hours][:caterers].map{|name, hours|"#{name} (#{hours})"}.join ", "
-        else
-          error "Caterers not filled in, please do so."
-        end
-      elsif options[:yaml]
-
-        format_default = :full
-        format_options = options[:format].to_sym
-
-        if project.requirements.keys.include? format_options
-          project.validate format_options
-        else
-          project.validate format_default
-        end
-
-        puts project.data.to_yaml
-      elsif options[:costs]
-        project.validate :export
-        puts display_costs project
-      end
-    end
-  end
-
 
 
   desc "archive NAME", "Move project to archive."
-  method_option :force,:type=>:boolean,
-    :lazy_default=> true, :required => false,
-    :desc => "Force archiving projects that are invalid."
+    method_option :force,:type=>:boolean,
+      :lazy_default=> true, :required => false,
+      :desc => "Force archiving projects that are invalid."
   def archive(name)
-    ## TODO implement archive Project
     $PLUMBER.open_projects
     project = $PLUMBER.lookup name
 
@@ -294,14 +220,10 @@ class Commander < Thor
       new_path = $PLUMBER.archive_project project, prefix
       puts new_path
     end
-
   end
-
-
 
   desc "reopen YEAR NAME", "Reopen an archived project."
   def reopen(year, name)
-## TODO finish reopen
     $PLUMBER.open_projects :archive, year
     project = $PLUMBER.lookup name
 
@@ -313,18 +235,77 @@ class Commander < Thor
 
 
 
+
+
+
+  desc "display NAME", "Shows information about a Project in different ways."
+    method_option :archive,
+      :type=>:numeric, :aliases => "-a",
+      :default => nil,
+      :lazy_default=> Date.today.year,
+      :required => false,
+      :desc => "Open File from archive YEAR"
+    method_option :offer, :type=>:boolean,
+      :default=> false, :lazy_default=> true, :required => false,
+      :desc => "Display Products parsed as OFFER"
+    method_option :invoice, :type=>:boolean,
+      :default=> false, :lazy_default=> true, :required => false,
+      :desc => "Display Products parsed as INVOICE"
+    method_option :caterers, :type=>:boolean,
+      :default=> false, :lazy_default=> true, :required => false,
+      :desc => "Display Caterers"
+    method_option :costs,:type=>:boolean,
+      :default=> false, :lazy_default=> true, :required => false,
+      :desc => ""
+    method_option :yaml, :type=>:string,
+      :default => nil, :lazy_default=> "", :required => false,
+      :desc => "output key or all as yaml"
+  def display(index=nil)
+    if options[:file]
+      project = InvoiceProject.new options[:file], (File.basename options[:file], ".yml")
+    else
+      $PLUMBER.open_projects
+      project = $PLUMBER.lookup index
+    end
+   
+    error("No project found!") if project.nil?
+    
+    unless options[:yaml] or options[:costs] or options[:caterers] or options[:invoice] or options[:offer]
+      fallback= true
+    end
+
+    if not options[:yaml].nil?
+      if options[:yaml] == ''
+        puts project.data.to_yaml
+      else
+        puts project.data.get(options[:yaml]).to_yaml
+      end
+    else
+      puts display_products(project, :offer  ) if options[:offer]
+      puts display_products(project, :invoice) if options[:invoice]
+      puts display_costs(project)              if options[:costs] or fallback
+      if options[:caterers]
+        if project.data[:hours][:caterers]
+          puts project.data[:hours][:caterers].map{|name, hours| "#{name} (#{hours})"}.join(", ")
+        else
+          puts "Caterers is empty"
+        end
+      end
+    end
+  end
+
   desc "offer NAME", "Create an offer from project file."
-  method_option :archive,
-    :type=>:numeric, :aliases => "-a",
-    :default => nil,
-    :lazy_default=> Date.today.year,
-    :required => false,
-    :desc => "Open File from archive YEAR"
-  method_option :check,
-    :type=>:numeric, :aliases => "-d",
-    :lazy_default=> true,
-    :required => false,
-    :desc => "check"
+    method_option :archive,
+      :type=>:numeric, :aliases => "-a",
+      :default => nil,
+      :lazy_default=> Date.today.year,
+      :required => false,
+      :desc => "Open File from archive YEAR"
+    method_option :check,
+      :type=>:numeric, :aliases => "-d",
+      :lazy_default=> true,
+      :required => false,
+      :desc => "check"
   def offer( *hash )
     $SETTINGS['verbose'] = true if options[:verbose]
 ## TODO implement offer --archive
@@ -343,20 +324,18 @@ class Commander < Thor
     end
   end
 
-
-
   desc "invoice NAME", "Create an invoice from project file."
-  method_option :archive,
-    :type=>:numeric, :aliases => "-a",
-    :default => nil,
-    :lazy_default=> Date.today.year,
-    :required => false,
-    :desc => "Open File from archive YEAR"
-  method_option :print,
-    :type=>:numeric,
-    :lazy_default=> true,
-    :required => false,
-    :desc => "print"
+    method_option :archive,
+      :type=>:numeric, :aliases => "-a",
+      :default => nil,
+      :lazy_default=> Date.today.year,
+      :required => false,
+      :desc => "Open File from archive YEAR"
+    method_option :print,
+      :type=>:numeric,
+      :lazy_default=> true,
+      :required => false,
+      :desc => "print"
   def invoice( *hash )
     $SETTINGS['verbose'] = true if options[:verbose]
 
@@ -374,6 +353,9 @@ class Commander < Thor
       }
     end
   end
+
+
+
 
 
 
@@ -402,7 +384,6 @@ class Commander < Thor
     end
   end
 
-
   desc "commit message", "Git Integration."
   def commit message
     if $PLUMBER.check_git()
@@ -411,7 +392,6 @@ class Commander < Thor
       puts "problems with git"
     end
   end
-
 
   desc "push", "Git Integration."
   def push
@@ -427,14 +407,13 @@ class Commander < Thor
     end
   end
 
-
   desc "history", "Git Integration."
-  method_option :count,
-    :type=>:numeric, :aliases => "-c",
-    :default => 30,
-    :lazy_default=> 1000, 
-    :required => false,
-    :desc => "Max count of history entries"
+    method_option :count,
+      :type=>:numeric, :aliases => "-c",
+      :default => 30,
+      :lazy_default=> 1000, 
+      :required => false,
+      :desc => "Max count of history entries"
   def history
     if $PLUMBER.check_git()
       $PLUMBER.git_log(options[:count])
@@ -445,23 +424,24 @@ class Commander < Thor
 
 
 
+
+
   desc "settings", "view Settings"
-  method_option :edit,
-    :type=>:boolean, :aliases => "-e",
-    :lazy_default=> false,
-    :required => false,
-    :desc => "edit your settings"
-  method_option :key,
-    :type=>:array, :aliases => "-k",
-    :required => false,
-    :desc => "edit a specific settings value"
-  method_option :show,
-    :type=>:string, :aliases => "-s",
-    :required => false,
-    :desc => "show a specific settings value"
+    method_option :edit,
+      :type=>:boolean, :aliases => "-e",
+      :lazy_default=> false,
+      :required => false,
+      :desc => "edit your settings"
+    method_option :key,
+      :type=>:array, :aliases => "-k",
+      :required => false,
+      :desc => "edit a specific settings value"
+    method_option :show,
+      :type=>:string, :aliases => "-s",
+      :required => false,
+      :desc => "show a specific settings value"
   def settings
     #puts $SETTINGS.to_yaml
-
     if options[:edit]
       if options[:key]
         key   = options[:key][0]
@@ -504,8 +484,6 @@ class Commander < Thor
     end
   end
 
-
-
   desc "path", "display projects storage path"
   def path
     puts File.join $SETTINGS['path'], $SETTINGS['dirs']['storage']
@@ -513,13 +491,8 @@ class Commander < Thor
 
   desc "version", "display Version"
   def version
-    #git = Git.open $SCRIPT_PATH+'/..'
-    #current = git.log.to_s.lines.to_a.last
-    ##puts git.branch unless git.tags.include? current 
-    #puts current
     puts $SETTINGS['version']
   end
-
 end
 
 Commander.start

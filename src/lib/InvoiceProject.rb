@@ -30,17 +30,18 @@ class InvoiceProject
     :format,    :lang,      :created,
     :client,    :event,     :manager,
     :offer,     :invoice,
-    :messages,  :products,  :hours,
+    :messages,  :products,  :hours
   ]
 
   @@dynamic_keys=[
     :client_addressing,
+    :hours_time,
     :hours_total,
     :event_date,
     :event_prettydate,
     :offer_number,
-    :offer_cost, :offer_tax, :offer_total,
-    :invoice_cost, :invoice_tax, :invoice_total,
+    :offer_cost,    :offer_tax,   :offer_total,   :offer_final,
+    :invoice_cost,  :invoice_tax, :invoice_total, :invoice_final,
   ]
 
   def initialize(project_path = nil, settings = $SETTINGS, name = nil)
@@ -146,7 +147,7 @@ class InvoiceProject
 
   def validate choice = :invoice
     (invalidators = { # self explaiatory ain't it? :D
-      :invoice   => [:invoice_number, :products, :manager],
+      :invoice   => [:invoice_number, :products, :manager, :caterers],
       :offer     => [:offer_number]
     }[choice] & @ERRORS).length==0
   end
