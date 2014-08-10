@@ -1,74 +1,87 @@
---- 
-version: 20140709
-created: <%= Time.now.strftime "%d.%m.%Y" %>
+--- # ascii invoicer document  (<%= $VERSION  %>)
+format: 2.4.0
+created: <%= Date.today.strftime "%d.%m.%Y" %>
 
-# always include 'Herr' oder 'Frau'
-# defaults to male
-# look at lib/lang.yml for more, add if needed
-# NO FIRSTNAME HERE
-client: | 
-  Herr
-  name
+client: 
+  title:     Herr # Frau, Professor, Professorin
+  firstname: John
+  lastname:  Doe
 
-email: 
-request_message: |
-description: |
-location:
+  email: jon.doe@example.com
+  address: | 
+    John Doe
+    Nöthnitzerstraße 46
+    01187 Dresden
 
+event: 
+  name: "<%= project_name %>"
+  location: # might be a list
+  dates:
+  - begin: <%= (Date.today+ 15).strftime "%d.%m.%Y" %> # bezieht sich auf die veranstaltung selbst
+    #end: 
+    #times:
+    #-  begin: "9:00"
+    #   end:   "11:20"
 
-address: | 
-  Voller Name
-  Nöthnitzerstraße 46
-  01187 Dresden
+  description: |
 
-event: "<%= event_name %>"
+offer:
+  date: #leave empty for auto date
+  appendix: 1
 
-anumber: 1 # fortlaufende nummer fuer mehere Angebote an einem Tag
-manumber: <%= Time.now.strftime "A%Y%m%d-1" %>
+invoice:
+  number: #27
+  date: #leave empty for auto date
+  payed_date:
 
-# rechnungsnummer
-rnumber: #27 <%= "" %>
+cataloge:
+  product: &cafe
+    name:  Kaffee
+    price: 2.5
+    unit:  1l
+  product: &id010        { name: Tee             , price: 1.75 , unit: 1l   , tax: 1.19}
+  product: &wasser_gross { name: Mineralwasser   , price: 0.61 , unit: 1l   , tax: 1.19}
+  product: &wasser_klein { name: Mineralwasser   , price: 0.59 , unit: 1l   , tax: 1.19}
+  product: &apfelsaft    { name: Apfelsaft       , price: 1.64 , unit: 1l   , tax: 1.19}
+  product: &orangensaft  { name: Orangensaft     , price: 1.86 , unit: 1l   , tax: 1.19}
 
-date:     <%= (Time.now + (60*60*24*14)).strftime "%d.%m.%Y" %> # bezieht sich auf die veranstaltung selbst
-date_end: 
-time:     #"13:00"
-time_end: #"14:20"
-
-<%= personal_notes %>
+  product: &bagel        { name: Bagel           , price: 2.19 , unit: stk  , tax: 1.19}
+  product: &kekse        { name: Kekse Lamberts  , price: 3.40 , unit: 400g , tax: 1.19}
+  product: &broetchen    { name: halbes Brötchen , price: 1.16 , unit: stk  , tax: 1.19}
+  product: &kuchen       { name: Kuchen          , price: 0.94 , unit: stk  , tax: 1.19}
 
 products:
-  "Kaffee (1l)":
-    amount: 7
-    price: 2.5
-  "Mineralwasser (1l)":
-    amount: 8
-    price: 0.61
-    sold: 0
+
+  *cafe: { amount: 4, sold:   5 }
+  *wasser_gross:
+    amount: 4
+    sold:   5
+  *kekse:
+    amount: 4
+    sold: 2
+
   "Orangensaft (1l)":
-    amount: 8
-    price: 1.82
-    returned: 0
+    amount:    8
+    price:     1.82
+    returned:  0
   "Apfelsaft (1l)":
-    amount: 8
-    price: 1.65
-    sold: 0
+    amount:    8
+    price:     1.65
+    sold:      0
   "Belegte Brötchen":
-    amount: 0
-    price: 1.16
+    amount:    0
+    price:     1.16
 
 hours: 
-  time: 0
   salary: 8.00
-
   caterers:
     "Name" : 0 #Stunden
     
-signature: |
-  <%= manager_name %>
+manager: <%= settings['manager_name'] %>
 
-lang: <%= default_lang %>
-tax: <%= default_tax %>
-canceled: false
+#canceled: yes
+#lang:
+#tax:
 
 #messages: # read default-settings.yml on how to overwrite
 
