@@ -101,7 +101,8 @@ module ProjectFileReader
   end
   rescue => error
     fail_at path
-    puts error
+    puts $@.keep_if{|line| line.include? "filter_"}.map {|line| Paint[line, :red, :bold]}
+    puts Paint["      #{error}", :yellow]
   end
 
   def fail_at(*criteria)
