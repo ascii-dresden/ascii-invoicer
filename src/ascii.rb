@@ -89,6 +89,7 @@ error "template not found!\n#{$PLUMBER.dirs[:template]}"   unless $PLUMBER.check
 class Commander < Thor
   include Thor::Actions
   include AsciiInvoicer
+  #include Shell
 
   package_name "ascii project"
   #argument :first, :type => :numeric
@@ -124,7 +125,9 @@ class Commander < Thor
 
     def render_projects(projects, type)
       puts "TODO implement actual rendering to pdf"
-      puts projects
+      projects.each{|project|
+        project.create_tex(type, false)
+      }
     end
   }
 
@@ -282,6 +285,9 @@ class Commander < Thor
     method_option :costs,:type=>:boolean,
       :default=> false, :lazy_default=> true, :required => false,
       :desc => ""
+    method_option :pp, :type=>:string,
+      :default => nil, :lazy_default=> "", :required => false,
+      :desc => "output key or all with pp"
     method_option :yaml, :type=>:string,
       :default => nil, :lazy_default=> "", :required => false,
       :desc => "output key or all as yaml"
@@ -299,6 +305,12 @@ class Commander < Thor
         puts project.data.to_yaml
       else
         puts project.data.get(options[:yaml]).to_yaml
+      end
+    elsif not options[:pp].nil?
+      if options[:pp] == ''
+        pp project.data
+      else
+        pp project.data.get(options[:pp])
       end
     else
       puts display_products(project, :offer  ) if options[:offer]
@@ -436,7 +448,6 @@ class Commander < Thor
       :required => false,
       :desc => "show a specific settings value"
   def settings
-    #puts $SETTINGS.to_yaml
     if options[:edit]
       if options[:key]
         key   = options[:key][0]
