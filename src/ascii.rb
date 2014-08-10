@@ -24,6 +24,7 @@ require "#{$SCRIPT_PATH}/lib/shell.rb"
 require "#{$SCRIPT_PATH}/lib/tweaks.rb"
 require "#{$SCRIPT_PATH}/lib/ascii_invoicer.rb"
 
+include Shell
 ## all about settings
 
 ## where are settings located?
@@ -79,7 +80,7 @@ $PLUMBER = ProjectsPlumber.new $SETTINGS, InvoiceProject
 $PLUMBER.create_dir :storage unless $PLUMBER.check_dir :storage
 $PLUMBER.create_dir :working unless $PLUMBER.check_dir :working
 $PLUMBER.create_dir :archive unless $PLUMBER.check_dir :archive
-error "template not found!\n#{$PLUMBER.dirs[:template]}"   unless $PLUMBER.check_dir :template
+error "template not found!\n#{$PLUMBER.dirs[:template]}" unless $PLUMBER.check_dir :template
 
 
 
@@ -89,7 +90,6 @@ error "template not found!\n#{$PLUMBER.dirs[:template]}"   unless $PLUMBER.check
 class Commander < Thor
   include Thor::Actions
   include AsciiInvoicer
-  #include Shell
 
   package_name "ascii project"
   #argument :first, :type => :numeric
@@ -109,7 +109,7 @@ class Commander < Thor
     def open_projects(names, options)
       $SETTINGS['verbose'] = true if options[:verbose]
       if options[:file]
-        project = InvoiceProject.new options[:file], (File.basename options[:file], ".yml")
+        return [InvoiceProject.new(options[:file], (File.basename options[:file], ".yml"))]
       else
         if options[:archive]
           $PLUMBER.open_projects(:archive, options[:archive])
@@ -124,9 +124,9 @@ class Commander < Thor
     end
 
     def render_projects(projects, type)
-      puts "TODO implement actual rendering to pdf"
       projects.each{|project|
-        project.create_tex(type, false)
+        project.create_tex(type, run = true)
+        #project.create_tex(type, run = false)
       }
     end
   }

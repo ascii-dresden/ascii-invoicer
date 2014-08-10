@@ -1,6 +1,5 @@
 # before next merge
-* TEST "--file"
-* IMPLEMENT display, offer, invoice
+* IMPLEMENT offer, invoice
 * COMPLETE tests
 *
 

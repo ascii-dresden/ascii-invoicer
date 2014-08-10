@@ -95,8 +95,8 @@ module Filters
   end
 
   def filter_offer_date date
-    date = Date.parse date if date.class == String
-    date
+    return Date.parse date if date.class == String
+    return Date.today
   end
 
   def filter_invoice_number number
@@ -105,13 +105,12 @@ module Filters
   end
 
   def filter_invoice_date date
-    date = Date.parse date if date.class == String
-    date = Date.today if date.nil?
-    return date
+    return Date.parse date if date.class == String
+    return Date.today
   end
 
   def filter_invoice_payed_date date
-    Date.parse date
+    return Date.parse date if date.class == String
   end
 
   def filter_hours_salary salary
@@ -137,7 +136,6 @@ module Filters
   end
 
   def generate_client_addressing full_data
-    return "empty"
     return fail_at(:client_addressing) unless full_data[:client]
     return fail_at(:client_title) unless full_data[:client][:title]
     lang       = full_data[:lang]
@@ -145,7 +143,7 @@ module Filters
     title      = client[:title].downcase
     gender     = $SETTINGS['gender_matches'][title]
     addressing = $SETTINGS['lang_addressing'][lang][gender]
-    "#{addressing} #{client[:title]} #{client[:last_name]}"
+    return "#{addressing} #{client[:title]} #{client[:last_name]}"
   end
 
   def generate_event_date  full_data
@@ -180,17 +178,17 @@ module Filters
   end
 
 
-  # cost: price of all products summed up
-  # tax:  price of all products taxs summed up ( e.g. price*0.19 )
-  # total: cost + tax
+  # costs: price of all products summed up
+  # taxes: price of all products taxes summed up ( e.g. price*0.19 )
+  # total: costs + taxes
   # final: total + salary * hours
 
 
-  def generate_offer_cost full_data
+  def generate_offer_costs full_data
     sum_money :cost_offer
   end
 
-  def generate_offer_tax full_data
+  def generate_offer_taxes full_data
     sum_money :tax_offer
   end
 
@@ -205,11 +203,11 @@ module Filters
 
 
 
-  def generate_invoice_cost full_data
+  def generate_invoice_costs full_data
     sum_money :cost_invoice
   end
 
-  def generate_invoice_tax full_data
+  def generate_invoice_taxes full_data
     sum_money :tax_invoice
   end
 
@@ -219,6 +217,11 @@ module Filters
 
   def generate_invoice_final full_data
     full_data[:invoice][:total] + full_data[:hours][:total]
+  end
+
+  def generate_invoice_longnumber full_data
+    year = full_data[:invoice][:date].year
+    full_data[:invoice][:number].gsub /^R/, "R#{year}-" if full_data[:invoice][:number]
   end
 
 end

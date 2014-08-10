@@ -1,0 +1,50 @@
+\documentclass[11pt,utf8]{
+       <%= $SETTINGS['script_path'] %>/latex/ascii-brief}
+\input{<%= $SETTINGS['script_path'] %>/latex/ascii-include}
+\Logo {<%= $SETTINGS['script_path'] %>/latex/ascii-logo.png}
+
+\Unterschrift        {<%= @data[:manager] %>}
+\Postvermerk         {}
+\Adresse             {<%= @data[:client][:address].gsub("\n","\\newline ") %>}
+
+\Betreff             {<%= @data[:messages][document_type][0] %>} %% [Angebot|Rechnung]
+
+\Datum               {<%= @data[type][:date] %>}
+\AngebotManuel       {<%= @data[:offer][:number]%>} %% Manuel ueberschreibbar ansonsten automatisch heute
+\Veranstaltung       {<%= @data[:event][:name] %>}
+\RechnungsNummer     {<%= @data[:invoice][:longnumber] %>} %% bei Angeboten leer lassen
+\Anrede              {<%= @data[:client][:addressing] %>, }
+\Gruss               {<%= @data[:messages][:signature] %> <%= @data[:signature] %>}{1cm}
+
+%\Anlagen             {Anlagen}
+%\Verteiler           {Verteiler}
+
+\begin{document}
+\begin{ascii-brief}
+
+
+<%= @data[:messages][document_type][1] %>
+
+\begin{center}
+\begin{tabular}{rp{7cm}rrr}
+  \textbf{Nr.} & \textbf{Bezeichnung}&    \textbf{Menge}    &    \textbf{EP}&    \textbf{Preis}    \\
+  \midrule
+  <% @data[:products].each_index do |i|
+    product = @data[:products][i] %>
+  <%= i + 1 %> & <%= product.name %> & <%= product.amount type %> & <%= product.price %> & <%= product.cost   type %> \\
+<% end %>
+<%= @data[:products].count + 1 %> & Betreuung (Stunden) & <%= @data[:hours][:time] %> & <%= @data[:hours][:salary] %> & <%= @data[:hours][:total] %> \\
+
+\bottomrule[1pt]
+\multicolumn{4}{r}{Netto MwSt. 19\%}   & <%= @data[type][:costs] %>  \\
+%\multicolumn{4}{r}{Brutto MwSt. 19\%} & <%= @data[type][:total] %>  \\
+\multicolumn{4}{r}{+MwSt. 19\%}        & <%= @data[type][:taxes] %>  \\
+\multicolumn{4}{r}{MwSt 0\%}           & <%= @data[:hours][:total] %> \\
+\multicolumn{4}{r}{Gesamtpreis}        & <%= @data[type][:final] %> \\
+\end{tabular}
+\end{center}
+
+<%= @data[:messages][document_type][2] %>
+
+\end{ascii-brief}
+\end{document}

@@ -40,7 +40,7 @@ class Hash
   end
 
   def get path, delimiter = ?/, data = self
-    path = path.split(delimiter)if [String, Symbol].include? path.class
+    path = path.to_s.split(delimiter)if [String, Symbol].include? path.class
     return nil unless path.class == Array
     while key = path.shift
        if data.class == Hash and not data[key].nil?

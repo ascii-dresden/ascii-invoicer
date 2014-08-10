@@ -2,57 +2,34 @@ module TexWriter
 
   ##
   # fills the template with mined DATA
-  def create_tex choice, check = false, run = true
-    return fail_at :create_tex unless parse :products
-    return fail_at :templates unless load_templates()
+  def create_tex type, run = true
+    document_template = load_template :document
+    document_type     = type
+    return fail_at :templates unless document_template
 
-    unless valid_for[choice] or check
-      error "Cannot create an \"#{choice.to_s}\" from #{@DATA[:name]}. (#{@errors.join ','})"
+    unless validate(type)
+      error "Cannot create an \"#{type.to_s}\" from #{@data[:name]}. (#{@ERRORS.join ','})"
     end
 
-    output_path = File.expand_path @settings['output_path']
-    error "your output_path is not a directory! (#{output_path})" unless File.directory? output_path
+    #check output path first
+    output_path = File.expand_path $SETTINGS['output_path']
+    unless File.directory? output_path
+      error "your output_path is not a directory! (#{output_path})"
+    end
 
-    template = @template_invoice if choice == :invoice
-    template = @template_offer   if choice == :offer
+    #set the output filename
+    filename = export_filename type, "tex"
 
-    template = ERB.new(template).result(binding)
+    puts "% #{filename}"
+    # fill out ERB (twice), make sure everything's set
+    template = ERB.new(document_template).result(binding)
     result   = ERB.new(template).result(binding)
 
-    filename = export_filename choice, "tex"
-    output_path = File.join @project_folder , filename
+    output_path = File.join @PROJECT_FOLDER, filename
  
-    puts output_path
-    write_to_file result, output_path
-    render_tex output_path, filename if run
-  end
-
-  def render_tex path, filename
-    logs "Rendering #{path} with #{@settings['latex']}"
-    silencer = @settings['verbose'] ? "" : "> /dev/null" 
-
-## TODO output directory is not generic
-    system "#{@settings['latex']} \"#{path}\" -output-directory . #{silencer}"
-
-    output_path = File.expand_path @settings['output_path']
-    error "your output_path is not a directory! (#{output_path})" unless File.directory? output_path
-
-    pdf = filename.gsub('.tex','.pdf')
-    log = filename.gsub('.tex','.log')
-    aux = filename.gsub('.tex','.aux')
-    unless @settings['keep_log']
-      FileUtils.rm log if File.exists? log
-      FileUtils.rm aux if File.exists? aux
-    else
-      unless File.expand_path output_path == FileUtils.pwd
-        FileUtils.mv log, output_path if File.exists? log
-        FileUtils.mv aux, output_path if File.exists? aux
-      end
-    end
-    FileUtils.mv pdf, output_path if File.exists? pdf
-
-
-    puts "Created #{path}"
+    puts result                       if !run
+    write_to_file result, output_path if  run
+    render_tex output_path, filename  if  run
   end
 
   def write_to_file file_content, path
@@ -67,19 +44,53 @@ module TexWriter
       error "Unable to write into #{path}"
     end
   end
+
+  def render_tex path, filename
+    logs "Rendering #{path} with #{$SETTINGS['latex']}"
+    silencer = $SETTINGS['verbose'] ? "" : "> /dev/null" 
+
+## TODO output directory is not generic
+    system "#{$SETTINGS['latex']} \"#{path}\" -output-directory . #{silencer}"
+
+    output_path = File.expand_path $SETTINGS['output_path']
+    error "your output_path is not a directory! (#{output_path})" unless File.directory? output_path
+
+    pdf = filename.gsub('.tex','.pdf')
+    log = filename.gsub('.tex','.log')
+    aux = filename.gsub('.tex','.aux')
+    unless $SETTINGS['keep_log']
+      FileUtils.rm log if File.exists? log
+      FileUtils.rm aux if File.exists? aux
+    else
+      unless File.expand_path output_path == FileUtils.pwd
+        FileUtils.mv log, output_path if File.exists? log
+        FileUtils.mv aux, output_path if File.exists? aux
+      end
+    end
+    target = File.join output_path, pdf
+
+    puts "moving #{pdf} to #{target}"
+    if not File.exists? pdf
+      error "#{pdf} does not exist, so it can not be moved to #{output_path}"
+    elsif File.expand_path(output_path)!= FileUtils.pwd
+      FileUtils.mv pdf, output_path, :force => true, :verbose => true
+    end
+
+
+    puts "Created #{path}"
+  end
+
   ##
   # loads template files named in settings
-  def load_templates()
-    offer   = File.join $SETTINGS['script_path'], $SETTINGS['templates']['offer']
-    invoice = File.join $SETTINGS['script_path'], $SETTINGS['templates']['invoice']
-    if File.exists?(offer) and File.exists?(invoice)
-      @template_invoice = File.open(invoice).read
-      @template_offer   = File.open(offer).read
-      return true
+  def load_template(type)
+    path = File.join $SETTINGS['script_path'],
+      $SETTINGS['templates'][type.to_s]
+    if File.exists?(path)
+      return File.open(path).read
     else
-      error "Template File not found!"
+      error "Template (#{path}) File not found!"
+      return false
     end
-    return false
   end
 
 

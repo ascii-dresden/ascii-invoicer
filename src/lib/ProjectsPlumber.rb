@@ -1,5 +1,6 @@
 # encoding: utf-8
 require 'fileutils'
+
 libpath = File.dirname __FILE__
 require File.join libpath, "gitplumber.rb"
 require File.join libpath, "AsciiSanitizer.rb"
@@ -24,11 +25,12 @@ class ProjectsPlumber
 
 
   def initialize(settings = $SETTINGS, project_class = nil)
-    @settings = settings
+    @settings        = settings
     @opened_projects = []
-    @project_class = project_class
+    @project_class   = project_class
+    @file_extension  = settings['project_file_extension']
 
-    @dirs           = {}
+    @dirs            = {}
     @dirs[:template] = File.expand_path File.join @settings['script_path'], @settings['templates']['project']
     @dirs[:storage]  = File.expand_path File.join @settings['path'], @settings['dirs']['storage']
     @dirs[:working]  = File.join @dirs[:storage], @settings['dirs']['working']
@@ -98,13 +100,10 @@ class ProjectsPlumber
     _name = AsciiSanitizer.process _name
     name = AsciiSanitizer.clean_path _name
 
-    event_name     = _name
-    personal_notes = @settings["personal_notes"]
-    personal_notes = (["\n"] + personal_notes.lines.to_a).join "#"
-    manager_name   = @settings["manager_name"]
-    default_lang   = @settings["default_lang"]
-    default_tax    = @settings["default_tax"]
-    #automatically_iterated_invoice_number = ""
+    project_name   = _name
+    settings       = @settings
+    defaults       = @settings['defaults']
+    defaults       = {}
 
     filename = @dirs[:template]
 
@@ -115,7 +114,7 @@ class ProjectsPlumber
     # copy template_file to project_dir
     folder = _new_project_folder(name)
     if folder
-      target = File.join folder, name+@settings['project_file_extension']
+      target = File.join folder, name+@file_extension
 
       #puts "writing into #{target}"
       file = File.new target, "w"
@@ -176,6 +175,10 @@ class ProjectsPlumber
   end
   
   
+  def lookup(name, dir = :working, year=Date.today.year, sort = nil)
+    lookup
+  end
+
   def lookup(name, sort = nil)
     sort_projects sort unless sort == nil or @opened_sort == sort
     name = name.to_i - 1 if name =~ /^\d*$/
@@ -200,7 +203,7 @@ class ProjectsPlumber
   
   ##
   # path to project file
-  # there may only be one @settings['project_file_extension'] file per project folder
+  # there may only be one @file_extension file per project folder
   #
   # untested
   def get_project_file_path(_name, dir=:working, year=Date.today.year)
@@ -209,8 +212,8 @@ class ProjectsPlumber
       
     folder = get_project_folder(name, dir, year)
     if folder
-      files = Dir.glob File.join folder, "*#{@settings['project_file_extension']}"
-      warn "ambiguous amount of #{@settings['project_file_extension']} files (#{folder})" if files.length != 1
+      files = Dir.glob File.join folder, "*#{@file_extension}"
+      warn "ambiguous amount of #{@file_extension} files (#{folder})" if files.length != 1
       return files[0]
     end
     puts "NO FOLDER get_project_folder(name = #{name}, dir = #{dir}, year = #{year})"
@@ -244,7 +247,7 @@ class ProjectsPlumber
       paths = Dir.glob File.join @dirs[dir], year.to_s, "/*"
       names = paths.map {|path|
         file_path = get_project_file_path (File.basename path), :archive, year
-        name = File.basename file_path, @settings['project_file_extension']
+        name = File.basename file_path, @file_extension
       }
       return names
     else
@@ -337,7 +340,7 @@ class ProjectsPlumber
     path = project.data :project_path
     pp path
 
-    cleaned_name = File.basename(path,@settings['project_file_extension'])
+    cleaned_name = File.basename(path,@file_extension)
 
     source = get_project_folder name, :archive, year
 

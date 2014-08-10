@@ -9,6 +9,7 @@ require File.join libpath, 'Euro.rb'
 require File.join libpath, 'projectFileReader.rb'
 require File.join libpath, 'rfc5322_regex.rb'
 require File.join libpath, 'texwriter.rb'
+require File.join libpath, 'shell.rb'
 
 ## TODO requirements and validity
 ## TODO open, YAML::parse, [transform, ] read_all, generate, validate
@@ -24,6 +25,7 @@ class InvoiceProject
 
   include TexWriter
   include Filters
+  include Shell
   include ProjectFileReader
 
   @@known_keys= [
@@ -40,8 +42,9 @@ class InvoiceProject
     :event_date,
     :event_prettydate,
     :offer_number,
-    :offer_cost,    :offer_tax,   :offer_total,   :offer_final,
-    :invoice_cost,  :invoice_tax, :invoice_total, :invoice_final,
+    :offer_costs,    :offer_taxes,   :offer_total,   :offer_final,
+    :invoice_costs,  :invoice_taxes, :invoice_total, :invoice_final,
+    :invoice_longnumber,
   ]
 
   def initialize(project_path = nil, settings = $SETTINGS, name = nil)
@@ -61,7 +64,7 @@ class InvoiceProject
   def open(project_path, name = nil)
     #puts "opening \"#{project_path}\""
     raise "already opened another project" unless @PROJECT_PATH.nil?
-    @PROJECT_PATH = project_path
+    @PROJECT_PATH   = project_path
     @PROJECT_FOLDER = File.split(project_path)[0]
 
     error "FILE \"#{project_path}\" does not exist!" unless File.exists?(project_path)
@@ -123,10 +126,10 @@ class InvoiceProject
 
     new_hash['manager']= new_hash['manager'].lines.to_a[1] if new_hash['manager'].lines.to_a.length > 1
 
-    if new_hash.get("client/fullname").class == String and
-    new_hash.get("client/fullname").words.class == Array
-      new_hash.set("client/title", new_hash.get("client/fullname").words[0])
-      new_hash.set("client/last_name", new_hash.get("client/fullname").words[1])
+    if new_hash.get("client/fullname").words.class == Array
+      new_hash.set("client/title",     new_hash.get("client/fullname").lines.to_a[0].strip)
+      new_hash.set("client/last_name", new_hash.get("client/fullname").lines.to_a[1].strip)
+      new_hash.set("client/fullname",  new_hash.get("client/fullname").gsub("\n",' ').strip)
     else
       fail_at :client_fullname
     end
@@ -147,7 +150,8 @@ class InvoiceProject
 
   def validate choice = :invoice
     (invalidators = { # self explaiatory ain't it? :D
-      :invoice   => [:invoice_number, :products, :manager, :caterers],
+      #:invoice   => [:invoice_number, :products, :manager, :caterers],
+      :invoice   => [:invoice_number, :products, :manager],
       :offer     => [:offer_number]
     }[choice] & @ERRORS).length==0
   end
@@ -170,11 +174,18 @@ class InvoiceProject
     @data[:event][:date] if @data[:event]
   end
 
+  #getters for path_through_document
+  #getting path['through']['document']
+  def data key = nil
+    return @data if key.nil?
+    return @data.get key
+  end
+
   def export_filename choice, ext=""
-    offer_number = @data[:offer_number]
-    invoice_number = @data[:invoice_number]
-    name = @data[:name]
-    date = @data[:date].strftime "%Y-%m-%d"
+    offer_number   = data 'offer/number'
+    invoice_number = data 'invoice/number'
+    name = data 'name'
+    date = data('event/date').strftime "%Y-%m-%d"
 
     ext.prepend '.' unless ext.length > 0 and ext.start_with? '.'
 

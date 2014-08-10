@@ -13,14 +13,6 @@ module ProjectFileReader
   # produces @ERRORS
   # has a    @STATUS
 
-  #getters for path_through_document
-  #getting path['through']['document']
-  def data key = nil
-    return @data if key.nil?
-    return @data[key] if @data.keys.include? key
-    return nil
-  end
-
   ##
   # little read function
   # returns data if read already
@@ -88,22 +80,23 @@ module ProjectFileReader
 
   def apply_filter(path, value, prefix = "filter_")
     begin
-    path = path.join('_') if path.class == Array
-    path = path.to_s      if path.class == Symbol
-    parser = prefix+path
-    begin parser = method(parser)
-    rescue NameError
-      return value
-    else
-      logs Paint[path, :yellow] if $SETTINGS['DEBUG']
-      return parser.call(value)
+      path = path.join('_') if path.class == Array
+      path = path.to_s      if path.class == Symbol
+      parser = prefix+path
+      begin parser = method(parser)
+      rescue NameError
+        return value
+      else
+        logs Paint[path, :yellow] if $SETTINGS['DEBUG']
+        return parser.call(value)
+      end
     end
-  end
-  rescue => error
-    fail_at path
-    puts $@.keep_if{|line| line.include? "filter_"}.map {|line| Paint[line, :red, :bold]}
-    puts Paint["      #{error}", :yellow]
-  end
+    rescue => error
+      fail_at path
+      puts Array.new($@).keep_if{|line| line.include? "filter_"}.map {|line| Paint[line, :red, :bold]}
+      puts Array.new($@).keep_if{|line| line.include? "generate_"}.map {|line| Paint[line, :blue, :bold]}
+      puts Paint["      #{error}", :yellow]
+    end
 
   def fail_at(*criteria)
     @data[:valid] = false
