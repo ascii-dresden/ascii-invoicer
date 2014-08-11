@@ -2,7 +2,7 @@ module TexWriter
 
   ##
   # fills the template with mined DATA
-  def create_tex type, run = true
+  def create_tex type, stdout = true
     document_template = load_template :document
     document_type     = type
     return fail_at :templates unless document_template
@@ -27,9 +27,9 @@ module TexWriter
 
     output_path = File.join @PROJECT_FOLDER, filename
  
-    puts result                       if !run
-    write_to_file result, output_path if  run
-    render_tex output_path, filename  if  run
+    puts result                       if  stdout
+    write_to_file result, output_path if !stdout
+    render_tex output_path, filename  if !stdout
   end
 
   def write_to_file file_content, path

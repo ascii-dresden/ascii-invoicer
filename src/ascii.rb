@@ -123,11 +123,8 @@ class Commander < Thor
       end
     end
 
-    def render_projects(projects, type)
-      projects.each{|project|
-        project.create_tex(type, run = true)
-        #project.create_tex(type, run = false)
-      }
+    def render_projects(projects, type, stdout = false)
+      projects.each{|project| project.create_tex(type, stdout) }
     end
   }
 
@@ -334,14 +331,14 @@ class Commander < Thor
       :lazy_default=> Date.today.year,
       :required => false,
       :desc => "Open File from archive YEAR"
-    method_option :check,
-      :type=>:numeric, :aliases => "-d",
+    method_option :stdout,
+      :type=>:numeric, :aliases => "-s",
       :lazy_default=> true,
       :required => false,
-      :desc => "check"
+      :desc => "print tex to stdout"
   def offer( *names)
     projects = open_projects names, options
-    render_projects projects, :offer
+    render_projects projects, :offer, options[:stdout]
   end
 
   desc "invoice NAME", "Create an invoice from project file."
@@ -351,14 +348,14 @@ class Commander < Thor
       :lazy_default=> Date.today.year,
       :required => false,
       :desc => "Open File from archive YEAR"
-    method_option :print,
-      :type=>:numeric,
+    method_option :stdout,
+      :type=>:numeric, :aliases => "-s",
       :lazy_default=> true,
       :required => false,
-      :desc => "print"
+      :desc => "print tex to stdout"
   def invoice( *names)
     projects = open_projects names, options
-    render_projects projects, :invoice
+    render_projects projects, :invoice, options[:stdout]
   end
 
 
