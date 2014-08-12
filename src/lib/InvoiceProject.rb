@@ -41,6 +41,7 @@ class InvoiceProject
     :hours_total,
     :event_date,
     :event_prettydate,
+    :caterers,
     :offer_number,
     :offer_costs,    :offer_taxes,   :offer_total,   :offer_final,
     :invoice_costs,  :invoice_taxes, :invoice_total, :invoice_final,
@@ -112,6 +113,7 @@ class InvoiceProject
       { old:"manumber",     new:"offer/number"      },
       { old:"anumber",      new:"offer/appendix"    },
       { old:"rnumber",      new:"invoice/number"    },
+      { old:"payed_date",   new:"invoice/payed_date"},
       { old:"signature",    new:"manager"           }, #trim
       #{ old:"hours/time",  new:"hours/total"       },
     ]

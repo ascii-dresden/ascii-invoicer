@@ -288,12 +288,15 @@ class Commander < Thor
     method_option :yaml, :type=>:string,
       :default => nil, :lazy_default=> "", :required => false,
       :desc => "output key or all as yaml"
+    method_option :cal, :type=>:boolean,
+      :default => nil, :lazy_default=> "", :required => false,
+      :desc => "output key or all as ical event[s]"
   def display(*names)
     projects =  open_projects names, options
     projects.each{ |project|
       error("No project found!") if project.nil?
     
-    unless options[:yaml] or options[:costs] or options[:caterers] or options[:invoice] or options[:offer]
+    unless options[:cal] or options[:yaml] or options[:costs] or options[:caterers] or options[:invoice] or options[:offer]
       fallback= true
     end
 
@@ -313,6 +316,7 @@ class Commander < Thor
       puts display_products(project, :offer  ) if options[:offer]
       puts display_products(project, :invoice) if options[:invoice]
       puts display_costs(project)              if options[:costs] or fallback
+      pp events_from_project(project)        if options[:cal]
       if options[:caterers]
         if project.data[:hours][:caterers]
           puts project.data[:hours][:caterers].map{|name, hours| "#{name} (#{hours})"}.join(", ")

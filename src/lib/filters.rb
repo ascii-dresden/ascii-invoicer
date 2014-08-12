@@ -36,6 +36,10 @@ module Filters
     email
   end
 
+  def filter_event_payed_date date
+    Date.parse date if date.class == String
+  end
+
   def filter_event_dates dates
     dates.each {|d|
       unless d[:time].nil? or d[:end].nil? ## time and end is missleading
@@ -91,7 +95,7 @@ module Filters
   end
 
   def filter_created date
-    Date.parse date
+    Date.parse date if date.class == String
   end
 
   def filter_offer_date date
@@ -144,6 +148,12 @@ module Filters
     gender     = $SETTINGS['gender_matches'][title]
     addressing = $SETTINGS['lang_addressing'][lang][gender]
     return "#{addressing} #{client[:title]} #{client[:last_name]}"
+  end
+
+  def generate_caterers full_data
+    caterers = []
+    full_data[:hours][:caterers].each{|name, time| caterers.push name} if full_data[:hours][:caterers]
+    return caterers
   end
 
   def generate_event_date  full_data

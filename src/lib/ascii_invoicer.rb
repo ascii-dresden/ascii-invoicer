@@ -1,6 +1,7 @@
 # encoding: utf-8
 libpath = File.dirname __FILE__
 require File.join libpath, "shell.rb"
+require 'icalendar'
 
 module AsciiInvoicer
 
@@ -81,13 +82,9 @@ module AsciiInvoicer
     puts table
   end
 
-## TODO print_project_list_ical(projects) add products list
-  def print_project_list_ical(projects)
-    require 'icalendar'
-    cal = Icalendar::Calendar.new
-    projects.each_index do |i|
-      p  = projects[i]
-
+  def events_from_project(project)
+      events = []
+      p = project
       p.data[:event][:dates].each { |date|
         event = Icalendar::Event.new
 
@@ -109,7 +106,7 @@ module AsciiInvoicer
         event.description += "Verantwortung: " + p.data[:manager]      + "\n" if p.data[:manager]
         if p.data[:hours][:caterers]
           event.description +=  "Caterer:\n"
-          p.data[:caterers].each {|caterer|
+          p.data[:caterers].each {|caterer,time|
             event.description +=  " - #{ caterer}\n"
           }
         end
@@ -120,9 +117,17 @@ module AsciiInvoicer
 
         event.description += p.data[:description]  + "\n" if p.data[:description]
 
-        cal.add_event event unless event.dtstart.nil?
+        events.push  event unless event.dtstart.nil?
       }
+      return events
+  end
 
+## TODO print_project_list_ical(projects) add products list
+  def print_project_list_ical(projects)
+    cal = Icalendar::Calendar.new
+    projects.each_index do |i|
+      events = events_from_project projects[i]
+      events.each { |event| cal.add_event event }
     end
     puts cal.to_ical
   end
