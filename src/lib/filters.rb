@@ -158,7 +158,7 @@ module Filters
   end
 
   def sum_money key
-    sum = 0
+    sum = 0.to_euro
     @data[:products].each{|p| sum += p.hash[key]} if @data[:products].class == Array
     sum.to_euro
   end
