@@ -117,10 +117,6 @@ module AsciiInvoicer
           }
         end
 
-        if p.data[:products]
-          event.description +=  "Produkte:\n"
-        end
-
         event.description += p.data[:description]  + "\n" if p.data[:description]
 
         events.push  event unless event.dtstart.nil?
