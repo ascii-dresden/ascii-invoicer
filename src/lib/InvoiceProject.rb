@@ -101,6 +101,18 @@ class InvoiceProject
     return true
   end
 
+  def name
+    @data[:canceled] ? "CANCELED: #{@data[:name]}" : @data[:name]
+    @data[:name]
+  end
+
+  def date
+    return @data[:event][:date] if @data[:event][:date]
+    return @data[:created]      if @data[:created]
+    return Date.parse "01.01.0000"
+  end
+
+
   def path
     @PROJECT_PATH
   end
@@ -173,15 +185,6 @@ class InvoiceProject
     @raw_data.to_yaml
   end
 
-
-  def name
-    @data[:canceled] ? "CANCELED: #{@data[:name]}" : @data[:name]
-    @data[:name]
-  end
-
-  def date
-    @data[:event][:date] if @data[:event]
-  end
 
   #getters for path_through_document
   #getting path['through']['document']

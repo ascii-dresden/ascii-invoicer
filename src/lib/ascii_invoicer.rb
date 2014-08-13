@@ -1,7 +1,7 @@
 # encoding: utf-8
+require 'icalendar'
 libpath = File.dirname __FILE__
 require File.join libpath, "shell.rb"
-require 'icalendar'
 
 module AsciiInvoicer
 
@@ -19,13 +19,15 @@ module AsciiInvoicer
 
   ##TODO turn color_from_date(date) into a loopuk into $SETTINGS
   def color_from_date(date)
+    diff = date - Date.today
+    return (rand * 256**3).to_i.to_s(16) if Date.today.day == 1 and Date.today.month == 4 #april fools
     return nil      unless $SETTINGS['colors']
-    return :cyan    if date - Date.today < -14
-    return :default if date < Date.today
-    return :red     if date - Date.today < 7
-    return :yellow  if date - Date.today < 14
-    return :green   if date - Date.today >= 14
-    return :white
+    return :magenta if diff < -28
+    return :cyan    if diff < 0
+    return :inverse if diff == 0
+    return :red     if diff < 7
+    return :yellow  if diff < 14
+    return :green
   end
 
 
@@ -34,13 +36,15 @@ module AsciiInvoicer
     table.style[:border] = false
     projects.each_index do |i|
       p  = projects[i]
+      color = color_from_date(p.date)
+      color = :default if p.validate(:invoice)
       table.add_row([
         (i+1).to_s+".", 
         p.name.ljust(35), 
         p.data[:manager], 
         p.data[:event][:invoice_number], 
         p.data[:event][:date].strftime("%d.%m.%Y"), 
-      ], color_from_date(p.date))
+      ], color)
     end
     table.set_alignments(:r, :l, :l)
     puts table
@@ -51,17 +55,19 @@ module AsciiInvoicer
     table.style[:border] = false
     projects.each_index do |i|
       p  = projects[i]
+      color = color_from_date(p.date)
+      color = :default if p.validate(:invoice)
       row = [
         (i+1).to_s+".",
         p.data[:event][:name] ? p.data[:event][:name] : "",
         p.name,
         p.data[:manager],
         p.data[:invoice][:number],
-        p.data[:event][:date].strftime("%d.%m.%Y"),
+        p.date.strftime("%d.%m.%Y"),
         p.validate(:invoice).print,
       ]
       row += [p.ERRORS] if show_errors
-      table.add_row( row , color_from_date(p.date))
+      table.add_row( row , color)
     end
     table.set_alignment(0, :r)
     table.set_alignment(5, :r)

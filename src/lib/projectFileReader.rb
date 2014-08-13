@@ -95,7 +95,7 @@ module ProjectFileReader
       fail_at path
       puts Array.new($@).keep_if{|line| line.include? "filter_"}.map {|line| Paint[line, :red, :bold]}
       puts Array.new($@).keep_if{|line| line.include? "generate_"}.map {|line| Paint[line, :blue, :bold]}
-      puts Paint["      #{error}", :yellow]
+      puts Paint["      #{error} (#{@PROJECT_PATH})", :yellow]
     end
 
   def fail_at(*criteria)
