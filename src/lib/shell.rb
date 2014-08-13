@@ -21,7 +21,7 @@ module Shell
 
 
   def warn (string)
-    puts Paint["WARNING: #{ caller[0] } #{string}",:red]
+    puts Paint["WARNING: #{ caller[0] }\n#{string}",:red]
     #puts Paint["WARNING: #{string}",:red]
   end
 

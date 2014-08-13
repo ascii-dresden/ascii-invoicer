@@ -101,6 +101,9 @@ class InvoiceProject
     return true
   end
 
+  def path
+    @PROJECT_PATH
+  end
 
   ## currently only from 1.0.0 to 2.4.0 Format
   def import_100 hash

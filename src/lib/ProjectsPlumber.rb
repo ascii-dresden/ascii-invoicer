@@ -30,6 +30,8 @@ class ProjectsPlumber
     @project_class   = project_class
     @file_extension  = settings['project_file_extension']
 
+    error "need a project_class" if project_class.nil?
+
     @dirs            = {}
     @dirs[:template] = File.expand_path File.join @settings['script_path'], @settings['templates']['project']
     @dirs[:storage]  = File.expand_path File.join @settings['path'], @settings['dirs']['storage']
@@ -40,6 +42,8 @@ class ProjectsPlumber
   ##
   # *wrapper* for puts()
   # depends on @settings.silent = true|false
+  def logs string
+  end
 
   ##
   # Checks the existens of one of the three basic dirs.
@@ -95,7 +99,7 @@ class ProjectsPlumber
 
   ##
   # creates new project_dir and project_file
-  # returns path to project_file
+  # returns project object
   def new_project(_name)
     _name = AsciiSanitizer.process _name
     name = AsciiSanitizer.clean_path _name
@@ -124,7 +128,7 @@ class ProjectsPlumber
       file.close
 
       logs "#{folder} created"
-      return target
+      return @project_class.new target
     else
       return false
     end
@@ -158,6 +162,17 @@ class ProjectsPlumber
     return true
   end
 
+  def open_project project
+    if project.class == String
+      project = AsciiSanitizer.process    project
+      project = AsciiSanitizer.clean_path project
+      open_projects()
+      project = lookup(project)
+    end
+    return project if project.class == @project_class
+  end
+
+
   ##
   # produces an Array of @project_class objects
   #
@@ -177,10 +192,6 @@ class ProjectsPlumber
   end
   
   
-  def lookup(name, dir = :working, year=Date.today.year, sort = nil)
-    lookup
-  end
-
   def lookup(name, sort = nil)
     sort_projects sort unless sort == nil or @opened_sort == sort
     name = name.to_i - 1 if name =~ /^\d*$/
@@ -208,17 +219,18 @@ class ProjectsPlumber
   # there may only be one @file_extension file per project folder
   #
   # untested
-  def get_project_file_path(_name, dir=:working, year=Date.today.year)
-      _name = AsciiSanitizer.process _name
-      name = AsciiSanitizer.clean_path _name
+  def get_project_file_path(name, dir=:working, year=Date.today.year)
+      name = AsciiSanitizer.process    name
+      name = AsciiSanitizer.clean_path name
       
     folder = get_project_folder(name, dir, year)
     if folder
       files = Dir.glob File.join folder, "*#{@file_extension}"
-      warn "ambiguous amount of #{@file_extension} files (#{folder})" if files.length != 1
+      warn "ambiguous amount of #{@file_extension} files in #{folder}" if files.length > 1
+      warn "no #{@file_extension} files in #{folder}" if files.length < 1
       return files[0]
     end
-    puts "NO FOLDER get_project_folder(name = #{name}, dir = #{dir}, year = #{year})"
+    logs "NO FOLDER get_project_folder(name = #{name}, dir = #{dir}, year = #{year})"
     return false
   end
 
@@ -230,6 +242,8 @@ class ProjectsPlumber
   #
   # TODO untested for archives
   def get_project_folder( name, dir=:working, year=Date.today.year )
+    name = AsciiSanitizer.process    name
+    name = AsciiSanitizer.clean_path name
     year = year.to_s
     target = File.join @dirs[dir], name       if dir == :working
     target = File.join @dirs[dir], year, name if dir == :archive
@@ -305,10 +319,11 @@ class ProjectsPlumber
   #  Move to archive directory
   #  @name 
   ## ProjectsPlumber.archive_project should use AsciiSanitizer
-  def archive_project(project, prefix = '')
+  def archive_project(project, year = nil, prefix = '')
+    project = open_project project
     return false unless project.class == @project_class
-
-    year = project.date.year
+    
+    year ||= project.date.year
     year_folder = File.join @dirs[:archive], year.to_s
     FileUtils.mkdir year_folder unless File.exists? year_folder
 
@@ -336,17 +351,14 @@ class ProjectsPlumber
   ##
   #  Move to archive directory
   def unarchive_project(project, year = Date.today.year)
+    project = open_project project
     return false unless project.class == @project_class
-    name = project.name
 
-    path = project.data :project_path
-    pp path
-
+    name         = project.name
+    path         = project.data :project_path
     cleaned_name = File.basename(path,@file_extension)
-
-    source = get_project_folder name, :archive, year
-
-    target = File.join @dirs[:working], cleaned_name
+    source       = get_project_folder name, :archive, year
+    target       = File.join @dirs[:working], cleaned_name
 
     logs "moving #{source} to #{target}"
     return false unless source

@@ -242,7 +242,7 @@ class Commander < Thor
     unless project.validate(:archive) or options[:force]
       error "\"#{project.name}\" contains errors\n(#{project.ERRORS.join(',')})"
     else
-      new_path = $PLUMBER.archive_project project, prefix
+      new_path = $PLUMBER.archive_project project, Date.today.year, prefix
       puts new_path
     end
   end
