@@ -208,7 +208,7 @@ class Commander < Thor
     elsif options[:yaml] 
       print_project_list_yaml projects
     elsif options[:simple]
-      print_project_list_simple projects
+      print_project_list_simple projects, options[:show_errors]
     elsif options[:verbose] or $SETTINGS['verbose']
       print_project_list_verbose projects, options[:show_errors]
     else

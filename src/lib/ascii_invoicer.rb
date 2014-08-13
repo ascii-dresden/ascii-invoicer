@@ -31,20 +31,23 @@ module AsciiInvoicer
   end
 
 
-  def print_project_list_simple(projects)
+  def print_project_list_simple(projects, show_errors = false)
     table = TableBox.new
     table.style[:border] = false
     projects.each_index do |i|
       p  = projects[i]
       color = color_from_date(p.date)
       color = :default if p.validate(:invoice)
-      table.add_row([
+      row = [
         (i+1).to_s+".", 
         p.name.ljust(35), 
         p.data[:manager], 
         p.data[:event][:invoice_number], 
         p.data[:event][:date].strftime("%d.%m.%Y"), 
-      ], color)
+      ]
+      row += [p.blockers(:invoice)] if show_errors and p.STATUS == :ok and !p.validate(:invoice)
+      row += [p.STATUS] if show_errors and p.STATUS == :canceled
+      table.add_row(row , color)
     end
     table.set_alignments(:r, :l, :l)
     puts table
@@ -59,14 +62,15 @@ module AsciiInvoicer
       color = :default if p.validate(:invoice)
       row = [
         (i+1).to_s+".",
-        p.data[:event][:name] ? p.data[:event][:name] : "",
         p.name,
+        p.data[:event][:name] ? p.data[:event][:name] : "",
         p.data[:manager],
         p.data[:invoice][:number],
         p.date.strftime("%d.%m.%Y"),
         p.validate(:invoice).print,
       ]
-      row += [p.ERRORS, p.STATUS] if show_errors
+      row += [p.blockers(:invoice)] if show_errors and p.STATUS == :ok and !p.validate(:invoice)
+      row += [p.STATUS] if show_errors and p.STATUS == :canceled
       table.add_row( row , color)
     end
     table.set_alignment(0, :r)
@@ -80,7 +84,7 @@ module AsciiInvoicer
       p  = projects[i]
       table.add_row [
         (i+1).to_s+".", 
-        p.data[:name].ljust(35), 
+        p.name.ljust(35), 
         p.data[:project_path]
       ]
     end

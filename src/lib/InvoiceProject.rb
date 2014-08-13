@@ -168,12 +168,16 @@ class InvoiceProject
   end
 
   def validate choice = :invoice
+    blockers(choice).length == 0
+  end
+
+  def blockers choice = :invoice
     (invalidators = { # self explaiatory ain't it? :D
       #:invoice   => [:invoice_number, :products, :manager, :caterers],
       :invoice   => [:invoice_number, :products, :manager,],
       :archive   => [:invoice_number, :products, :manager, :invoice_payed_date, :archive],
       :offer     => [:offer_number]
-    }[choice] & @ERRORS).length==0
+    }[choice] & @ERRORS)
   end
 
   def to_s
