@@ -114,6 +114,7 @@ class InvoiceProject
       { old:"anumber",      new:"offer/appendix"    },
       { old:"rnumber",      new:"invoice/number"    },
       { old:"payed_date",   new:"invoice/payed_date"},
+      { old:"invoice_date", new:"invoice/date"      },
       { old:"signature",    new:"manager"           }, #trim
       #{ old:"hours/time",  new:"hours/total"       },
     ]

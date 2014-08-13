@@ -148,7 +148,7 @@ module AsciiInvoicer
       'Datum',
       'Rechnungsdatum',
       'Betreuer',
-      'Verantwortlicher',
+      'verantwortlich',
       'Bezahlt am',
     ]
     puts header.to_csv(col_sep:";")
@@ -161,7 +161,7 @@ module AsciiInvoicer
         p.data[:event][:date],
         p.data[:invoice][:date],
         caterers_string,
-        p.data[:manager],
+        p.data[:manager].words[0],
         p.data[:invoice][:payed_date],
         #  p.valid_for[:invoice]
       ]

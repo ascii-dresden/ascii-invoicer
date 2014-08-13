@@ -279,6 +279,9 @@ class Commander < Thor
     method_option :caterers, :type=>:boolean,
       :default=> false, :lazy_default=> true, :required => false,
       :desc => "Display Caterers"
+    method_option :raw,:type=>:boolean,
+      :default=> false, :lazy_default=> true, :required => false,
+      :desc => ""
     method_option :costs,:type=>:boolean,
       :default=> false, :lazy_default=> true, :required => false,
       :desc => ""
@@ -306,6 +309,10 @@ class Commander < Thor
       else
         puts project.data.get(options[:yaml]).to_yaml
       end
+    elsif not options[:raw].nil?
+      raw = project.raw_data
+      raw.delete "cataloge"
+      puts raw.to_yaml
     elsif not options[:pp].nil?
       if options[:pp] == ''
         pp project.data
