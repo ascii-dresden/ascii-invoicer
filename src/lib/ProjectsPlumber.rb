@@ -153,7 +153,7 @@ class ProjectsPlumber
     @project_paths   = {}
     @opened_paths.each {|path|
       project = @project_class.new path
-      if project.STATUS == :valid
+      if project.STATUS != :unparsable
         @opened_projects = @opened_projects + [ project ]
       end
       @project_paths[project.name] = path

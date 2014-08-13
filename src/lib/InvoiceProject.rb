@@ -31,7 +31,7 @@ class InvoiceProject
   @@known_keys= [
     :format,    :lang,      :created,
     :client,    :event,     :manager,
-    :offer,     :invoice,
+    :offer,     :invoice,   :canceled,
     :messages,  :products,  :hours
   ]
 
@@ -87,7 +87,7 @@ class InvoiceProject
       return false
     else
       @data[:valid] = true # at least for the moment
-      @STATUS = :valid
+      @STATUS = :ok
       @data[:project_path]  = project_path
     end
 
@@ -103,7 +103,6 @@ class InvoiceProject
 
   def name
     @data[:canceled] ? "CANCELED: #{@data[:name]}" : @data[:name]
-    @data[:name]
   end
 
   def date

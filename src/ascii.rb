@@ -309,7 +309,7 @@ class Commander < Thor
       else
         puts project.data.get(options[:yaml]).to_yaml
       end
-    elsif not options[:raw].nil?
+    elsif options[:raw]
       raw = project.raw_data
       raw.delete "cataloge"
       puts raw.to_yaml

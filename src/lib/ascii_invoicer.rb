@@ -66,7 +66,7 @@ module AsciiInvoicer
         p.date.strftime("%d.%m.%Y"),
         p.validate(:invoice).print,
       ]
-      row += [p.ERRORS] if show_errors
+      row += [p.ERRORS, p.STATUS] if show_errors
       table.add_row( row , color)
     end
     table.set_alignment(0, :r)

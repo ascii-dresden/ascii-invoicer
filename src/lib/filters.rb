@@ -36,6 +36,11 @@ module Filters
     email
   end
 
+  def filter_canceled canceled
+    @STATUS = :canceled if @STATUS != :unparsable and canceled
+    canceled
+  end
+
   def filter_event_dates dates
     dates.each {|d|
       unless d[:time].nil? or d[:end].nil? ## time and end is missleading
