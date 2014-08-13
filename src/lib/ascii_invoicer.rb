@@ -20,7 +20,7 @@ module AsciiInvoicer
   ##TODO turn color_from_date(date) into a loopuk into $SETTINGS
   def color_from_date(date)
     return nil      unless $SETTINGS['colors']
-    return :blue    if date - Date.today < -14
+    return :cyan    if date - Date.today < -14
     return :default if date < Date.today
     return :red     if date - Date.today < 7
     return :yellow  if date - Date.today < 14
@@ -143,13 +143,13 @@ module AsciiInvoicer
   #takes an array of invoices (@plumber.working_projects)
   def print_project_list_csv(projects)
     header = [
-      'invoice',
-      'event',
-      'date',
-      'manager',
-      'hours',
-      'costs',
-      'total',
+      'Rnum',
+      'Bezeichnung',
+      'Datum',
+      'Rechnungsdatum',
+      'Betreuer',
+      'Verantwortlicher',
+      'Bezahlt am',
     ]
     puts header.to_csv(col_sep:";")
     projects.each do |p|
@@ -159,11 +159,10 @@ module AsciiInvoicer
         p.data[:invoice][:number],
         p.data[:event][:name],
         p.data[:event][:date],
-        p.data[:manager],
+        p.data[:invoice][:date],
         caterers_string,
-        p.data[:hours][:total].to_s + 'h',
-        p.data[:invoice][:costs],
-        p.data[:invoice][:total],
+        p.data[:manager],
+        p.data[:invoice][:payed_date],
         #  p.valid_for[:invoice]
       ]
       line.map! {|v| v ? v : "" } # wow, that looks cryptic
