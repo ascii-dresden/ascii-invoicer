@@ -36,10 +36,6 @@ module Filters
     email
   end
 
-  def filter_event_payed_date date
-    Date.parse date if date.class == String
-  end
-
   def filter_event_dates dates
     dates.each {|d|
       unless d[:time].nil? or d[:end].nil? ## time and end is missleading
@@ -115,6 +111,7 @@ module Filters
 
   def filter_invoice_payed_date date
     return Date.parse date if date.class == String
+    return fail_at :invoice_payed_date
   end
 
   def filter_hours_salary salary

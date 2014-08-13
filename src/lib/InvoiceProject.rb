@@ -119,6 +119,7 @@ class InvoiceProject
     ]
     ht = HashTransform.new :rules => rules, :original_hash => hash
     new_hash = ht.transform()
+    new_hash[ 'created' ] = "01.01.0000"
 
     date = strpdates(hash['date'])
     new_hash.set("event/dates/0/begin", date[0])
@@ -153,7 +154,8 @@ class InvoiceProject
   def validate choice = :invoice
     (invalidators = { # self explaiatory ain't it? :D
       #:invoice   => [:invoice_number, :products, :manager, :caterers],
-      :invoice   => [:invoice_number, :products, :manager],
+      :invoice   => [:invoice_number, :products, :manager,],
+      :archive   => [:invoice_number, :products, :manager, :invoice_payed_date, :archive],
       :offer     => [:offer_number]
     }[choice] & @ERRORS).length==0
   end

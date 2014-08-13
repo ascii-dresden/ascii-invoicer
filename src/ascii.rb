@@ -239,7 +239,7 @@ class Commander < Thor
     prefix ||= ""
     prefix  += "canceled" if project.data[:canceled]
 
-    unless project.validate(:invoice) or options[:force]
+    unless project.validate(:archive) or options[:force]
       error "\"#{project.name}\" contains errors\n(#{project.ERRORS.join(',')})"
     else
       new_path = $PLUMBER.archive_project project, prefix
@@ -316,8 +316,9 @@ class Commander < Thor
       puts display_products(project, :offer  ) if options[:offer]
       puts display_products(project, :invoice) if options[:invoice]
       puts display_costs(project)              if options[:costs] or fallback
-      pp events_from_project(project)        if options[:cal]
+      pp events_from_project(project)          if options[:cal]
       if options[:caterers]
+        print "#{project.name}:".ljust(35)         if names.length > 1
         if project.data[:hours][:caterers]
           puts project.data[:hours][:caterers].map{|name, hours| "#{name} (#{hours})"}.join(", ")
         else
