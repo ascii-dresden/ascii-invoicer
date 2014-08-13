@@ -506,7 +506,8 @@ class Commander < Thor
 
   desc "version", "display Version"
   def version
-    puts $SETTINGS['version']
+    puts $SETTINGS['version'] unless options[:verbose]
+    puts "ascii-invoicer: #{$SETTINGS['version']}\nruby: #{RUBY_VERSION}" if options[:verbose]
   end
 end
 

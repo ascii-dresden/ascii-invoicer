@@ -149,7 +149,9 @@ class ProjectsPlumber
     @project_paths   = {}
     @opened_paths.each {|path|
       project = @project_class.new path
-      @opened_projects = @opened_projects + [ project ]
+      if project.STATUS == :valid
+        @opened_projects = @opened_projects + [ project ]
+      end
       @project_paths[project.name] = path
     }
     sort_projects(sort)

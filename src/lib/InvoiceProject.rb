@@ -87,6 +87,7 @@ class InvoiceProject
       return false
     else
       @data[:valid] = true # at least for the moment
+      @STATUS = :valid
       @data[:project_path]  = project_path
     end
 
