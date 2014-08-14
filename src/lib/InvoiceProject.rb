@@ -94,7 +94,14 @@ class InvoiceProject
     #load format and transform or not
     @data[:format] = @raw_data['format'] ? @raw_data['format'] : "1.0.0"
     if @data[:format] < "2.4.0"
+      begin
       @raw_data = import_100 @raw_data
+      rescue =>error
+        @STATUS = :unparsable
+        warn "#{error} parsing #{@PROJECT_PATH}"
+        puts $@
+        return false
+      end
     end
 
     prepare_data()
