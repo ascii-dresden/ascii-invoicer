@@ -153,7 +153,7 @@ class InvoiceProject
       fail_at :client_fullname
     end
     new_hash.set("offer/date", Date.today)
-    new_hash.set("invoice/date", Date.today)
+    new_hash.set("invoice/date", Date.today) unless new_hash.get("invoice/date")
 
     return hash
   end
