@@ -61,7 +61,7 @@ $SETTINGS.graft $personal_settings if $personal_settings
 $SETTINGS["editor"] ||= ENV['EDITOR']
 
 ## Version of the software
-$SETTINGS['version'] = "v2.4.0-beta"
+$SETTINGS['version'] = "v2.4.0"
 
 ## path to the source code
 $SETTINGS['script_path'] = $SCRIPT_PATH
