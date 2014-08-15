@@ -189,7 +189,7 @@ class ProjectsPlumber
   def lookup_path(name, sort = nil)
     p = lookup(name)
     return @project_paths[p.name] unless p.nil?
-    puts "there is no project #{name}"
+    error "there is no project #{name}"
   end
   
   
