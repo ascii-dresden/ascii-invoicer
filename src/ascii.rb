@@ -180,8 +180,14 @@ class Commander < Thor
 
     method_option :csv, :type=>:boolean, 
       :lazy_default=> true, :required => false, :desc => "output as csv"
-    method_option :sort, :type=>:string,
+    method_option :sort, :type=>:string, :default => 'date',
       :required => false, :desc => "sort by [date | index | name]"
+
+    method_option :show_caterers, :type=>:boolean,
+      :lazy_default=> true, :required => false, :desc => "list caterers"
+
+    method_option :show_blockers, :type=>:boolean, :aliases => '-b',
+      :lazy_default=> true, :required => false, :desc => "list blockers"
 
     method_option :show_errors, :type=>:boolean, :aliases => '-e',
       :lazy_default=> true, :required => false, :desc => "list errors"
@@ -201,10 +207,12 @@ class Commander < Thor
       $PLUMBER.open_projects()
     end
 
-    hash = {}
-    hash[:verbose] = (options[:verbose] and !options[:simple])
-    hash[:colors ] = (options[:colors ] and !options[:no_colors])
-    hash[:show_errors] = options[:show_errors]
+    hash                 = {}
+    hash[:verbose]       = (options[:verbose] and !options[:simple])
+    hash[:colors ]       = (options[:colors ] and !options[:no_colors])
+    hash[:show_errors]   = options[:show_errors]
+    hash[:show_blockers] = options[:show_blockers]
+    hash[:show_caterers] = options[:show_caterers]
 
     if [:date, :name, :index].include? options[:sort].to_sym
       $PLUMBER.sort_projects options[:sort].to_sym

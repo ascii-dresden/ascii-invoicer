@@ -43,8 +43,12 @@ module AsciiInvoicer
       else
         row = print_row_simple project, hash
       end
-      row << project.blockers(:invoice) if hash[:show_errors] and project.STATUS == :ok and !project.validate(:invoice)
-      row << project.STATUS if hash[:show_errors] and project.STATUS == :canceled
+      if hash[:show_caterers] and project.data[:hours][:caterers]
+      row << project.data[:hours][:caterers].keys.join(", ")
+      end
+      row << project.blockers(:invoice)      if hash[:show_blockers]
+      row << project.ERRORS                  if hash[:show_errors] and project.STATUS == :ok
+      row << project.STATUS                  if hash[:show_errors] and project.STATUS == :canceled
       row.insert 0, i+1
       table.add_row row, color
     end
