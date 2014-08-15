@@ -408,18 +408,19 @@ class Commander < Thor
 
 
   desc "add NAME", "Git Integration."
-  def add index
-    if options[:file]
-      path = options[:file]
-    else
-      project = InvoiceProject.new $SETTINGS, pick_project(index)
-      path = project.project_folder
-    end
-    if $PLUMBER.check_git()
-      $PLUMBER.git_update_path(path)
-    else
-      puts "problems with git"
-    end
+  def add *names
+    projects = open_projects names, options
+
+
+    projects.each {|project|
+      path = project.PROJECT_FOLDER
+      if $PLUMBER.check_git()
+        $PLUMBER.git_update_path(path)
+      else
+        puts "problems with git"
+      end
+    }
+    status()
   end
 
   desc "commit message", "Git Integration."
