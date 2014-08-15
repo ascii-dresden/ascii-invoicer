@@ -8,7 +8,7 @@ module TexWriter
     return fail_at :templates unless document_template
 
     unless validate(type)
-      error "Cannot create an \"#{type.to_s}\" from #{@data[:name]}. (#{@ERRORS.join ','})"
+      error "Cannot create an \"#{type.to_s}\" from #{@data[:name]}. (#{blockers(type).join ','})"
     end
 
     #check output path first
