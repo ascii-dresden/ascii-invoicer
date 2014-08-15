@@ -91,13 +91,17 @@ class Commander < Thor
   include Thor::Actions
   include AsciiInvoicer
 
-  package_name "ascii project"
+  package_name "ascii invoicer"
   #argument :first, :type => :numeric
-  map "-l" => :list
-  map "-d" => :display
-  map "-i" => :invoice
-  map "-o" => :offer
-  #map "-e" => :edit #depricated
+  map "-l"   => :list
+  map "l"   => :list
+  map "ls"   => :list
+  map "dir"  => :list
+  map "show" => :display
+  map "-d"   => :display
+  map "-i"   => :invoice
+  map "-o"   => :offer
+  #map "-e"  => :edit #depricated
   #map "--version" => :version
 
   class_option :file,      :aliases=> "-f", :type => :string
@@ -139,7 +143,6 @@ class Commander < Thor
     puts "creating a new project name #{name}" if puts $PLUMBER.new_project name
     edit_files $PLUMBER.get_project_file_path name unless options[:dont_edit]
   end
-
 
 
   desc "edit index", "Edit project file."
@@ -238,6 +241,11 @@ class Commander < Thor
     end
   end
 
+  desc "csv", "invokes list --all --csv"
+  def csv
+    invoke :list, [], csv:true, all:true # where is this documented
+  end
+
   desc "calendar", "creates a calendar from all caterings"
   def calendar
     $PLUMBER.open_projects_all()
@@ -307,10 +315,10 @@ class Commander < Thor
     method_option :costs,:type=>:boolean,
       :default=> false, :lazy_default=> true, :required => false,
       :desc => ""
-    method_option :pp, :type=>:string,
+    method_option :pp, :type=>:string, :banner => "key",
       :default => nil, :lazy_default=> "", :required => false,
       :desc => "output key or all with pp"
-    method_option :yaml, :type=>:string,
+    method_option :yaml, :type=>:string, :banner => "key",
       :default => nil, :lazy_default=> "", :required => false,
       :desc => "output key or all as yaml"
     method_option :cal, :type=>:boolean,
@@ -410,8 +418,6 @@ class Commander < Thor
   desc "add NAME", "Git Integration."
   def add *names
     projects = open_projects names, options
-
-
     projects.each {|project|
       path = project.PROJECT_FOLDER
       if $PLUMBER.check_git()
