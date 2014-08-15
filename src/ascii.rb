@@ -198,7 +198,7 @@ class Commander < Thor
     method_option :colors, :type=>:boolean, :aliases => '-c', :default => $SETTINGS['colors'],
       :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
 
-    method_option :no_colors, :type=>:boolean, :aliases => '-n', 
+    method_option :no_colors, :type=>:boolean, :aliases => '-n',
       :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
 
 

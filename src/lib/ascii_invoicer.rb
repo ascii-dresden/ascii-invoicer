@@ -196,11 +196,11 @@ module AsciiInvoicer
   def display_costs project 
     data = project.data
 
-    co   = data[:offer][:cost].to_s.rjust(7)
-    ci   = data[:invoice][:cost].to_s.rjust(7)
+    co   = data[:offer][:costs].to_s.rjust(7)
+    ci   = data[:invoice][:costs].to_s.rjust(7)
 
-    to   = data[:offer][:tax].to_s.rjust(7)
-    ti   = data[:invoice][:tax].to_s.rjust(7)
+    to   = data[:offer][:taxes].to_s.rjust(7)
+    ti   = data[:invoice][:taxes].to_s.rjust(7)
 
     fo   = data[:offer][:final].to_s.rjust(7)
     fi   = data[:invoice][:final].to_s.rjust(7)
