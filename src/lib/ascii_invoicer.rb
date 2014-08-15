@@ -21,7 +21,6 @@ module AsciiInvoicer
   def color_from_date(date)
     diff = date - Date.today
     return (rand * 256**3).to_i.to_s(16) if Date.today.day == 1 and Date.today.month == 4 #april fools
-    return nil      unless $SETTINGS['colors']
     return :magenta if diff < -28
     return :cyan    if diff < 0
     return :inverse if diff == 0

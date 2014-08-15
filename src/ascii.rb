@@ -102,7 +102,6 @@ class Commander < Thor
 
   class_option :file,      :aliases=> "-f", :type => :string
   class_option :verbose,   :aliases=> "-v", :type => :boolean, :default => $SETTINGS['verbose']
-  class_option :colors,                     :type => :string,  :default => $SETTINGS['colors']
   class_option :editor,                     :type => :string,  :default => $SETTINGS['editor']
   #class_option "keep-log", :aliases=> "-k", :type => :boolean
 
@@ -181,7 +180,8 @@ class Commander < Thor
     method_option :csv, :type=>:boolean, 
       :lazy_default=> true, :required => false, :desc => "output as csv"
     method_option :sort, :type=>:string, :default => 'date',
-      :required => false, :desc => "sort by [date | index | name]"
+      :required => false, :desc => "sort by [date | index | name]",
+      :enum => ['date' , 'index', 'name']
 
     method_option :show_caterers, :type=>:boolean,
       :lazy_default=> true, :required => false, :desc => "list caterers"
@@ -194,10 +194,14 @@ class Commander < Thor
 
     method_option :simple, :type=>:boolean, :aliases => '-s',
       :lazy_default=> true, :required => false, :desc => "overrides the verbose setting"
-    method_option :color, :type=>:boolean, :aliases => '-c',
+
+    method_option :colors, :type=>:boolean, :aliases => '-c', :default => $SETTINGS['colors'],
       :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
-    method_option :no_colors, :type=>:boolean, :aliases => '-n',
+
+    method_option :no_colors, :type=>:boolean, :aliases => '-n', 
       :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
+
+
   def list
     if options[:all]
       $PLUMBER.open_projects_all()
@@ -209,7 +213,7 @@ class Commander < Thor
 
     hash                 = {}
     hash[:verbose]       = (options[:verbose] and !options[:simple])
-    hash[:colors ]       = (options[:colors ] and !options[:no_colors])
+    hash[:colors]        = (options[:colors] and !options[:no_colors])
     hash[:show_errors]   = options[:show_errors]
     hash[:show_blockers] = options[:show_blockers]
     hash[:show_caterers] = options[:show_caterers]
