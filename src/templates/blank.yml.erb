@@ -35,16 +35,12 @@ invoice:
   payed_date:
 
 cataloge:
-  product: &cafe
-    name:  Kaffee
-    price: 2.5
-    unit:  1l
-  product: &id010        { name: Tee             , price: 1.75 , unit: 1l  }
+  product: &kaffee       { name: Kaffee          , price: 2.5  , unit: 1l  }
+  product: &tee          { name: Tee             , price: 1.75 , unit: 1l  }
   product: &wasser_gross { name: Mineralwasser   , price: 0.61 , unit: 1l  }
   product: &wasser_klein { name: Mineralwasser   , price: 0.59 , unit: 1l  }
   product: &apfelsaft    { name: Apfelsaft       , price: 1.64 , unit: 1l  }
   product: &orangensaft  { name: Orangensaft     , price: 1.86 , unit: 1l  }
-
   product: &bagel        { name: Bagel           , price: 2.19 , unit: stk }
   product: &kekse        { name: Kekse Lamberts  , price: 3.40 , unit: 400g}
   product: &broetchen    { name: halbes Brötchen , price: 1.16 , unit: stk }
@@ -52,30 +48,18 @@ cataloge:
 
 products:
 
-  *cafe: { amount: 4, sold:   5 }
+  *kaffee: { amount: 4, sold:   5 }
   *wasser_gross:
     amount: 4
-    sold:   5
+    returned:   3
   *kekse:
     amount: 4
     sold: 2
 
-  "Orangensaft (1l)":
-    amount:    8
-    price:     1.82
-    returned:  0
-  "Apfelsaft (1l)":
-    amount:    8
-    price:     1.65
-    sold:      0
-  "Belegte Brötchen":
-    amount:    0
-    price:     1.16
-
 hours: 
   salary: 8.00
   caterers:
-    "Name" : 0 #Stunden
+    "unknown" : 0 #Stunden
     
 manager: <%= settings['manager_name'] %>
 
