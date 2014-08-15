@@ -118,9 +118,14 @@ class InvoiceProject
     return Date.parse "01.01.0000"
   end
 
-
   def path
     @PROJECT_PATH
+  end
+
+  # for sorting
+  def index
+    return date.year.to_s + @data[:invoice][:number] if @data[:invoice][:number]
+    return date.year.to_s + "Zzz"
   end
 
   ## currently only from 1.0.0 to 2.4.0 Format

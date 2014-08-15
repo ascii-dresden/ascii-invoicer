@@ -101,8 +101,9 @@ class Commander < Thor
   #map "--version" => :version
 
   class_option :file,      :aliases=> "-f", :type => :string
-  class_option :verbose,   :aliases=> "-v", :type => :boolean
-  class_option :editor,                     :type => :string, :default => $SETTINGS['editor']
+  class_option :verbose,   :aliases=> "-v", :type => :boolean, :default => $SETTINGS['verbose']
+  class_option :colors,                     :type => :string,  :default => $SETTINGS['colors']
+  class_option :editor,                     :type => :string,  :default => $SETTINGS['editor']
   #class_option "keep-log", :aliases=> "-k", :type => :boolean
 
   no_commands{
@@ -175,17 +176,21 @@ class Commander < Thor
       :lazy_default=> true, :required => false, :desc => "lists all projects, ever (indezies wont work)"
     method_option :paths, :type=>:boolean, :aliases => '-p',
       :lazy_default=> true, :required => false, :desc => "list paths to .yml files"
-    method_option :simple, :type=>:boolean, :aliases => '-s',
-      :lazy_default=> true, :required => false, :desc => "ignore global verbose setting"
+
+
     method_option :csv, :type=>:boolean, 
       :lazy_default=> true, :required => false, :desc => "output as csv"
-    method_option :yaml, :type=>:boolean,
-      :lazy_default=> true, :required => false, :desc => "output as yaml"
+    method_option :sort, :type=>:string,
+      :required => false, :desc => "sort by [date | index | name]"
+
     method_option :show_errors, :type=>:boolean, :aliases => '-e',
-      :lazy_default=> true, :required => false, :desc => "list errors in verbose listing"
+      :lazy_default=> true, :required => false, :desc => "list errors"
+
+    method_option :simple, :type=>:boolean, :aliases => '-s',
+      :lazy_default=> true, :required => false, :desc => "overrides the verbose setting"
     method_option :color, :type=>:boolean, :aliases => '-c',
       :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
-    method_option :no_color, :type=>:boolean, :aliases => '-n',
+    method_option :no_colors, :type=>:boolean, :aliases => '-n',
       :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
   def list
     if options[:all]
@@ -196,23 +201,28 @@ class Commander < Thor
       $PLUMBER.open_projects()
     end
 
-    $SETTINGS['colors'] = true  if options[:color]
-    $SETTINGS['colors'] = false if options[:no_color]
+    hash = {}
+    hash[:verbose] = (options[:verbose] and !options[:simple])
+    hash[:colors ] = (options[:colors ] and !options[:no_colors])
+    hash[:show_errors] = options[:show_errors]
+
+    if [:date, :name, :index].include? options[:sort].to_sym
+      $PLUMBER.sort_projects options[:sort].to_sym
+    else
+      puts "can't sort by #{options[:sort]}"
+    end
 
     projects = $PLUMBER.opened_projects
 
     if options[:csv] 
+      $PLUMBER.sort_projects(:index)
       print_project_list_csv projects
     elsif options[:paths] 
       print_project_list_paths projects
     elsif options[:yaml] 
       print_project_list_yaml projects
-    elsif options[:simple]
-      print_project_list_simple projects, options[:show_errors]
-    elsif options[:verbose] or $SETTINGS['verbose']
-      print_project_list_verbose projects, options[:show_errors]
     else
-      print_project_list_simple projects
+      print_project_list(projects, hash)
     end
   end
 
