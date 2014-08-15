@@ -188,7 +188,8 @@ class ProjectsPlumber
 
   def lookup_path(name, sort = nil)
     p = lookup(name)
-    @project_paths[p.name] unless p.nil?
+    return @project_paths[p.name] unless p.nil?
+    puts "there is no project #{name}"
   end
   
   
@@ -198,10 +199,13 @@ class ProjectsPlumber
     if name.class == String
       name_map = {}
       @opened_projects.each {|project| name_map[project.name] = project}
-      return name_map[name]
+      project = name_map[name]
+      error "there is no project \"#{name}\"" if project.nil?
     elsif name.class == Fixnum
-      return @opened_projects[name]
+      project =  @opened_projects[name]
+      error "there is no project ##{name+1}" if project.nil?
     end
+    return project
   end
   
   

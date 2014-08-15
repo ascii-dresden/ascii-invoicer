@@ -20,10 +20,9 @@ include AsciiInvoicer
 
 plumber = ProjectsPlumber.new $SETTINGS, InvoiceProject
 
-plumber.open_projects :archive, 2014
-plumber.sort_projects :name
+plumber.open_projects
 
-pp plumber.lookup("R002_weinhold")
+pp plumber.lookup(12)
 
 
 #print_project_list_simple  projects

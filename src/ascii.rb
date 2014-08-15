@@ -124,7 +124,7 @@ class Commander < Thor
     end
 
     def render_projects(projects, type, stdout = false)
-      projects.each{|project| project.create_tex(type, stdout) }
+      projects.each{|project| project.create_tex(type, stdout) unless project.nil? }
     end
   }
 
