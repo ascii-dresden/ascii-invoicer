@@ -517,8 +517,14 @@ class Commander < Thor
   end
 
   desc "path", "display projects storage path"
+    method_option :script_path, :type=>:boolean, :aliases => '-s',
+      :lazy_default=> true, :required => false, :desc => "shows script path"
   def path
+    if options[:script_path]
+    puts File.split($SCRIPT_PATH)[0]
+    else
     puts File.join $SETTINGS['path'], $SETTINGS['dirs']['storage']
+    end
   end
 
   desc "version", "display Version"
