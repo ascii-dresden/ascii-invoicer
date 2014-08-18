@@ -108,8 +108,13 @@ class InvoiceProject
     return true
   end
 
-  def name
+  # displays "CANCELED: name if canceled"
+  def pretty_name
     @data[:canceled] ? "CANCELED: #{@data[:name]}" : @data[:name]
+  end
+
+  def name
+     @data[:name]
   end
 
   def date

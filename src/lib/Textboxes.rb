@@ -2,6 +2,7 @@
 require 'paint'
 
 class TableBox
+
   attr_writer :top, :bottom, :splitter,
     :padding_horizontal,
     :title, :footer
@@ -24,7 +25,7 @@ class TableBox
     @borders[:row]    = "─"
 
     @rows              = []
-    @row_colors        = []
+    @row_colors        = [] # each row can have an array of colors see: https://github.com/janlelis/paint/
     @row_heights       = []
     @column_widths     = []
     @column_alignments = []
@@ -34,11 +35,12 @@ class TableBox
     @title             = nil
     @footer            = nil
 
-    @style                  = {}
-    @style[:border]         = false
-    @style[:column_borders] = false
-    @style[:padding_horizontal]     = 1
-    #@padding_vertical      = 0
+    @style                      = {}
+    @style[:border]             = false
+    @style[:row_borders]        = false
+    @style[:column_borders]     = false
+    @style[:padding_horizontal] = 1
+    #@padding_vertical          = 0
 
   end
 
@@ -97,9 +99,9 @@ class TableBox
     return row
   end
 
-  def add_row row, color = nil
+  def add_row row, color = []
     @rows.push prepare_row row
-    @row_colors.push(color)
+    @row_colors.push([color].flatten)
   end
 
   def content_width()
@@ -164,7 +166,7 @@ class TableBox
     string
   end
 
-  def render_row(row, color = nil)
+  def render_row(row, colors = [])
     padding = " " * (@style[:padding_horizontal])
     inpadding = padding+padding 
     inpadding = padding+@borders[:column]+padding if @style[:column_borders]
@@ -187,8 +189,8 @@ class TableBox
       #line = line.join(inpadding).ljust(content_width())
 
       string << @borders[:column] << padding if @style[:border]
-      if color
-        string << Paint[line, color]
+      if colors
+        string << Paint[line,*colors]
       else
         string << line
       end

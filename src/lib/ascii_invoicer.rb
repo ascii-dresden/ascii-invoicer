@@ -21,21 +21,26 @@ module AsciiInvoicer
   def color_from_date(date)
     diff = date - Date.today
     return (rand * 256**3).to_i.to_s(16) if Date.today.day == 1 and Date.today.month == 4 #april fools
-    return :magenta if diff < -28
-    return :cyan    if diff < 0
-    return :inverse if diff == 0
-    return :red     if diff < 7
-    return :yellow  if diff < 14
-    return :green
+    return :magenta                      if diff < -28
+    return :cyan                         if diff < 0
+    return [:yellow,:bright]             if diff == 0
+    return :red                          if diff < 7
+    return :yellow                       if diff < 14
+    return [:green]
   end
 
   def print_project_list projects, hash = {}
     table = TableBox.new
+    table.style[:border]             = false
+    table.style[:column_borders]     = false
+    table.style[:row_borders]        = false
+    table.style[:padding_horizontal] = 1
     projects.each_index do |i|
       project  = projects[i]
       if !hash[:colors].nil? and hash[:colors]
         color = color_from_date(project.date)
         color = :default if project.validate(:invoice)
+        color = [:blue] if project.STATUS == :canceled
       end
       if hash[:verbose]
         row = print_row_verbose project, hash
@@ -57,7 +62,7 @@ module AsciiInvoicer
 
   def print_row_simple(project,hash) 
     row = [
-      project.name.ljust(35), 
+      project.pretty_name,
       project.data[:manager], 
       project.data[:event][:invoice_number], 
       project.data[:event][:date].strftime("%d.%m.%Y"), 
@@ -69,7 +74,7 @@ module AsciiInvoicer
 
   def print_row_verbose (project, hash)
     row = [
-      project.name,
+      project.pretty_name,
       project.data[:event][:name] ? project.data[:event][:name] : "",
       project.data[:manager],
       project.data[:invoice][:number],

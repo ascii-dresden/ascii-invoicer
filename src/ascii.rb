@@ -269,7 +269,7 @@ class Commander < Thor
     prefix ||= ""
     prefix  += "canceled" if project.data[:canceled]
 
-    unless project.validate(:archive) or options[:force]
+    unless project.validate(:archive) or options[:force] or project.data[:canceled]
       error "\"#{project.name}\" contains errors\n(#{project.ERRORS.join(',')})"
     else
       new_path = $PLUMBER.archive_project project, Date.today.year, prefix
