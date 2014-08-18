@@ -61,7 +61,8 @@ $SETTINGS.graft $personal_settings if $personal_settings
 $SETTINGS["editor"] ||= ENV['EDITOR']
 
 ## Version of the software
-$SETTINGS['version'] = $VERSION = "v2.4.1"
+## depricated since v2.4.1
+#$SETTINGS['version'] = $VERSION = "v2.4.1"
 
 ## path to the source code
 $SETTINGS['script_path'] = $SCRIPT_PATH
@@ -521,22 +522,31 @@ class Commander < Thor
   end
 
   desc "version", "display Version"
-    method_option :git, :type=>:boolean, :aliases => '-g',
-      :lazy_default=> true, :required => false, :desc => "show git tag"
     method_option :changed_files, :type=>:boolean, :aliases => '-c',
-      :lazy_default=> true, :required => false, :desc => ""
+      :lazy_default=> true, :required => false, :desc => "show changed files"
+    method_option :fetch, :type=>:boolean, :aliases => '-f',
+      :lazy_default=> true, :required => false, :desc => "update new code (FETCH ONLY != pull)"
   def version
-
-    puts $SETTINGS['version'] unless options[:verbose]
-    if options[:verbose]
       git = Git.open File.join $SETTINGS['script_path'], ".."
-      puts "ascii-invoicer: #{$SETTINGS['version']}"
+      latest_tag        = git.tags.last
+      latest_tag_commit = latest_tag.log.first
+      latest_commit     = git.log.first
+        print git.tags.last.name
+      unless latest_tag_commit.to_s == latest_commit.to_s
+        print latest_tag_commit.date <= latest_commit.date ?  " < " : " > "
+        puts latest_commit.to_s.slice(0..7)
+      else
+        puts
+      end
+
+    if options[:fetch]
+      puts git.fetch
+    end
+
+    if options[:verbose]
       puts "#{RUBY_ENGINE}: #{RUBY_VERSION}"
     end
-    if options[:git]
-      puts "commit: #{ git.log.first.to_s }"
-      puts "tag: #{git.tags.last.name}"
-    end
+
     if options[:changed_files]
       puts "Files Changed:"
       puts git.status.changed.keys
