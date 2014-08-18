@@ -61,7 +61,7 @@ $SETTINGS.graft $personal_settings if $personal_settings
 $SETTINGS["editor"] ||= ENV['EDITOR']
 
 ## Version of the software
-$SETTINGS['version'] = $VERSION = "v2.4.0"
+$SETTINGS['version'] = $VERSION = "v2.4.1"
 
 ## path to the source code
 $SETTINGS['script_path'] = $SCRIPT_PATH
@@ -536,7 +536,12 @@ class Commander < Thor
   desc "version", "display Version"
   def version
     puts $SETTINGS['version'] unless options[:verbose]
-    puts "ascii-invoicer: #{$SETTINGS['version']}\nruby: #{RUBY_VERSION}" if options[:verbose]
+    if options[:verbose]
+      @git = Git.open File.join $SETTINGS['script_path'], ".."
+      puts "ascii-invoicer: #{$SETTINGS['version']}"
+      puts "#{RUBY_ENGINE}: #{RUBY_VERSION}"
+      puts "commit: #{ @git.log.first.to_s }"
+    end
   end
 end
 
