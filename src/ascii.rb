@@ -93,14 +93,15 @@ class Commander < Thor
 
   package_name "ascii invoicer"
   #argument :first, :type => :numeric
-  map "-l"   => :list
-  map "l"   => :list
-  map "ls"   => :list
-  map "dir"  => :list
-  map "show" => :display
-  map "-d"   => :display
-  map "-i"   => :invoice
-  map "-o"   => :offer
+  map "-l"    => :list
+  map "l"     => :list
+  map "ls"    => :list
+  map "dir"   => :list
+  map "show"  => :display
+  map "-d"    => :display
+  map "close" => :archive
+  map "-i"    => :invoice
+  map "-o"    => :offer
   #map "-e"  => :edit #depricated
   #map "--version" => :version
 
@@ -146,6 +147,8 @@ class Commander < Thor
 
 
   desc "edit index", "Edit project file."
+    method_option :settings, :type=>:boolean, :aliases => '-s',
+      :lazy_default=> true, :required => false, :desc => "edit settings"
     method_option :archive,
       :type=>:numeric, :aliases => "-a",
       :default => nil,
@@ -153,6 +156,10 @@ class Commander < Thor
       :required => false,
       :desc => "Open File from archive YEAR"
   def edit( *hash )
+    if options[:settings]
+      invoke :settings, [], edit:true
+      exit
+    end
     if options[:archive]
       $PLUMBER.open_projects(:archive, options[:archive])
     else
@@ -407,11 +414,7 @@ class Commander < Thor
 
   desc "status", "Git Integration."
   def status
-    if $PLUMBER.check_git()
-      $PLUMBER.git_status()
-    else
-      puts "problems with git"
-    end
+    $PLUMBER.git_status() if $PLUMBER.open_git()
   end
 
 
@@ -420,36 +423,24 @@ class Commander < Thor
     projects = open_projects names, options
     projects.each {|project|
       path = project.PROJECT_FOLDER
-      if $PLUMBER.check_git()
-        $PLUMBER.git_update_path(path)
-      else
-        puts "problems with git"
-      end
+      $PLUMBER.git_update_path(path) if $PLUMBER.open_git()
     }
     status()
   end
 
   desc "commit message", "Git Integration."
   def commit message
-    if $PLUMBER.check_git()
-      $PLUMBER.git_commit(message)
-    else
-      puts "problems with git"
-    end
+    $PLUMBER.git_commit(message) if $PLUMBER.open_git()
   end
 
   desc "push", "Git Integration."
   def push
-    if $PLUMBER.check_git()
-      $PLUMBER.git_push()
-    end
+    $PLUMBER.git_push() if $PLUMBER.open_git()
   end
 
   desc "pull", "Git Integration."
   def pull
-    if $PLUMBER.check_git()
-      $PLUMBER.git_pull()
-    end
+    $PLUMBER.git_pull() if $PLUMBER.open_git()
   end
 
   desc "history", "Git Integration."
@@ -460,11 +451,7 @@ class Commander < Thor
       :required => false,
       :desc => "Max count of history entries"
   def history
-    if $PLUMBER.check_git()
-      $PLUMBER.git_log(options[:count])
-    else
-      puts "problems with git"
-    end
+    $PLUMBER.git_log(options[:count]) if $PLUMBER.open_git()
   end
 
 
@@ -534,13 +521,25 @@ class Commander < Thor
   end
 
   desc "version", "display Version"
+    method_option :git, :type=>:boolean, :aliases => '-g',
+      :lazy_default=> true, :required => false, :desc => "show git tag"
+    method_option :changed_files, :type=>:boolean, :aliases => '-c',
+      :lazy_default=> true, :required => false, :desc => ""
   def version
+
     puts $SETTINGS['version'] unless options[:verbose]
     if options[:verbose]
-      @git = Git.open File.join $SETTINGS['script_path'], ".."
+      git = Git.open File.join $SETTINGS['script_path'], ".."
       puts "ascii-invoicer: #{$SETTINGS['version']}"
       puts "#{RUBY_ENGINE}: #{RUBY_VERSION}"
-      puts "commit: #{ @git.log.first.to_s }"
+    end
+    if options[:git]
+      puts "commit: #{ git.log.first.to_s }"
+      puts "tag: #{git.tags.last.name}"
+    end
+    if options[:changed_files]
+      puts "Files Changed:"
+      puts git.status.changed.keys
     end
   end
 end

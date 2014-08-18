@@ -345,7 +345,7 @@ class ProjectsPlumber
     logs "moving: #{project_folder} to #{target}" if target and project_folder
 
     FileUtils.mv project_folder, target
-    if check_git()
+    if open_git()
       git_update_path project_folder
       git_update_path target
     end
@@ -369,7 +369,7 @@ class ProjectsPlumber
 
     unless get_project_folder cleaned_name
       FileUtils.mv source, target
-      if check_git()
+      if open_git()
         git_update_path source
         git_update_path target
       end

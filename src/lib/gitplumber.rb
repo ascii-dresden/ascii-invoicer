@@ -17,11 +17,12 @@ require 'logger'
 
 module GitPlumber
 
-  def check_git
+  def open_git
     begin
       @git = Git.open @dirs[:storage]
       return true
-    rescue
+    rescue => error
+      error "#{@dirs[:storage]} does not seem to be a git repository"
       return false
     end
   end
@@ -40,6 +41,7 @@ module GitPlumber
   end
 
   def git_push()
+    error "you must not push your changes"
     @git = Git.open @dirs[:storage], :log => Logger.new(STDOUT)
     out = @git.push()
     puts out if out
@@ -47,8 +49,7 @@ module GitPlumber
 
   def git_pull()
     @git = Git.open @dirs[:storage], :log => Logger.new(STDOUT)
-    out = @git.pull()
-    puts out if out
+    out = @git.fetch()
   end
 
   def git_commit(message)
