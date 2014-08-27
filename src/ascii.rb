@@ -194,13 +194,13 @@ class Commander < Thor
       :required => false, :desc => "sort by [date | index | name]",
       :enum => ['date' , 'index', 'name']
 
-    method_option :show_caterers, :type=>:boolean,
+    method_option :caterers, :type=>:boolean,
       :lazy_default=> true, :required => false, :desc => "list caterers"
 
-    method_option :show_blockers, :type=>:boolean, :aliases => '-b',
+    method_option :blockers, :type=>:boolean, :aliases => '-b',
       :lazy_default=> true, :required => false, :desc => "list blockers"
 
-    method_option :show_errors, :type=>:boolean, :aliases => '-e',
+    method_option :errors, :type=>:boolean, :aliases => '-e',
       :lazy_default=> true, :required => false, :desc => "list errors"
 
     method_option :simple, :type=>:boolean, :aliases => '-s',
@@ -225,9 +225,9 @@ class Commander < Thor
     hash                 = {}
     hash[:verbose]       = (options[:verbose] and !options[:simple])
     hash[:colors]        = (options[:colors] and !options[:no_colors])
-    hash[:show_errors]   = options[:show_errors]
-    hash[:show_blockers] = options[:show_blockers]
-    hash[:show_caterers] = options[:show_caterers]
+    hash[:errors]   = options[:errors]
+    hash[:blockers] = options[:blockers]
+    hash[:caterers] = options[:caterers]
 
     if [:date, :name, :index].include? options[:sort].to_sym
       $PLUMBER.sort_projects options[:sort].to_sym
