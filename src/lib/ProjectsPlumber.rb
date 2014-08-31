@@ -319,6 +319,20 @@ class ProjectsPlumber
     return names
   end
 
+  def filter_by hash
+    filtered_projets = []
+    @opened_projects.each{|project|
+      hash.each{|key,value|
+        field = project.data(key)
+        if field and field.to_s.downcase.include? value
+          filtered_projets.push project
+          break
+        end
+      }
+    }
+    return filtered_projets
+  end
+
   ##
   #  Move to archive directory
   #  @name 

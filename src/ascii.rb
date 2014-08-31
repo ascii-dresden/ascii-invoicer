@@ -103,8 +103,8 @@ class Commander < Thor
   map "close" => :archive
   map "-i"    => :invoice
   map "-o"    => :offer
+  map "-V"    => :version
   #map "-e"  => :edit #depricated
-  #map "--version" => :version
 
   class_option :file,      :aliases=> "-f", :type => :string
   class_option :verbose,   :aliases=> "-v", :type => :boolean, :default => $SETTINGS['verbose']
@@ -209,6 +209,9 @@ class Commander < Thor
     method_option :colors, :type=>:boolean, :aliases => '-c', :default => $SETTINGS['colors'],
       :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
 
+    method_option :filter, :type=>:hash, :aliases => '-f',
+      :required => false, :desc => "filter by manager, caterer etc (experimental)"
+
     method_option :no_colors, :type=>:boolean, :aliases => '-n',
       :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
 
@@ -235,7 +238,12 @@ class Commander < Thor
       puts "can't sort by #{options[:sort]}"
     end
 
-    projects = $PLUMBER.opened_projects
+    if options[:filter]
+      projects = $PLUMBER.filter_by options[:filter]
+    else
+
+      projects = $PLUMBER.opened_projects
+    end
 
     if options[:csv] 
       $PLUMBER.sort_projects(:index)
