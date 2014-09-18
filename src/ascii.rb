@@ -191,8 +191,8 @@ class Commander < Thor
     method_option :csv, :type=>:boolean, 
       :lazy_default=> true, :required => false, :desc => "output as csv"
     method_option :sort, :type=>:string, :default => 'date',
-      :required => false, :desc => "sort by [date | index | name]",
-      :enum => ['date' , 'index', 'name']
+      :required => false, :desc => "sort by [date | index | name | manager]",
+      :enum => ['date' , 'index', 'name', 'manager']
 
     method_option :caterers, :type=>:boolean,
       :lazy_default=> true, :required => false, :desc => "list caterers"
@@ -214,6 +214,9 @@ class Commander < Thor
 
     method_option :no_colors, :type=>:boolean, :aliases => '-n',
       :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
+
+    method_option :edit, :type=>:array,
+      :required => false, :desc => "open all listed files for edit"
 
 
   def list
@@ -254,6 +257,19 @@ class Commander < Thor
       print_project_list_yaml projects
     else
       print_project_list(projects, hash)
+    end
+
+    if options[:edit]
+      all_paths= projects.map { |project| project.path }
+
+      paths = options[:edit].map{|index| all_paths[index.to_i-1] }
+      puts paths
+
+      if paths.size > 0
+        edit_files paths, options[:editor]
+      else
+        puts "nothing found (#{hash})"
+      end
     end
   end
 
