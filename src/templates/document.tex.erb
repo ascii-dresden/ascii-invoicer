@@ -31,7 +31,9 @@
   \midrule
   <% @data[:products].each_index do |i|
     product = @data[:products][i] %>
-  <%= i + 1 %> & <%= product.name %> & <%= product.amount type %> & <%= product.price %> & <%= product.cost   type %> \\
+  <%= i + 1 %> & <%= product.name %> <%if product.unit %>
+    (<%= product.unit %>)
+  <% end %> & <%= product.amount type %>  & <%= product.price %> & <%= product.cost   type %> \\
 <% end %>
 <% if @data[:hours][:time] >0%>
 <%= @data[:products].count + 1 %> & Betreuung (Stunden) & <%= @data[:hours][:time] %> & <%= @data[:hours][:salary] %> & <%= @data[:hours][:total] %> \\

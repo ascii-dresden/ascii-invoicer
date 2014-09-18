@@ -74,7 +74,6 @@ module AsciiInvoicer
 
   def print_row_verbose (project, hash)
     row = [
-      project.pretty_name,
       project.data[:event][:name] ? project.data[:event][:name] : "",
       project.data[:manager],
       project.data[:invoice][:number],
@@ -213,6 +212,7 @@ module AsciiInvoicer
     toto = data[:offer][:total].to_s.rjust(7)
     toti = data[:invoice][:total].to_s.rjust(7)
 
+    h    = data[:hours][:time]
     st   = data[:hours][:total].to_s.rjust(18)
 
     box = TableBox.new
@@ -222,7 +222,7 @@ module AsciiInvoicer
 
     box.add_row  ["Kosten       :","#{co} -> #{ci}"]
     box.add_row  ["MWST         :","#{to} -> #{ti}"]
-    box.add_row  ["Gehalt Total :","#{st}"]
+    box.add_row  ["Gehalt Total :","#{st}", "(#{h}h)"]
     box.add_row  [nil, "-----------------"]
     box.add_row  ["Netto        :","#{toto} -> #{toti}"]
     box.add_row  ["Final        :","#{fo} -> #{fi}"]

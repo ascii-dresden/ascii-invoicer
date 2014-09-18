@@ -123,6 +123,10 @@ class InvoiceProject
     return Date.parse "01.01.0000"
   end
 
+  def manager
+    data :manager
+  end
+
   def path
     @PROJECT_PATH
   end
@@ -234,12 +238,13 @@ end
 class InvoiceProduct
   attr_reader :name, :hash, :tax, :valid, :returned,
     :total_invoice, :cost_offer, :cost_invoice, :cost_offer, :tax_invoice, :tax_offer,
-    :price
+    :price, :unit
 
   def initialize(hash, tax_value = $SETTINGS['defaults']['tax'])
     @hash      = hash
     @name      = hash[:name]
     @price     = hash[:price]
+    @unit      = hash[:unit]
     @amount    = hash[:amount]
     @tax_value = tax_value
     fail "TAX MUST NOT BE > 1" if @tax_value > 1
