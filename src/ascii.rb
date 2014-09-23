@@ -200,7 +200,7 @@ class Commander < Thor
 
     method_option :csv, :type=>:boolean, 
       :lazy_default=> true, :required => false, :desc => "output as csv"
-    method_option :sort, :type=>:string, :default => 'date',
+    method_option :sort, :type=>:string,
       :required => false, :desc => "sort by [date | index | name | manager]",
       :enum => ['date' , 'index', 'name', 'manager']
 
@@ -245,10 +245,12 @@ class Commander < Thor
     hash[:blockers] = options[:blockers]
     hash[:caterers] = options[:caterers]
 
-    if [:date, :name, :index].include? options[:sort].to_sym
-      $PLUMBER.sort_projects options[:sort].to_sym
-    else
-      puts "can't sort by #{options[:sort]}"
+    if not options[:sort].nil?
+      if[:date, :name, :index].include? options[:sort].to_sym
+        $PLUMBER.sort_projects options[:sort].to_sym
+      else
+        puts "can't sort by #{options[:sort]}"
+      end
     end
 
     if options[:filter]
