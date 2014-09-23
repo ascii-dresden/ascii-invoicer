@@ -4,8 +4,8 @@ created: <%= Date.today.strftime "%d.%m.%Y" %>
 
 client: 
   title:     Herr # Frau, Professor, Professorin
-  firstname: John
-  lastname:  Doe
+  first_name: John
+  last_name:  Doe
 
   email: jon.doe@example.com
   address: | 
@@ -45,6 +45,8 @@ cataloge:
   product: &kekse        { name: Kekse Lamberts  , price: 3.40 , unit: 400g}
   product: &broetchen    { name: halbe Brötchen  , price: 1.16 , unit: stk }
   product: &kuchen       { name: Kuchen          , price: 0.94 , unit: stk }
+  product: &suppe        { name: Suppe           , price: 3.10 , unit: Portion }
+  product: &obstplatte   { name: Obstplatte      , price: 30.00 , unit: stk }
 
 products:
 
