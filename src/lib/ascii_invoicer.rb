@@ -101,35 +101,49 @@ module AsciiInvoicer
       events = []
       p = project
       p.data[:event][:dates].each { |date|
-        event = Icalendar::Event.new
 
         # TODO event times is not implemented right
-        if date[:time] and date[:time][:begin]
+        unless date[:times].nil?
+
           ## set specific times
-          event.dtstart     = date[:time][:begin]
-          event.dtend       = date[:time][:end]
+          date[:times].each { |time|
+            dtstart = DateTime.parse( date[:begin].strftime("%d.%m.%Y ") + time[:begin] )
+            dtend   = DateTime.parse( date[:begin].strftime("%d.%m.%Y ") + time[:end]   )
+            puts dtstart
+            puts dtend
+            event = Icalendar::Event.new
+            event.dtstart = dtstart
+            event.dtend   = dtend
+            events.push  event unless event.dtstart.nil?
+
+          }
 
         else
           ## set full day event
+          event = Icalendar::Event.new
           event.dtstart = Icalendar::Values::Date.new( date[:begin].strftime  "%Y%m%d")
           event.dtend   = Icalendar::Values::Date.new((date[:end]+1).strftime "%Y%m%d")
+            events.push  event unless event.dtstart.nil?
+
         end 
 
-        event.description = ""
-        event.summary     = p.data[:event][:name]
-        event.summary   ||= p.name
+        events.each{ | event|
 
-        event.description += "Verantwortung: " + p.data[:manager]      + "\n" if p.data[:manager]
-        if p.data[:hours][:caterers]
-          event.description +=  "Caterer:\n"
-          p.data[:caterers].each {|caterer,time|
-            event.description +=  " - #{ caterer}\n"
-          }
-        end
+          event.description = ""
+          event.summary     = p.data[:event][:name]
+          event.summary   ||= p.name
 
-        event.description += p.data[:description]  + "\n" if p.data[:description]
+          event.description += "Verantwortung: " + p.data[:manager]      + "\n" if p.data[:manager]
+          if p.data[:hours][:caterers]
+            event.description +=  "Caterer:\n"
+            p.data[:caterers].each {|caterer,time|
+              event.description +=  " - #{ caterer}\n"
+            }
+          end
 
-        events.push  event unless event.dtstart.nil?
+          event.description += p.data[:description]  + "\n" if p.data[:description]
+        }
+
       }
       return events
   end
