@@ -41,7 +41,6 @@ module GitPlumber
   end
 
   def git_push()
-    error "you must not push your changes"
     @git = Git.open @dirs[:storage], :log => Logger.new(STDOUT)
     out = @git.push()
     puts out if out
@@ -49,7 +48,8 @@ module GitPlumber
 
   def git_pull()
     @git = Git.open @dirs[:storage], :log => Logger.new(STDOUT)
-    out = @git.fetch()
+    out = @git.pull()
+    puts out if out
   end
 
   def git_commit(message)

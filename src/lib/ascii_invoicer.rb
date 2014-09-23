@@ -103,6 +103,7 @@ module AsciiInvoicer
       p.data[:event][:dates].each { |date|
         event = Icalendar::Event.new
 
+        # TODO event times is not implemented right
         if date[:time] and date[:time][:begin]
           ## set specific times
           event.dtstart     = date[:time][:begin]
