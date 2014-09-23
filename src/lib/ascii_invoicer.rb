@@ -73,8 +73,12 @@ module AsciiInvoicer
 
 
   def print_row_verbose (project, hash)
+    name = "##{project.data[:name]}#"
+    if not project.data[:event][:name].nil? and project.data[:event][:name].size > 0
+      name = project.data[:event][:name]
+    end
     row = [
-      project.data[:event][:name] ? project.data[:event][:name] : "",
+      name,
       project.data[:manager],
       project.data[:invoice][:number],
       project.date.strftime("%d.%m.%Y"),
