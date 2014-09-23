@@ -60,12 +60,22 @@ $SETTINGS.graft $personal_settings if $personal_settings
 ## Default editor if not set ins settings files
 $SETTINGS["editor"] ||= ENV['EDITOR']
 
-## Version of the software
-## depricated since v2.4.1
-#$SETTINGS['version'] = $VERSION = "v2.4.1"
-
 ## path to the source code
 $SETTINGS['script_path'] = $SCRIPT_PATH
+
+## Version of the software
+
+
+self_git = Git.open File.join $SETTINGS['script_path'], ".."
+if self_git.log.first.date == self_git.tags.last.log.first.date
+  $SETTINGS['version'] = $VERSION = self_git.tags.last.name
+
+elsif self_git.log.first.date >= self_git.tags.last.log.first.date
+  $SETTINGS['version'] = $VERSION = self_git.tags.last.name + "++"
+
+elsif self_git.log.first.date <= self_git.tags.last.log.first.date
+  $SETTINGS['version'] = $VERSION = self_git.tags.last.name + "--"
+end
 
 ## path to the project File, here we expand the "~"
 $SETTINGS['path']        = File.expand_path $SETTINGS['path']
@@ -561,12 +571,14 @@ class Commander < Thor
       latest_tag        = git.tags.last
       latest_tag_commit = latest_tag.log.first
       latest_commit     = git.log.first
-        print git.tags.last.name
+      print git.tags.last.name
       unless latest_tag_commit.to_s == latest_commit.to_s
+        # not uptodate
         print latest_tag_commit.date <= latest_commit.date ?  " < " : " > "
         puts latest_commit.to_s.slice(0..7)
       else
-        puts
+        # uptodate
+        puts 
       end
 
     if options[:fetch]
