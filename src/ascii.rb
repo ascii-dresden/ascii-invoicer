@@ -283,9 +283,9 @@ class Commander < Thor
     end
   end
 
-  desc "csv", "invokes list --all --csv"
+  desc "csv", "invokes list --all --csv --sort=index --filter event/date:#{Date.today.year}"
   def csv
-    invoke :list, [], csv:true, all:true # where is this documented
+    invoke :list, [], csv:true, all:true, sort:"index", filter:{"event/date"=>Date.today.year.to_s}# where is this documented
   end
 
   desc "calendar", "creates a calendar from all caterings"
