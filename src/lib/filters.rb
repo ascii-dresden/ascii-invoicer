@@ -146,7 +146,7 @@ module Filters
     return fail_at(:client_title) unless full_data[:client][:title]
     lang       = full_data[:lang]
     client     = full_data[:client]
-    title      = client[:title].downcase
+    title      = client[:title].words.first.downcase
     gender     = $SETTINGS['gender_matches'][title]
     addressing = $SETTINGS['lang_addressing'][lang][gender]
     return "#{addressing} #{client[:title]} #{client[:last_name]}"
