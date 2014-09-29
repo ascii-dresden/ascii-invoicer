@@ -552,14 +552,18 @@ class Commander < Thor
     end
   end
 
-  desc "path", "display projects storage path"
+  desc "path", "returns projects storage path"
     method_option :script_path, :type=>:boolean, :aliases => '-s',
-      :lazy_default=> true, :required => false, :desc => "shows script path"
+      :lazy_default=> true, :required => false, :desc => "returns script path"
+    method_option :output_path, :type=>:boolean, :aliases => '-o',
+      :lazy_default=> true, :required => false, :desc => "returns output path"
   def path
     if options[:script_path]
-    puts File.split($SCRIPT_PATH)[0]
+      puts File.split($SCRIPT_PATH)[0]
+    elsif options[:output_path]
+      puts File.join $SETTINGS['output_path']
     else
-    puts File.join $SETTINGS['path'], $SETTINGS['dirs']['storage']
+      puts File.join $SETTINGS['path'], $SETTINGS['dirs']['storage']
     end
   end
 
