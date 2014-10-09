@@ -111,8 +111,13 @@ module AsciiInvoicer
 
           ## set specific times
           date[:times].each { |time|
-            dtstart = DateTime.parse( date[:begin].strftime("%d.%m.%Y ") + time[:begin] )
-            dtend   = DateTime.parse( date[:begin].strftime("%d.%m.%Y ") + time[:end]   )
+            if time[:end]
+              dtstart = DateTime.parse( date[:begin].strftime("%d.%m.%Y ") + time[:begin] )
+              dtend   = DateTime.parse( date[:begin].strftime("%d.%m.%Y ") + time[:end] )
+            else
+              dtstart = Icalendar::Values::Date.new( date[:begin].strftime  "%Y%m%d")
+              dtend   = Icalendar::Values::Date.new((date[:end]+1).strftime "%Y%m%d")
+            end
             puts dtstart
             puts dtend
             event = Icalendar::Event.new
