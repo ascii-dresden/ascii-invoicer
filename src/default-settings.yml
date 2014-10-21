@@ -28,6 +28,28 @@ defaults:
   tax: 0.19
   lang: de
   canceled: false
+  includes:
+    logopath:
+    name:
+    strasse:
+    universitaet:
+    fakultaet:
+    zusatz:
+    retouradresse:
+    ort:
+    land:
+    telefon:
+    telefax:
+    telex:
+    http:
+    email:
+    bank:
+    blz:
+    iban:
+    bic:
+    konto:
+    steuernummer:
+
   messages:
     de:
       offer: 

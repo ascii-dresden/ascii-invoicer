@@ -28,11 +28,12 @@ class InvoiceProject
   include Shell
   include ProjectFileReader
 
-  @@known_keys= [
+  @@known_keys= [ # list default values here
     :format,    :lang,      :created,
     :client,    :event,     :manager,
     :offer,     :invoice,   :canceled,
-    :messages,  :products,  :hours
+    :messages,  :products,  :hours,
+    :includes
   ]
 
   @@dynamic_keys=[

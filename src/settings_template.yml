@@ -41,5 +41,26 @@ manager_name: ""
 #        - ""
 #      signature: Mit freundlichen Grüßen
 #
+#  includes:
+#    logopath:
+#    name:
+#    strasse:
+#    universitaet:
+#    fakultaet:
+#    zusatz:
+#    retouradresse:
+#    ort:
+#    land:
+#    telefon:
+#    telefax:
+#    telex:
+#    http:
+#    email:
+#    bank:
+#    blz:
+#    iban:
+#    bic:
+#    konto:
+#    steuernummer:
 #
 ...

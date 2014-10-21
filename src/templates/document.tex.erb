@@ -1,7 +1,32 @@
 \documentclass[11pt,utf8]{
        <%= $SETTINGS['script_path'] %>/latex/ascii-brief}
-\input{<%= $SETTINGS['script_path'] %>/latex/ascii-include}
-\Logo {<%= $SETTINGS['script_path'] %>/latex/ascii-logo.png}
+\Logo {<%= $SETTINGS['script_path'] %><%= @data[:includes][:logopath] %>}
+
+\lochermarke
+\faltmarken
+\fenstermarken
+\trennlinien
+%%\klassisch
+
+\Name                {<%= @data[:includes][:name] %>}
+\Strasse             {<%= @data[:includes][:strasse] %>}
+\Universitaet        {<%= @data[:includes][:universitaet] %>}
+\Fakultaet           {<%= @data[:includes][:fakultaet] %>}
+\Zusatz              {<%= @data[:includes][:zusatz] %>}
+\RetourAdresse       {<%= @data[:includes][:retouradresse] %>}
+\Ort                 {<%= @data[:includes][:ort] %>}
+\Land                {<%= @data[:includes][:land] %>}
+\Telefon             {<%= @data[:includes][:telefon] %>}
+\Telefax             {<%= @data[:includes][:telefax] %>}
+\Telex               {<%= @data[:includes][:telex] %>}
+\HTTP                {<%= @data[:includes][:http] %>}
+\EMail               {<%= @data[:includes][:email] %>}
+\Bank                {<%= @data[:includes][:bank] %>}
+\BLZ                 {<%= @data[:includes][:blz] %>}
+\IBAN                {<%= @data[:includes][:iban] %>}
+\BIC                 {<%= @data[:includes][:bic] %>}
+\Konto               {<%= @data[:includes][:konto] %>}
+\Steuernummer        {<%= @data[:includes][:steuernummer] %>}
 
 \Unterschrift        {<%= @data[:manager] %>}
 \Postvermerk         {}
