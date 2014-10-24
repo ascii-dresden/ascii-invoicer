@@ -2,14 +2,14 @@
 
 $FB = "foobar"
 class TrueClass
-  def print
-    "\e[32m✓\e[0m"
+  def print(symbol=?✓)
+    "\e[32m#{symbol}\e[0m"
   end
 end
 
 class FalseClass
-  def print
-    "\e[31m✗\e[0m"
+  def print(symbol=?✗)
+    "\e[31m#{symbol}\e[0m"
   end
 end
 

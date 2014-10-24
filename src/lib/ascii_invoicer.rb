@@ -82,7 +82,10 @@ module AsciiInvoicer
       project.data[:manager],
       project.data[:invoice][:number],
       project.date.strftime("%d.%m.%Y"),
+      project.validate(:offer).print,
       project.validate(:invoice).print,
+      project.validate(:payed).print($SETTINGS['currency_symbol']),
+      # try these: ☑☒✉☕☀☻
     ]
     return row
   end

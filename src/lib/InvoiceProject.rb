@@ -197,7 +197,8 @@ class InvoiceProject
     (invalidators = { # self explaiatory ain't it? :D
       #:invoice   => [:invoice_number, :products, :manager, :caterers],
       :invoice   => [:invoice_number, :products, :manager,],
-      :archive   => [:invoice_number, :products, :manager, :invoice_payed_date, :archive],
+      :archive   => [:invoice_number, :products, :manager, :invoice_payed_date, :archive, :payed_date],
+      :payed     => [:invoice_number, :products, :manager, :invoice_payed_date, :payed_date],
       :offer     => [:offer_number]
     }[choice] & @ERRORS)
   end
