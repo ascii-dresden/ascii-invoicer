@@ -203,6 +203,7 @@ module AsciiInvoicer
         p.data[:invoice][:payed_date],
         #  p.valid_for[:invoice]
       ]
+      line << "canceled" if p.data[:canceled]
       line.map! {|v| v ? v : "" } # wow, that looks cryptic
       puts line.to_csv(col_sep:";")
     end
