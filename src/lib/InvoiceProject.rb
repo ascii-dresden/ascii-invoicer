@@ -248,9 +248,13 @@ class InvoiceProduct
     @price     = hash[:price]
     @unit      = hash[:unit]
     @amount    = hash[:amount]
-    @tax_value = tax_value
-    fail "TAX MUST NOT BE > 1" if @tax_value > 1
+    if hash[:tax]
+      @tax_value = hash[:tax]
+    else
+      @tax_value = tax_value
+    end
 
+    fail "TAX MUST NOT BE > 1" if @tax_value > 1
 
     @valid = true
     calculate() unless hash.nil?
