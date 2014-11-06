@@ -6,6 +6,7 @@ require 'csv'
 require 'git'
 require 'yaml'
 require 'thor'
+require 'euro'
 require 'paint'
 
 begin
@@ -14,7 +15,6 @@ rescue
   $SCRIPT_PATH = File.split(File.expand_path(__FILE__))[0]
 end
 
-require "#{$SCRIPT_PATH}/lib/Euro.rb"
 require "#{$SCRIPT_PATH}/lib/InvoiceProject.rb"
 require "#{$SCRIPT_PATH}/lib/HashTransform.rb"
 require "#{$SCRIPT_PATH}/lib/ProjectsPlumber.rb"

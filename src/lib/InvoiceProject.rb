@@ -1,10 +1,10 @@
 # encoding: utf-8
 require 'yaml'
 require 'date'
+require 'euro'
 libpath = File.dirname __FILE__
 
 require File.join libpath, 'HashTransform.rb'
-require File.join libpath, 'Euro.rb'
 
 require File.join libpath, 'projectFileReader.rb'
 require File.join libpath, 'rfc5322_regex.rb'
