@@ -144,6 +144,7 @@ module AsciiInvoicer
           event.description = ""
           event.summary     = p.data[:event][:name]
           event.summary   ||= p.name
+          event.summary  = "CANCELED: #{ event.summary }" if p.data[:canceled]
 
           event.description += "Verantwortung: " + p.data[:manager]      + "\n" if p.data[:manager]
           if p.data[:hours][:caterers]
