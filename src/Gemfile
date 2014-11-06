@@ -5,6 +5,7 @@ gem "thor",       "~> 0.19.1"
 gem "paint",      "~> 0.8.7"
 gem "icalendar",  "~> 2.1.1"
 gem 'euro',       '~> 0.3'
+gem 'textboxes',  '~> 0.0.1'
 
 group :development do
   gem 'libnotify'

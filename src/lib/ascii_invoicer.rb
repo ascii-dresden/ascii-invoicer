@@ -30,7 +30,7 @@ module AsciiInvoicer
   end
 
   def print_project_list projects, hash = {}
-    table = TableBox.new
+    table = Textboxes.new
     table.style[:border]             = false
     table.style[:column_borders]     = false
     table.style[:row_borders]        = false
@@ -91,7 +91,7 @@ module AsciiInvoicer
   end
 
   def print_project_list_paths(projects)
-    table = TableBox.new
+    table = Textboxes.new
     projects.each_index do |i|
       p  = projects[i]
       table.add_row [
@@ -211,7 +211,7 @@ module AsciiInvoicer
   end
 
   def display_products project, choice = :offer
-    table = TableBox.new
+    table = Textboxes.new
     table.style[:border] = true
     table.title = "Project:" + "\"#{project.data[:event][:name]}\"".rjust(25)
     table.add_row ["#", "name", "price", "cost"]
@@ -244,7 +244,7 @@ module AsciiInvoicer
     h    = data[:hours][:time]
     st   = data[:hours][:total].to_s.rjust(18)
 
-    box = TableBox.new
+    box = Textboxes.new
     box.padding_horizontal = 3
     box.style[:border] = true
     box.title = "Project:" + "\"#{data[:event][:name]}\"".rjust(25)

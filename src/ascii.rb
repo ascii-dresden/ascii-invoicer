@@ -8,6 +8,7 @@ require 'yaml'
 require 'thor'
 require 'euro'
 require 'paint'
+require 'textboxes'
 
 begin
   $SCRIPT_PATH = File.split(File.expand_path(File.readlink(__FILE__)))[0]
@@ -18,7 +19,6 @@ end
 require "#{$SCRIPT_PATH}/lib/InvoiceProject.rb"
 require "#{$SCRIPT_PATH}/lib/HashTransform.rb"
 require "#{$SCRIPT_PATH}/lib/ProjectsPlumber.rb"
-require "#{$SCRIPT_PATH}/lib/Textboxes.rb"
 
 require "#{$SCRIPT_PATH}/lib/shell.rb"
 require "#{$SCRIPT_PATH}/lib/tweaks.rb"
