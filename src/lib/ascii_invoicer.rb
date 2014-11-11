@@ -1,11 +1,9 @@
 # encoding: utf-8
 require 'icalendar'
 libpath = File.dirname __FILE__
-require File.join libpath, "shell.rb"
 
 module AsciiInvoicer
 
-  include Shell
   ## Use Option parser or leave it if only one argument is given
 
   def render_project project, choice

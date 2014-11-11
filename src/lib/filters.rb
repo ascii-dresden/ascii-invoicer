@@ -4,6 +4,8 @@ require 'date'
 
 module Filters
 
+  filter_logger = Logger.new STDOUT
+
   def strpdates(string,pattern = nil)
     return [Date.today] unless string.class == String
     if pattern 
@@ -44,7 +46,7 @@ module Filters
   def filter_event_dates dates
     dates.each {|d|
       unless d[:time].nil? or d[:end].nil? ## time and end is missleading
-        warn "#{name} missleading: time and end_date"
+        filter_logger.warn "#{name} missleading: time and end_date"
         return fail_at :event_dates
       end
 

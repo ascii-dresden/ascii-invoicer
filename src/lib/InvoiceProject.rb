@@ -9,7 +9,6 @@ require File.join libpath, 'HashTransform.rb'
 require File.join libpath, 'projectFileReader.rb'
 require File.join libpath, 'rfc5322_regex.rb'
 require File.join libpath, 'texwriter.rb'
-require File.join libpath, 'shell.rb'
 
 ## TODO requirements and validity
 ## TODO open, YAML::parse, [transform, ] read_all, generate, validate
@@ -25,7 +24,6 @@ class InvoiceProject
 
   include TexWriter
   include Filters
-  include Shell
   include ProjectFileReader
 
   @@known_keys= [ # list default values here
@@ -58,6 +56,7 @@ class InvoiceProject
     @DEFAULTS = @SETTINGS['defaults'] if @SETTINGS['defaults']
 
     @DEFAULTS['format'] = '1.0.0'
+    @logger = Logger.new STDOUT
 
     open(project_path, name) unless project_path.nil?
   end
@@ -82,7 +81,7 @@ class InvoiceProject
     begin
       @raw_data        = YAML::load(File.open(project_path))
     rescue SyntaxError => error
-      warn "error parsing #{project_path}"
+      @logger.warn "error parsing #{project_path}"
       puts error
       @STATUS = :unparsable
       return false
@@ -99,7 +98,7 @@ class InvoiceProject
       @raw_data = import_100 @raw_data
       rescue =>error
         @STATUS = :unparsable
-        warn "#{error} parsing #{@PROJECT_PATH}"
+        @logger.warn "#{error} parsing #{@PROJECT_PATH}"
         puts $@
         return false
       end

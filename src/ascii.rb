@@ -8,7 +8,11 @@ require 'yaml'
 require 'thor'
 require 'euro'
 require 'paint'
+require 'luigi'
+require 'logger'
 require 'textboxes'
+
+logger = Logger.new STDOUT
 
 begin
   $SCRIPT_PATH = File.split(File.expand_path(File.readlink(__FILE__)))[0]
@@ -18,13 +22,10 @@ end
 
 require "#{$SCRIPT_PATH}/lib/InvoiceProject.rb"
 require "#{$SCRIPT_PATH}/lib/HashTransform.rb"
-require "#{$SCRIPT_PATH}/lib/ProjectsPlumber.rb"
 
-require "#{$SCRIPT_PATH}/lib/shell.rb"
 require "#{$SCRIPT_PATH}/lib/tweaks.rb"
 require "#{$SCRIPT_PATH}/lib/ascii_invoicer.rb"
 
-include Shell
 ## all about settings
 
 ## where are settings located?
@@ -38,7 +39,7 @@ $SETTINGS_PATHS = {
 begin
   $SETTINGS = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
 rescue SyntaxError => error
-  warn "error parsing default-settings.yml. Do not modify those directly! Only overwrite settings in #{$SETTINGS_PATHS[:global]}"
+  logger.warn "error parsing default-settings.yml. Do not modify those directly! Only overwrite settings in #{$SETTINGS_PATHS[:global]}"
   puts error
 end
 # load local settings ( first realy local, than look at homedir)
@@ -47,7 +48,7 @@ $SETTINGS_PATHS.values.each{ |path|
     begin
       $personal_settings                  = YAML::load(File.open(path))
     rescue SyntaxError => error
-      warn "error parsing #{File.expand_path path}."
+      logger.warn "error parsing #{File.expand_path path}."
       puts error
     end
     $SETTINGS['personal_settings_path'] = path
@@ -87,7 +88,7 @@ error "settings:output_path is an elaborate string: \"#{$SETTINGS['output_path']
 
 
 ## bootstraping the plumber, first run creates all folders
-$PLUMBER = ProjectsPlumber.new $SETTINGS, InvoiceProject
+$PLUMBER = Luigi.new $SETTINGS, InvoiceProject
 $PLUMBER.create_dir :storage unless $PLUMBER.check_dir :storage
 $PLUMBER.create_dir :working unless $PLUMBER.check_dir :working
 $PLUMBER.create_dir :archive unless $PLUMBER.check_dir :archive
