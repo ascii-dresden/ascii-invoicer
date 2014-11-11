@@ -4,7 +4,7 @@ require 'date'
 require 'euro'
 libpath = File.dirname __FILE__
 
-require File.join libpath, 'HashTransform.rb'
+require File.join libpath, 'hash_transformer.rb'
 
 require File.join libpath, 'projectFileReader.rb'
 require File.join libpath, 'rfc5322_regex.rb'
@@ -95,7 +95,7 @@ class InvoiceProject
     @data[:format] = @raw_data['format'] ? @raw_data['format'] : "1.0.0"
     if @data[:format] < "2.4.0"
       begin
-      @raw_data = import_100 @raw_data
+        @raw_data = import_100 @raw_data
       rescue =>error
         @STATUS = :unparsable
         @logger.warn "#{error} parsing #{@PROJECT_PATH}"
@@ -154,27 +154,27 @@ class InvoiceProject
       { old:"signature",    new:"manager"           }, #trim
       #{ old:"hours/time",  new:"hours/total"       },
     ]
-    ht = HashTransform.new :rules => rules, :original_hash => hash
+    ht = HashTransformer.new :rules => rules, :original_hash => hash
     new_hash = ht.transform()
     new_hash[ 'created' ] = "01.01.0000"
 
     date = strpdates(hash['date'])
-    new_hash.set("event/dates/0/begin", date[0])
-    new_hash.set("event/dates/0/end",   date[1]) unless date[1].nil?
-    new_hash.set("event/dates/0/time/begin", new_hash.get("time"))     if date[1].nil?
-    new_hash.set("event/dates/0/time/end",   new_hash.get("time_end")) if date[1].nil?
+    new_hash.set_path("event/dates/0/begin", date[0])
+    new_hash.set_path("event/dates/0/end",   date[1]) unless date[1].nil?
+    new_hash.set_path("event/dates/0/time/begin", new_hash.get_path("time"))     if date[1].nil?
+    new_hash.set_path("event/dates/0/time/end",   new_hash.get_path("time_end")) if date[1].nil?
 
     new_hash['manager']= new_hash['manager'].lines.to_a[1] if new_hash['manager'].lines.to_a.length > 1
 
-    if new_hash.get("client/fullname").words.class == Array
-      new_hash.set("client/title",     new_hash.get("client/fullname").lines.to_a[0].strip)
-      new_hash.set("client/last_name", new_hash.get("client/fullname").lines.to_a[1].strip)
-      new_hash.set("client/fullname",  new_hash.get("client/fullname").gsub("\n",' ').strip)
+    if new_hash.get_path("client/fullname").words.class == Array
+      new_hash.set_path("client/title",     new_hash.get_path("client/fullname").lines.to_a[0].strip)
+      new_hash.set_path("client/last_name", new_hash.get_path("client/fullname").lines.to_a[1].strip)
+      new_hash.set_path("client/fullname",  new_hash.get_path("client/fullname").gsub("\n",' ').strip)
     else
       fail_at :client_fullname
     end
-    new_hash.set("offer/date", Date.today)
-    new_hash.set("invoice/date", Date.today) unless new_hash.get("invoice/date")
+    new_hash.set_path("offer/date", Date.today)
+    new_hash.set_path("invoice/date", Date.today) unless new_hash.get_path("invoice/date")
 
     return hash
   end
@@ -184,7 +184,7 @@ class InvoiceProject
     @@known_keys.each {|key| read key }
     @@dynamic_keys.each {|key|
       value = apply_generator key, @data
-      @data.set key, value, ?_, true # symbols = true
+      @data.set_path key, value, ?_, true # symbols = true
     }
   end
 
@@ -215,7 +215,7 @@ class InvoiceProject
   #getting path['through']['document']
   def data key = nil
     return @data if key.nil?
-    return @data.get key
+    return @data.get_path key
   end
 
   def export_filename choice, ext=""

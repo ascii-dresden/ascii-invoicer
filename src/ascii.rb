@@ -11,6 +11,7 @@ require 'paint'
 require 'luigi'
 require 'logger'
 require 'textboxes'
+require 'hash-graft'
 
 logger = Logger.new STDOUT
 
@@ -21,7 +22,7 @@ rescue
 end
 
 require "#{$SCRIPT_PATH}/lib/InvoiceProject.rb"
-require "#{$SCRIPT_PATH}/lib/HashTransform.rb"
+require "#{$SCRIPT_PATH}/lib/hash_transformer.rb"
 
 require "#{$SCRIPT_PATH}/lib/tweaks.rb"
 require "#{$SCRIPT_PATH}/lib/ascii_invoicer.rb"
@@ -56,7 +57,7 @@ $SETTINGS_PATHS.values.each{ |path|
 }
 
 ## loading $SETTINGS and grafting $personal_settings to them
-$SETTINGS.graft $personal_settings if $personal_settings
+$SETTINGS.graft! $personal_settings if $personal_settings
 
 ## Default editor if not set ins settings files
 $SETTINGS["editor"] ||= ENV['EDITOR']
@@ -382,7 +383,7 @@ class Commander < Thor
       if options[:yaml] == ''
         puts project.data.to_yaml
       else
-        puts project.data.get(options[:yaml]).to_yaml
+        puts project.data.get_path(options[:yaml]).to_yaml
       end
     elsif options[:raw]
       raw = project.raw_data
@@ -392,7 +393,7 @@ class Commander < Thor
       if options[:pp] == ''
         pp project.data
       else
-        pp project.data.get(options[:pp])
+        pp project.data.get_path(options[:pp])
       end
     else
       puts display_products(project, :offer  ) if options[:offer]
