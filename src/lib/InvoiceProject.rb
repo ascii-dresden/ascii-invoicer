@@ -57,6 +57,9 @@ class InvoiceProject
 
     @DEFAULTS['format'] = '1.0.0'
     @logger = Logger.new STDOUT
+    @texlogger = Logger.new STDOUT
+    @filter_logger = Logger.new STDOUT
+    @reader_logger = Logger.new STDOUT
 
     open(project_path, name) unless project_path.nil?
   end
