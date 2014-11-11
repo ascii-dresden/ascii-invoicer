@@ -13,35 +13,36 @@ require 'logger'
 require 'textboxes'
 require 'hash-graft'
 
-logger = Logger.new STDOUT
+  $logger = Logger.new STDOUT
+  $logger.progname = "ascii-invoicer"
 
-begin
-  $SCRIPT_PATH = File.split(File.expand_path(File.readlink(__FILE__)))[0]
-rescue
-  $SCRIPT_PATH = File.split(File.expand_path(__FILE__))[0]
-end
+  begin
+    $SCRIPT_PATH = File.split(File.expand_path(File.readlink(__FILE__)))[0]
+  rescue
+    $SCRIPT_PATH = File.split(File.expand_path(__FILE__))[0]
+  end
 
-require "#{$SCRIPT_PATH}/lib/InvoiceProject.rb"
-require "#{$SCRIPT_PATH}/lib/hash_transformer.rb"
+  require "#{$SCRIPT_PATH}/lib/InvoiceProject.rb"
+  require "#{$SCRIPT_PATH}/lib/hash_transformer.rb"
 
-require "#{$SCRIPT_PATH}/lib/tweaks.rb"
-require "#{$SCRIPT_PATH}/lib/ascii_invoicer.rb"
+  require "#{$SCRIPT_PATH}/lib/tweaks.rb"
+  require "#{$SCRIPT_PATH}/lib/ascii_invoicer.rb"
 
-## all about settings
+  ## all about settings
 
-## where are settings located?
-$SETTINGS_PATHS = {
-   :global   => File.join(Dir.home, ".ascii-invoicer.yml"),
-   :local    => ".settings.yml",
-   :template => File.join($SCRIPT_PATH, "settings_template.yml")
-}
+  ## where are settings located?
+  $SETTINGS_PATHS = {
+     :global   => File.join(Dir.home, ".ascii-invoicer.yml"),
+     :local    => ".settings.yml",
+     :template => File.join($SCRIPT_PATH, "settings_template.yml")
+  }
 
-## load default settings
-begin
-  $SETTINGS = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
-rescue SyntaxError => error
-  logger.warn "error parsing default-settings.yml. Do not modify those directly! Only overwrite settings in #{$SETTINGS_PATHS[:global]}"
-  puts error
+  ## load default settings
+  begin
+    $SETTINGS = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
+  rescue SyntaxError => error
+    $logger.warn "error parsing default-settings.yml. Do not modify those directly! Only overwrite settings in #{$SETTINGS_PATHS[:global]}"
+    puts error
 end
 # load local settings ( first realy local, than look at homedir)
 $SETTINGS_PATHS.values.each{ |path|
@@ -49,7 +50,7 @@ $SETTINGS_PATHS.values.each{ |path|
     begin
       $personal_settings                  = YAML::load(File.open(path))
     rescue SyntaxError => error
-      logger.warn "error parsing #{File.expand_path path}."
+      $logger.warn "error parsing #{File.expand_path path}."
       puts error
     end
     $SETTINGS['personal_settings_path'] = path
@@ -84,8 +85,8 @@ $SETTINGS['path']        = File.expand_path $SETTINGS['path']
 
 ## security
 #error "settings:editor is an elaborate string: \"#{$SETTINGS['editor']}\"!\nDANGEROUS!" if $SETTINGS['editor'].include? " "
-error "settings:latex is an elaborate string: \"#{$SETTINGS['latex']}\"!\nDANGEROUS!" if $SETTINGS['latex'].include? " "
-error "settings:output_path is an elaborate string: \"#{$SETTINGS['output_path']}\"!\nDANGEROUS!" if $SETTINGS['output_path'].include? " "
+$logger.error "settings:latex is an elaborate string: \"#{$SETTINGS['latex']}\"!\nDANGEROUS!" if $SETTINGS['latex'].include? " "
+$logger.error "settings:output_path is an elaborate string: \"#{$SETTINGS['output_path']}\"!\nDANGEROUS!" if $SETTINGS['output_path'].include? " "
 
 
 ## bootstraping the plumber, first run creates all folders
@@ -93,7 +94,7 @@ $PLUMBER = Luigi.new $SETTINGS, InvoiceProject
 $PLUMBER.create_dir :storage unless $PLUMBER.check_dir :storage
 $PLUMBER.create_dir :working unless $PLUMBER.check_dir :working
 $PLUMBER.create_dir :archive unless $PLUMBER.check_dir :archive
-error "template not found!\n#{$PLUMBER.dirs[:template]}" unless $PLUMBER.check_dir :template
+$logger.error "template not found!\n#{$PLUMBER.dirs[:template]}" unless $PLUMBER.check_dir :template
 
 
 
@@ -309,6 +310,7 @@ class Commander < Thor
   def archive(name)
     $PLUMBER.open_projects
     project = $PLUMBER.lookup name
+    return false unless project
 
     year   = project.date.year
     prefix = project.data[:invoice][:number]
@@ -316,7 +318,7 @@ class Commander < Thor
     prefix  += "canceled" if project.data[:canceled]
 
     unless project.validate(:archive) or options[:force] or project.data[:canceled]
-      error "\"#{project.name}\" contains errors\n(#{project.ERRORS.join(',')})"
+      $logger.error "\"#{project.name}\" contains errors\n(#{project.ERRORS.join(',')})"
     else
       new_path = $PLUMBER.archive_project project, Date.today.year, prefix
       puts new_path
@@ -327,10 +329,11 @@ class Commander < Thor
   def reopen(year, name)
     $PLUMBER.open_projects :archive, year
     project = $PLUMBER.lookup name
+    return false unless project
 
     name = project.data[:name]
     unless $PLUMBER.unarchive_project project, year
-      error "Can't unarchive #{name}, checks names of current projects for duplicates!"
+      $logger.error "Can't unarchive #{name}, checks names of current projects for duplicates!"
     end
   end
 
@@ -372,8 +375,9 @@ class Commander < Thor
       :desc => "output key or all as ical event[s]"
   def display(*names)
     projects =  open_projects names, options
+    projects.select! {|project| project}
     projects.each{ |project|
-      error("No project found!") if project.nil?
+      $logger.error("No project found!") if project.nil?
     
     unless options[:cal] or options[:yaml] or options[:costs] or options[:caterers] or options[:invoice] or options[:offer]
       fallback= true
@@ -528,7 +532,7 @@ class Commander < Thor
       else
         path = $SETTINGS_PATHS[:global]
         if not File.exists? path and no? "There is no #{path} yet do you want to use a template? (YES/no)"
-          error "templatefile #{$SETTINGS_PATHS[:template]} not found" unless File.exists? $SETTINGS_PATHS[:template]
+          $logger.error "templatefile #{$SETTINGS_PATHS[:template]} not found" unless File.exists? $SETTINGS_PATHS[:template]
           puts "ok, I copy over a template"
           FileUtils.cp($SETTINGS_PATHS[:template], path)
         end

@@ -11,7 +11,7 @@ module AsciiInvoicer
     if project.valid_for[choice]
       project.create_tex choice, options[:check]
     else
-      error "#{project.name} is not ready for creating an #{choice.to_s}! #{project.data[:valid]} #{project.ERRORS if project.ERRORS.length > 0}"
+      $logger.error "#{project.name} is not ready for creating an #{choice.to_s}! #{project.data[:valid]} #{project.ERRORS if project.ERRORS.length > 0}"
     end
   end
 
@@ -273,10 +273,15 @@ module AsciiInvoicer
   ## hand path to editor
   def edit_files(paths, editor = $SETTINGS['editor'])
     paths = [paths] if paths.class == String
+    paths.select! {|path| path}
+    if paths.empty?
+      $logger.error "no paths to open"
+      return false
+    end
     paths.map!{|path| "\"#{path}\"" }
     paths = paths.join ' '
     editor = $SETTINGS['editor'] unless editor
-    logs "Opening #{paths} in #{editor}"
+    $logger.info "Opening #{paths} in #{editor}"
     pid = spawn "#{editor} #{paths}"
     Process.wait pid
   end

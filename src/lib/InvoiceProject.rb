@@ -57,9 +57,13 @@ class InvoiceProject
 
     @DEFAULTS['format'] = '1.0.0'
     @logger = Logger.new STDOUT
+    @logger.progname = "ascii-invoicer project_parser"
     @texlogger = Logger.new STDOUT
+    @texlogger.progname = "ascii-invoicer tex_writer"
     @filter_logger = Logger.new STDOUT
+    @filter_logger.progname = "ascii-invoicer filter"
     @reader_logger = Logger.new STDOUT
+    @reader_logger.progname = "ascii-invoicer reader"
 
     open(project_path, name) unless project_path.nil?
   end
