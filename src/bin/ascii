@@ -22,12 +22,7 @@ require 'hash-graft'
   end
   $GEM_PATH = File.split($SCRIPT_PATH)[0]
 
-  require "#{$GEM_PATH}/lib/InvoiceProject.rb"
-  require "#{$GEM_PATH}/lib/hash_transformer.rb"
-
-  require "#{$GEM_PATH}/lib/tweaks.rb"
-  require "#{$GEM_PATH}/lib/ascii_invoicer.rb"
-  require "#{$GEM_PATH}/lib/version.rb"
+  require "#{$GEM_PATH}/lib/ascii_invoicer"
 
   ## all about settings
 
