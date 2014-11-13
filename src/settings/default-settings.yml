@@ -16,8 +16,8 @@ dirs:
 
 
 templates:
-  project:  templates/blank.yml.erb
-  document: templates/document.tex.erb
+  project:  ../templates/blank.yml.erb
+  document: ../templates/document.tex.erb
 
 ## CAREFUL HERE
 project_file_extension: .yml

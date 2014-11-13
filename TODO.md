@@ -1,7 +1,12 @@
-# before next merge
-* IMPLEMENT offer, invoice
-* COMPLETE tests
-*
+* multiple taxes
+* repl
+
+revisionsfeatures
+
+* sort by index
+* lookup by index
+* show final cost in list
+* sum up open dept claim per year / since dat
 
 
 # future

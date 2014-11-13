@@ -3,7 +3,6 @@
 
 require 'pp'
 require 'csv'
-require 'git'
 require 'yaml'
 require 'thor'
 require 'euro'
@@ -21,12 +20,14 @@ require 'hash-graft'
   rescue
     $SCRIPT_PATH = File.split(File.expand_path(__FILE__))[0]
   end
+  $GEM_PATH = File.split($SCRIPT_PATH)[0]
 
-  require "#{$SCRIPT_PATH}/lib/InvoiceProject.rb"
-  require "#{$SCRIPT_PATH}/lib/hash_transformer.rb"
+  require "#{$GEM_PATH}/lib/InvoiceProject.rb"
+  require "#{$GEM_PATH}/lib/hash_transformer.rb"
 
-  require "#{$SCRIPT_PATH}/lib/tweaks.rb"
-  require "#{$SCRIPT_PATH}/lib/ascii_invoicer.rb"
+  require "#{$GEM_PATH}/lib/tweaks.rb"
+  require "#{$GEM_PATH}/lib/ascii_invoicer.rb"
+  require "#{$GEM_PATH}/lib/version.rb"
 
   ## all about settings
 
@@ -34,12 +35,12 @@ require 'hash-graft'
   $SETTINGS_PATHS = {
      :global   => File.join(Dir.home, ".ascii-invoicer.yml"),
      :local    => ".settings.yml",
-     :template => File.join($SCRIPT_PATH, "settings_template.yml")
+     :template => File.join($GEM_PATH, "/settings/settings_template.yml")
   }
 
   ## load default settings
   begin
-    $SETTINGS = YAML::load(File.open("#{$SCRIPT_PATH}/default-settings.yml"))
+    $SETTINGS = YAML::load(File.open("#{$GEM_PATH}/settings/default-settings.yml"))
   rescue SyntaxError => error
     $logger.warn "error parsing default-settings.yml. Do not modify those directly! Only overwrite settings in #{$SETTINGS_PATHS[:global]}"
     puts error
@@ -65,20 +66,10 @@ $SETTINGS["editor"] ||= ENV['EDITOR']
 
 ## path to the source code
 $SETTINGS['script_path'] = $SCRIPT_PATH
+$SETTINGS['gem_path'] = $GEM_PATH
 
 ## Version of the software
-
-
-self_git = Git.open File.join $SETTINGS['script_path'], ".."
-if self_git.log.first.date == self_git.tags.last.log.first.date
-  $SETTINGS['version'] = $VERSION = self_git.tags.last.name
-
-elsif self_git.log.first.date >= self_git.tags.last.log.first.date
-  $SETTINGS['version'] = $VERSION = self_git.tags.last.name + "++"
-
-elsif self_git.log.first.date <= self_git.tags.last.log.first.date
-  $SETTINGS['version'] = $VERSION = self_git.tags.last.name + "--"
-end
+$SETTINGS['version'] = $VERSION = AsciiInvoicer::VERSION
 
 ## path to the project File, here we expand the "~"
 $SETTINGS['path']        = File.expand_path $SETTINGS['path']
@@ -565,7 +556,7 @@ class Commander < Thor
       :lazy_default=> true, :required => false, :desc => "returns output path"
   def path
     if options[:script_path]
-      puts File.split($SCRIPT_PATH)[0]
+      puts File.split($GEM_PATH)[0]
     elsif options[:output_path]
       puts File.join $SETTINGS['output_path']
     else
@@ -579,32 +570,7 @@ class Commander < Thor
     method_option :fetch, :type=>:boolean, :aliases => '-f',
       :lazy_default=> true, :required => false, :desc => "update new code (FETCH ONLY != pull)"
   def version
-      git = Git.open File.join $SETTINGS['script_path'], ".."
-      latest_tag        = git.tags.last
-      latest_tag_commit = latest_tag.log.first
-      latest_commit     = git.log.first
-      print git.tags.last.name
-      unless latest_tag_commit.to_s == latest_commit.to_s
-        # not uptodate
-        print latest_tag_commit.date <= latest_commit.date ?  " < " : " > "
-        puts latest_commit.to_s.slice(0..7)
-      else
-        # uptodate
-        puts 
-      end
-
-    if options[:fetch]
-      puts git.fetch
-    end
-
-    if options[:verbose]
-      puts "#{RUBY_ENGINE}: #{RUBY_VERSION}"
-    end
-
-    if options[:changed_files]
-      puts "Files Changed:"
-      puts git.status.changed.keys
-    end
+    puts $VERSION
   end
 end
 
