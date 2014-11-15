@@ -1,5 +1,5 @@
 ---
-manager_name: ""
+#manager_name: "The Unnamed Manager"
 #verbose:  false
 #editor:   "vim -O"
 #colors:   false
@@ -10,17 +10,6 @@ manager_name: ""
 #  storage: caterings
 #  working: working
 #  archive: archive
-
-
-#templates:
-#  project: templates/blank.yml.erb
-#  invoice: templates/invoice.tex.erb
-#  offer:   templates/offer.tex.erb
-
-## CAREFUL HERE
-#project_file_extension: .yml
-#use_git: true
-#latex:    pdflatex
 
 #defaults:
 #  tax: 0.19

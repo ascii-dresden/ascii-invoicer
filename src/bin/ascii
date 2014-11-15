@@ -23,6 +23,14 @@ end
 $GEM_PATH = File.split($SCRIPT_PATH)[0]
 require "#{$GEM_PATH}/lib/ascii_invoicer"
 
+settingsmanager = SettingsManager.new({
+# where are settings located?
+  :homedir_path  => File.join(Dir.home, ".ascii-invoicer.yml"),
+  :template_path => File.join($GEM_PATH, "/settings/settings_template.yml"),
+  :default_path  => File.join($GEM_PATH, "/settings/default-settings.yml")
+})
+
+$SETTINGS = settingsmanager.settings
 
 ## path to the source code
 $SETTINGS['script_path'] = $SCRIPT_PATH

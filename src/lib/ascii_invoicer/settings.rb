@@ -52,12 +52,3 @@ class SettingsManager
     end
   end
 end
-
-settingsmanager = SettingsManager.new({
-# where are settings located?
-  :homedir_path  => File.join(Dir.home, ".ascii-invoicer.yml"),
-  :template_path => File.join($GEM_PATH, "/settings/settings_template.yml"),
-  :default_path  => File.join($GEM_PATH, "/settings/default-settings.yml")
-})
-
-$SETTINGS = settingsmanager.settings
