@@ -1,5 +1,4 @@
 require "ascii_invoicer/settings"
-require "ascii_invoicer/version"
 require "ascii_invoicer/InvoiceProject"
 require "ascii_invoicer/hash_transformer"
 require "ascii_invoicer/tweaks"
