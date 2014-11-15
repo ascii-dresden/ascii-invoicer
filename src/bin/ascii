@@ -12,52 +12,17 @@ require 'logger'
 require 'textboxes'
 require 'hash-graft'
 
-  $logger = Logger.new STDOUT
-  $logger.progname = "ascii-invoicer"
+$logger = Logger.new STDOUT
+$logger.progname = "ascii-invoicer"
 
-  begin
-    $SCRIPT_PATH = File.split(File.expand_path(File.readlink(__FILE__)))[0]
-  rescue
-    $SCRIPT_PATH = File.split(File.expand_path(__FILE__))[0]
-  end
-  $GEM_PATH = File.split($SCRIPT_PATH)[0]
-
-  require "#{$GEM_PATH}/lib/ascii_invoicer"
-
-  ## all about settings
-
-  ## where are settings located?
-  $SETTINGS_PATHS = {
-     :global   => File.join(Dir.home, ".ascii-invoicer.yml"),
-     :local    => ".settings.yml",
-     :template => File.join($GEM_PATH, "/settings/settings_template.yml")
-  }
-
-  ## load default settings
-  begin
-    $SETTINGS = YAML::load(File.open("#{$GEM_PATH}/settings/default-settings.yml"))
-  rescue SyntaxError => error
-    $logger.warn "error parsing default-settings.yml. Do not modify those directly! Only overwrite settings in #{$SETTINGS_PATHS[:global]}"
-    puts error
+begin
+  $SCRIPT_PATH = File.split(File.expand_path(File.readlink(__FILE__)))[0]
+rescue
+  $SCRIPT_PATH = File.split(File.expand_path(__FILE__))[0]
 end
-# load local settings ( first realy local, than look at homedir)
-$SETTINGS_PATHS.values.each{ |path|
-  if File.exists? path and path != $SETTINGS_PATHS[:template]
-    begin
-      $personal_settings                  = YAML::load(File.open(path))
-    rescue SyntaxError => error
-      $logger.warn "error parsing #{File.expand_path path}."
-      puts error
-    end
-    $SETTINGS['personal_settings_path'] = path
-  end
-}
+$GEM_PATH = File.split($SCRIPT_PATH)[0]
+require "#{$GEM_PATH}/lib/ascii_invoicer"
 
-## loading $SETTINGS and grafting $personal_settings to them
-$SETTINGS.graft! $personal_settings if $personal_settings
-
-## Default editor if not set ins settings files
-$SETTINGS["editor"] ||= ENV['EDITOR']
 
 ## path to the source code
 $SETTINGS['script_path'] = $SCRIPT_PATH
@@ -67,9 +32,10 @@ $SETTINGS['gem_path'] = $GEM_PATH
 $SETTINGS['version'] = $VERSION = AsciiInvoicer::VERSION
 
 ## path to the project File, here we expand the "~"
-$SETTINGS['path']        = File.expand_path $SETTINGS['path']
+$SETTINGS['path'] = File.expand_path $SETTINGS['path']
 
-## security
+
+## "security"
 #error "settings:editor is an elaborate string: \"#{$SETTINGS['editor']}\"!\nDANGEROUS!" if $SETTINGS['editor'].include? " "
 $logger.error "settings:latex is an elaborate string: \"#{$SETTINGS['latex']}\"!\nDANGEROUS!" if $SETTINGS['latex'].include? " "
 $logger.error "settings:output_path is an elaborate string: \"#{$SETTINGS['output_path']}\"!\nDANGEROUS!" if $SETTINGS['output_path'].include? " "
@@ -90,6 +56,7 @@ $logger.error "template not found!\n#{$PLUMBER.dirs[:template]}" unless $PLUMBER
 class Commander < Thor
   include Thor::Actions
   include AsciiInvoicer
+  include AsciiMixins
 
   package_name "ascii invoicer"
   #argument :first, :type => :numeric

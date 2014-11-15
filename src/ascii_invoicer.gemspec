@@ -31,8 +31,8 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'paint', '~> 0.8', '>= 0.8.7'
   s.add_runtime_dependency 'textboxes', '~> 0.0', '>= 0.0.1'
   s.add_runtime_dependency 'euro',        '~> 0.3'
-  s.add_runtime_dependency 'hash-graft', '~> 0.0', '>= 0.0.0'
-  s.add_runtime_dependency 'luigi', '~> 0.0', '>= 0.0.0'
+  s.add_runtime_dependency 'hash-graft', '~> 0.9', '>= 0.9.0'
+  s.add_runtime_dependency 'luigi', '~> 1.0', '>= 1.0.0'
 
 
 end

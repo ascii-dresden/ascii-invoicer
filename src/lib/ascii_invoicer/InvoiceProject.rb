@@ -47,7 +47,7 @@ class InvoiceProject
     :invoice_longnumber,
   ]
 
-  def initialize(project_path = nil, settings = $SETTINGS, name = nil)
+  def initialize(project_path = nil, template_path = nil, settings = $SETTINGS, name = nil)
     @SETTINGS = settings
     @STATUS   = :ok # :ok, :canceled, :unparsable
     @ERRORS   = []
@@ -120,16 +120,19 @@ class InvoiceProject
     @data[:canceled] ? "CANCELED: #{@data[:name]}" : @data[:name]
   end
 
+  # returns the name (LuigiProject Interface)
   def name
      @data[:name]
   end
 
+  # returns the date (LuigiProject Interface)
   def date
     return @data[:event][:date] if @data[:event][:date]
     return @data[:created]      if @data[:created]
     return Date.parse "01.01.0000"
   end
 
+  # returns the manager
   def manager
     data :manager
   end
@@ -138,7 +141,7 @@ class InvoiceProject
     @PROJECT_PATH
   end
 
-  # for sorting
+  # returns index for sorting (year+invoicenumber)
   def index
     return date.year.to_s + @data[:invoice][:number] if @data[:invoice][:number]
     return date.year.to_s + "Zzz"

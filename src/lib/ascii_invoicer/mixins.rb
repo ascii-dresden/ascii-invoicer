@@ -2,7 +2,7 @@
 require 'icalendar'
 libpath = File.dirname __FILE__
 
-module AsciiInvoicer
+module AsciiMixins
 
   ## Use Option parser or leave it if only one argument is given
 
@@ -68,7 +68,6 @@ module AsciiInvoicer
     ]
     return row
   end
-
 
   def print_row_verbose (project, hash)
     name = "##{project.data[:name]}#"

@@ -2,8 +2,17 @@ source 'https://rubygems.org'
 
 gemspec
 
+gem 'euro'
+gem 'luigi'
+gem 'textboxes'
+gem 'hash-graft'
+
+
 group :development do
   gem 'libnotify'
+  gem 'rake'
+  gem 'rake_tasks'
+  gem 'rdoc'
   gem 'guard-rspec'
   gem 'rspec'
 

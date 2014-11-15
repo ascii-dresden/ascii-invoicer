@@ -4,9 +4,6 @@ manager_name: ""
 #editor:   "vim -O"
 #colors:   false
 
-#personal_notes: |
-#  stuff that is to be printed into each project file
-
 #path: "~" #/where/you/want/to/put/the/dirs
 #output_path: "."
 #dirs:

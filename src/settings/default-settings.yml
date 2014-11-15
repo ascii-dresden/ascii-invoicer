@@ -1,11 +1,8 @@
 ---
 manager_name: "The Unnamed Manager"
 verbose:  false
-editor:   "vim -O" #defaults to ENV['EDITOR']
+editor:   "vim -O"
 colors:   false
-
-personal_notes: |
-#  stuff that is to be printed into each project file
 
 path: "~"
 output_path: "."
