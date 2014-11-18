@@ -118,8 +118,6 @@ module AsciiMixins
               dtstart = Icalendar::Values::Date.new( date[:begin].strftime  "%Y%m%d")
               dtend   = Icalendar::Values::Date.new((date[:end]+1).strftime "%Y%m%d")
             end
-            puts dtstart
-            puts dtend
             event = Icalendar::Event.new
             event.dtstart = dtstart
             event.dtend   = dtend
