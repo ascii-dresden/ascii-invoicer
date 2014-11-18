@@ -47,29 +47,34 @@ class InvoiceProject
     :invoice_longnumber,
   ]
 
-  def initialize(project_path = nil, template_path = nil, settings = $SETTINGS, name = nil)
-    @SETTINGS = settings
-    @STATUS   = :ok # :ok, :canceled, :unparsable
-    @ERRORS   = []
-    @data     = {}
-    @DEFAULTS = {}
-    @DEFAULTS = @SETTINGS['defaults'] if @SETTINGS['defaults']
+  #def initialize(project_path = nil, template_path = nil, settings = $SETTINGS, name = nil)
+  def initialize(hash)
+    @path          = hash[:path]
+    @template_path = hash[:template_path]
+    @data          = hash[:data]
+    @data        ||= {}
+    @name          = File.basename @path, '.yml'
+    @SETTINGS      = hash[:settings]
+    @STATUS        = :ok # :ok, :canceled, :unparsable
+    @ERRORS        = []
+    @DEFAULTS      = {}
+    @DEFAULTS      = @SETTINGS[:defaults] unless @SETTINGS[:defaults].nil?
 
-    @DEFAULTS['format'] = '1.0.0'
-    @logger = Logger.new STDOUT
-    @logger.progname = "ascii-invoicer project_parser"
-    @texlogger = Logger.new STDOUT
-    @texlogger.progname = "ascii-invoicer tex_writer"
-    @filter_logger = Logger.new STDOUT
+    @DEFAULTS['format']    = '1.0.0'
+    @logger                 = Logger.new STDOUT
+    @texlogger              = Logger.new STDOUT
+    @filter_logger          = Logger.new STDOUT
+    @reader_logger          = Logger.new STDOUT
+    @logger.progname        = "ascii-invoicer project_parser"
+    @texlogger.progname     = "ascii-invoicer tex_writer"
     @filter_logger.progname = "ascii-invoicer filter"
-    @reader_logger = Logger.new STDOUT
     @reader_logger.progname = "ascii-invoicer reader"
 
-    open(project_path, name) unless project_path.nil?
+    open(@path) unless @path.nil?
   end
 
   ## open given .yml and parse into @raw_data
-  def open(project_path, name = nil)
+  def open(project_path)
     #puts "opening \"#{project_path}\""
     raise "already opened another project" unless @PROJECT_PATH.nil?
     @PROJECT_PATH   = project_path
@@ -78,11 +83,7 @@ class InvoiceProject
     error "FILE \"#{project_path}\" does not exist!" unless File.exists?(project_path)
 
     ## setting the name
-    if name.nil?
-      @data[:name]  = File.basename File.split(@PROJECT_PATH)[0]
-    else
-      error "FILE \"#{project_path}\" does not exist!"
-    end
+    @data[:name] = File.basename File.split(@PROJECT_PATH)[0]
 
     ## opening the project file
     begin
@@ -122,7 +123,7 @@ class InvoiceProject
 
   # returns the name (LuigiProject Interface)
   def name
-     @data[:name]
+    @data[:name]
   end
 
   # returns the date (LuigiProject Interface)
@@ -251,16 +252,17 @@ class InvoiceProduct
     :total_invoice, :cost_offer, :cost_invoice, :cost_offer, :tax_invoice, :tax_offer,
     :price, :unit
 
-  def initialize(hash, tax_value = $SETTINGS['defaults']['tax'])
+  def initialize(hash, settings)
     @hash      = hash
     @name      = hash[:name]
     @price     = hash[:price]
     @unit      = hash[:unit]
     @amount    = hash[:amount]
+    @SETTINGS  = settings 
     if hash[:tax]
       @tax_value = hash[:tax]
     else
-      @tax_value = tax_value
+      @tax_value = @SETTINGS[:defaults][:tax]
     end
 
     fail "TAX MUST NOT BE > 1" if @tax_value > 1
