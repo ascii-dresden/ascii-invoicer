@@ -10,11 +10,7 @@ dirs:
   storage: caterings
   working: working
   archive: archive
-
-
-templates:
-  project:  ../templates/blank.yml.erb
-  document: ../templates/document.tex.erb
+  templates: templates
 
 ## CAREFUL HERE
 project_file_extension: .yml
