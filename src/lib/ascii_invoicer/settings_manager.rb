@@ -17,7 +17,7 @@ class SettingsManager
 
     @init_hash.default_path = File.expand_path @init_hash.default_path
     @init_hash.homedir_path = File.expand_path @init_hash.homedir_path
-    @init_hash.template_path = File.expand_path @init_hash.template_path
+    @init_hash.template_path = File.expand_path @init_hash.template_path if @init_hash.template_path?
 
     if File.exists?(@init_hash.default_path)
       @default_settings = load_file @init_hash.default_path
