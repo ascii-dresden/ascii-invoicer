@@ -196,6 +196,9 @@ class Commander < Thor
       :required => false, :desc => "sort by [date | index | name | manager]",
       :enum => ['date' , 'index', 'name', 'manager']
 
+    method_option :final, :type=>:boolean,
+      :lazy_default=> true, :required => false, :desc => "list shows final sum"
+
     method_option :caterers, :type=>:boolean,
       :lazy_default=> true, :required => false, :desc => "list caterers"
 
@@ -222,12 +225,13 @@ class Commander < Thor
 
 
   def list
-    hash                 = {}
-    hash[:verbose]       = (options[:verbose] and !options[:simple])
-    hash[:colors]        = (options[:colors] and !options[:no_colors])
+    hash            = {}
+    hash[:verbose]  = (options[:verbose] and !options[:simple])
+    hash[:colors]   = (options[:colors] and !options[:no_colors])
     hash[:errors]   = options[:errors]
     hash[:blockers] = options[:blockers]
     hash[:caterers] = options[:caterers]
+    hash[:final]    = options[:final]
 
     if not options[:sort].nil? and [:date, :name, :index].include? options[:sort].to_sym
       sort = options[:sort].to_sym
