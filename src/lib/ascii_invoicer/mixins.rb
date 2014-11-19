@@ -185,11 +185,15 @@ module AsciiMixins
       'Betreuer',
       'verantwortlich',
       'Bezahlt am',
+      'Betrag',
+      'Canceled',
     ]
     puts header.to_csv(col_sep:";")
     projects.each do |p|
       caterers_string = ""
       caterers_string = p.data[:hours][:caterers].map{|name, hours|"#{name} (#{hours})"}.join ", " if p.data[:hours][:caterers]
+      canceled = ""
+      canceled = "canceled" if p.data[:canceled]
       line = [
         p.data[:invoice][:number],
         p.data[:event][:name],
@@ -198,9 +202,11 @@ module AsciiMixins
         caterers_string,
         p.data[:manager].words[0],
         p.data[:invoice][:payed_date],
+        p.data[:invoice][:final],
+        canceled,
         #  p.valid_for[:invoice]
       ]
-      line << "canceled" if p.data[:canceled]
+      canceled = "canceled" if p.data[:canceled]
       line.map! {|v| v ? v : "" } # wow, that looks cryptic
       puts line.to_csv(col_sep:";")
     end
