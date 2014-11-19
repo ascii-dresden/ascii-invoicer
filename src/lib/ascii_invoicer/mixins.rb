@@ -11,7 +11,7 @@ module AsciiMixins
     if project.valid_for[choice]
       project.create_tex choice, options[:check]
     else
-      $logger.error "#{project.name} is not ready for creating an #{choice.to_s}! #{project.data[:valid]} #{project.ERRORS if project.ERRORS.length > 0}"
+      $logger.error "#{project.name} is not ready for creating an #{choice.to_s}! #{project.data[:valid]} #{project.errors if project.errors.length > 0}"
     end
   end
 
@@ -250,7 +250,7 @@ module AsciiMixins
     box.add_row  [nil, "-----------------"]
     box.add_row  ["Netto        :","#{toto} -> #{toti}"]
     box.add_row  ["Final        :","#{fo} -> #{fi}"]
-    box.footer = "Errors: #{project.ERRORS.length} (#{ project.ERRORS.join ',' })" if project.ERRORS.length >0
+    box.footer = "Errors: #{project.errors.length} (#{ project.errors.join ',' })" if project.errors.length >0
     box.set_alignment 1, :r
 
     return box
@@ -260,7 +260,7 @@ module AsciiMixins
     project = InvoiceProject.new $SETTINGS
     project.open path
     unless project.validate(:offer)
-      puts "\nWARNING: the file you just edited contains errors! (#{project.ERRORS})"
+      puts "\nWARNING: the file you just edited contains errors! (#{project.errors})"
       unless no? "would you like to edit it again? [y|N]"
         edit_files path
       end

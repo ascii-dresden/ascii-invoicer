@@ -27,7 +27,7 @@ module TexWriter
     template = ERB.new(document_template).result(binding)
     result   = ERB.new(template).result(binding)
 
-    output_path = File.join @PROJECT_FOLDER, filename
+    output_path = File.join @project_folder, filename
  
     puts result                       if  stdout
     write_to_file result, output_path if !stdout
@@ -82,11 +82,16 @@ module TexWriter
     puts "Created #{path}"
   end
 
-  ##
   # loads template files named in settings
   def load_template(type)
-    path = File.join $SETTINGS['script_path'],
-      $SETTINGS['templates'][type.to_s]
+    return false unless $PLUMBER.check_dir :templates
+    #files = Dir.glob File.join @dirs[:templates] , ?*
+    files = Dir.glob File.join($PLUMBER.dirs[:templates], "*{tex.erb,tex}")
+    templates =  {}
+    files.each{|file|
+      templates[File.basename(file.split(?.)[0]).to_sym] = file
+    }
+    path = templates[type] 
     if File.exists?(path)
       return File.open(path).read
     else

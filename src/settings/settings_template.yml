@@ -10,6 +10,7 @@
 #  storage: caterings
 #  working: working
 #  archive: archive
+#  templates: templates
 
 #defaults:
 #  tax: 0.19
