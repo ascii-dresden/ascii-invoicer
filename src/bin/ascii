@@ -127,8 +127,14 @@ class Commander < Thor
       :required => false,
       :desc => "do not edit a new file after creation"
   def new(name)
-    puts "creating a new project name #{name}" if puts $PLUMBER.new_project name
+    project = $PLUMBER.new_project name
+    if project
+      puts project.path
+    puts "creating a new project name #{name}" if project
     edit_files $PLUMBER.get_project_file_path name unless options[:dont_edit]
+    else
+      puts "was not able to create #{name}"
+    end
   end
 
 
@@ -167,6 +173,9 @@ class Commander < Thor
     method_option :archive,
       :type=>:numeric, :aliases => "-a",
       :lazy_default=> Date.today.year, :required => false, :desc => "list archived projects"
+    method_option :archives,
+      :type=>:boolean,
+      :lazy_default=> true, :required => false, :desc => "lists all years for which there are archives"
     method_option :all, :type=>:boolean,
       :lazy_default=> true, :required => false, :desc => "lists all projects, ever"
     method_option :templates, :type=>:boolean,
@@ -207,7 +216,6 @@ class Commander < Thor
 
 
   def list
-
     hash                 = {}
     hash[:verbose]       = (options[:verbose] and !options[:simple])
     hash[:colors]        = (options[:colors] and !options[:no_colors])
@@ -223,6 +231,9 @@ class Commander < Thor
 
     if options[:all]
       projects = $PLUMBER.open_projects_all() #TODO
+    elsif options[:archives]
+      puts $PLUMBER.map_archive_years.keys
+      return
     elsif options[:templates]
       puts $PLUMBER.templates
       return

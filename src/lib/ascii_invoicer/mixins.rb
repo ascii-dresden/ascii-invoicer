@@ -38,7 +38,7 @@ module AsciiMixins
       if !hash[:colors].nil? and hash[:colors]
         color = color_from_date(project.date)
         color = :default if project.validate(:invoice)
-        color = [:blue] if project.STATUS == :canceled
+        color = [:blue] if project.status == :canceled
       end
       if hash[:verbose]
         row = print_row_verbose project, hash
@@ -49,8 +49,8 @@ module AsciiMixins
       row << project.data[:hours][:caterers].keys.join(", ")
       end
       row << project.blockers(:invoice)      if hash[:blockers]
-      row << project.ERRORS                  if hash[:errors] and project.STATUS == :ok
-      row << project.STATUS                  if hash[:errors] and project.STATUS == :canceled
+      row << project.errors                  if hash[:errors] and project.status == :ok
+      row << project.status                  if hash[:errors] and project.status == :canceled
       row.insert 0, i+1
       table.add_row row, color
     end

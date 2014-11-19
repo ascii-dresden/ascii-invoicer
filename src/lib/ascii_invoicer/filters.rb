@@ -83,9 +83,9 @@ module Filters
     products.each{|k,v|
       if [String, Symbol].include?  k.class 
         v[:name] = k
-        new_products.push InvoiceProduct.new v , @SETTINGS
+        new_products.push InvoiceProduct.new v , @settings
       elsif k.class == Hash
-        new_products.push InvoiceProduct.new k.merge(v), @SETTINGS
+        new_products.push InvoiceProduct.new k.merge(v), @settings
         #new_products.push k.merge(v)
       else
         return k
@@ -148,8 +148,8 @@ module Filters
     lang       = full_data[:lang]
     client     = full_data[:client]
     title      = client[:title].words.first.downcase
-    gender     = @SETTINGS['gender_matches'][title]
-    addressing = @SETTINGS['lang_addressing'][lang][gender]
+    gender     = @settings['gender_matches'][title]
+    addressing = @settings['lang_addressing'][lang][gender]
     return "#{addressing} #{client[:title]} #{client[:last_name]}"
   end
 

@@ -14,13 +14,13 @@ require File.join libpath, 'texwriter.rb'
 ## TODO open, YAML::parse, [transform, ] read_all, generate, validate
 ## TODO statemachine!!
 # http://www.zenspider.com/Languages/Ruby/QuickRef.html
-class InvoiceProject
-  attr_reader :PROJECT_PATH, :PROJECT_FOLDER,
+class InvoiceProject < LuigiProject
+  attr_reader :project_path, :project_folder,
     :raw_data,
-    :STATUS,    :ERRORS,
-    :SETTINGS,  :DEFAULTS
+    :status,    :errors,
+    :settings,  :defaults
 
-  attr_writer :raw_data, :DEFAULTS
+  attr_writer :raw_data, :defaults
 
   include TexWriter
   include Filters
@@ -47,20 +47,22 @@ class InvoiceProject
     :invoice_longnumber,
   ]
 
-  #def initialize(project_path = nil, template_path = nil, settings = $SETTINGS, name = nil)
+  #def initialize(project_path = nil, template_path = nil, settings = $settings, name = nil)
   def initialize(hash)
     @path          = hash[:path]
+    @settings      = hash[:settings]
     @template_path = hash[:template_path]
     @data          = hash[:data]
     @data        ||= {}
-    @name          = File.basename @path, '.yml'
-    @SETTINGS      = hash[:settings]
-    @STATUS        = :ok # :ok, :canceled, :unparsable
-    @ERRORS        = []
-    @DEFAULTS      = {}
-    @DEFAULTS      = @SETTINGS[:defaults] unless @SETTINGS[:defaults].nil?
 
-    @DEFAULTS['format']    = '1.0.0'
+    @name          = File.basename @path, '.yml'
+    @settings      = hash[:settings]
+    @status        = :ok # :ok, :canceled, :unparsable
+    @errors        = []
+    @defaults      = {}
+    @defaults      = @settings[:defaults] unless @settings[:defaults].nil?
+
+    @defaults['format']     = '1.0.0'
     @logger                 = Logger.new STDOUT
     @texlogger              = Logger.new STDOUT
     @filter_logger          = Logger.new STDOUT
@@ -70,20 +72,24 @@ class InvoiceProject
     @filter_logger.progname = "ascii-invoicer filter"
     @reader_logger.progname = "ascii-invoicer reader"
 
+    unless @template_path.nil?
+      create @template_path
+    end
+
     open(@path) unless @path.nil?
   end
 
   ## open given .yml and parse into @raw_data
   def open(project_path)
     #puts "opening \"#{project_path}\""
-    raise "already opened another project" unless @PROJECT_PATH.nil?
-    @PROJECT_PATH   = project_path
-    @PROJECT_FOLDER = File.split(project_path)[0]
+    raise "already opened another project" unless @project_path.nil?
+    @project_path   = project_path
+    @project_folder = File.split(project_path)[0]
 
     error "FILE \"#{project_path}\" does not exist!" unless File.exists?(project_path)
 
     ## setting the name
-    @data[:name] = File.basename File.split(@PROJECT_PATH)[0]
+    @data[:name] = File.basename File.split(@project_path)[0]
 
     ## opening the project file
     begin
@@ -91,11 +97,11 @@ class InvoiceProject
     rescue SyntaxError => error
       @logger.warn "error parsing #{project_path}"
       puts error
-      @STATUS = :unparsable
+      @status = :unparsable
       return false
     else
       @data[:valid] = true # at least for the moment
-      @STATUS = :ok
+      @status = :ok
       @data[:project_path]  = project_path
     end
 
@@ -105,8 +111,8 @@ class InvoiceProject
       begin
         @raw_data = import_100 @raw_data
       rescue =>error
-        @STATUS = :unparsable
-        @logger.warn "#{error} parsing #{@PROJECT_PATH}"
+        @status = :unparsable
+        @logger.warn "#{error} parsing #{@project_path}"
         puts $@
         return false
       end
@@ -139,7 +145,14 @@ class InvoiceProject
   end
 
   def path
-    @PROJECT_PATH
+    @project_path
+  end
+
+  def fill_template
+    project_name = @name
+    manager_name = @settings.manager_name
+
+    return binding()
   end
 
   # returns index for sorting (year+invoicenumber)
@@ -210,7 +223,7 @@ class InvoiceProject
       :archive   => [:invoice_number, :products, :manager, :invoice_payed_date, :archive, :payed_date],
       :payed     => [:invoice_number, :products, :manager, :invoice_payed_date, :payed_date],
       :offer     => [:offer_number]
-    }[choice] & @ERRORS)
+    }[choice] & @errors)
   end
 
   def to_s
@@ -258,11 +271,11 @@ class InvoiceProduct
     @price     = hash[:price]
     @unit      = hash[:unit]
     @amount    = hash[:amount]
-    @SETTINGS  = settings 
+    @settings  = settings 
     if hash[:tax]
       @tax_value = hash[:tax]
     else
-      @tax_value = @SETTINGS[:defaults][:tax]
+      @tax_value = @settings[:defaults][:tax]
     end
 
     fail "TAX MUST NOT BE > 1" if @tax_value > 1

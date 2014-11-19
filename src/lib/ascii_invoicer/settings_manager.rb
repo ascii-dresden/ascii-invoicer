@@ -41,6 +41,9 @@ class SettingsManager
 
     # putting it all together
     @settings = Hashr.new @default_settings.graft @homedir_settings
+    @settings.settings_homedir_path = @homedir_settings
+    @settings.settings_deafult_path = @default_settings
+    return @settings
   end
 
   def load_file path
