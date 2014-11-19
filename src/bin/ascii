@@ -7,7 +7,8 @@ require 'yaml'
 require 'thor'
 require 'euro'
 require 'paint'
-require 'luigi'
+#require 'luigi'
+require '/home/hendrik/code/gems/luigi/lib/luigi'
 require 'logger'
 require 'textboxes'
 require 'hash-graft'
@@ -23,8 +24,8 @@ end
 $GEM_PATH = File.split($SCRIPT_PATH)[0]
 require "#{$GEM_PATH}/lib/ascii_invoicer"
 
+# initializing settings
 settingsmanager = SettingsManager.new({
-# where are settings located?
   :homedir_path  => File.join(Dir.home, ".ascii-invoicer.yml"),
   :template_path => File.join($GEM_PATH, "/settings/settings_template.yml"),
   :default_path  => File.join($GEM_PATH, "/settings/default-settings.yml")
@@ -54,7 +55,7 @@ $PLUMBER = Luigi.new $SETTINGS, InvoiceProject
 $PLUMBER.create_dir :storage unless $PLUMBER.check_dir :storage
 $PLUMBER.create_dir :working unless $PLUMBER.check_dir :working
 $PLUMBER.create_dir :archive unless $PLUMBER.check_dir :archive
-$logger.error "template not found!\n#{$PLUMBER.dirs[:template]}" unless $PLUMBER.check_dir :template
+$logger.error "template not found!\n#{$PLUMBER.dirs[:templates]}" unless $PLUMBER.check_dir :templates
 
 
 
@@ -65,6 +66,7 @@ class Commander < Thor
   include Thor::Actions
   include AsciiInvoicer
   include AsciiMixins
+
 
   package_name "ascii invoicer"
   #argument :first, :type => :numeric
@@ -89,21 +91,30 @@ class Commander < Thor
     def open_projects(names, options)
       $SETTINGS['verbose'] = true if options[:verbose]
       if options[:file]
-        return [InvoiceProject.new(options[:file], (File.basename options[:file], ".yml"))]
+        return [InvoiceProject.new({path => options[:file], settings => $SETTINGS})]
+
       else
-        if options[:archive]
-          $PLUMBER.open_projects(:archive, options[:archive])
+        if options[:all]
+          available_projects = $PLUMBER.open_projects_all()
+        elsif options[:archive]
+          available_projects = $PLUMBER.open_projects_archive(options[:archive])
         else
-          $PLUMBER.open_projects()
+          available_projects = $PLUMBER.open_projects_working()
         end
 
-        return names.map{|name| $PLUMBER.lookup name } if names.class == Array
-        return $PLUMBER.lookup names if names.class == String
-        return nil
+        projects = names.map{|name|
+          if name.class == String and name =~ /^\d*$/
+            available_projects[ (name.to_i - 1) ]
+          else
+            available_projects.lookup_by_name name
+          end
+        }.flatten.uniq
+        
       end
     end
 
     def render_projects(projects, type, stdout = false)
+      puts "RENDERING"
       projects.each{|project| project.create_tex(type, stdout) unless project.nil? }
     end
   }
@@ -136,9 +147,9 @@ class Commander < Thor
       exit
     end
     if options[:archive]
-      $PLUMBER.open_projects(:archive, options[:archive])
+      projects = $PLUMBER.open_projects(:archive, options[:archive])
     else
-      $PLUMBER.open_projects()
+      projects = $PLUMBER.open_projects()
     end
 
     paths= hash.map { |name| $PLUMBER.lookup_path(name) }
@@ -157,7 +168,9 @@ class Commander < Thor
       :type=>:numeric, :aliases => "-a",
       :lazy_default=> Date.today.year, :required => false, :desc => "list archived projects"
     method_option :all, :type=>:boolean,
-      :lazy_default=> true, :required => false, :desc => "lists all projects, ever (indezies wont work)"
+      :lazy_default=> true, :required => false, :desc => "lists all projects, ever"
+    method_option :templates, :type=>:boolean,
+      :lazy_default=> true, :required => false, :desc => "lists all templates"
     method_option :paths, :type=>:boolean, :aliases => '-p',
       :lazy_default=> true, :required => false, :desc => "list paths to .yml files"
 
@@ -194,13 +207,6 @@ class Commander < Thor
 
 
   def list
-    if options[:all]
-      $PLUMBER.open_projects_all()
-    elsif options[:archive]
-      $PLUMBER.open_projects(:archive, options[:archive])
-    else
-      $PLUMBER.open_projects()
-    end
 
     hash                 = {}
     hash[:verbose]       = (options[:verbose] and !options[:simple])
@@ -209,23 +215,29 @@ class Commander < Thor
     hash[:blockers] = options[:blockers]
     hash[:caterers] = options[:caterers]
 
-    if not options[:sort].nil?
-      if[:date, :name, :index].include? options[:sort].to_sym
-        $PLUMBER.sort_projects options[:sort].to_sym
-      else
-        puts "can't sort by #{options[:sort]}"
-      end
+    if not options[:sort].nil? and [:date, :name, :index].include? options[:sort].to_sym
+      sort = options[:sort].to_sym
+    else
+      sort = :date
+    end
+
+    if options[:all]
+      projects = $PLUMBER.open_projects_all() #TODO
+    elsif options[:templates]
+      puts $PLUMBER.templates
+      return
+    elsif options[:archive]
+      projects = $PLUMBER.open_projects_archive(options[:archive], sort)
+    else
+      projects = $PLUMBER.open_projects_working(sort)
     end
 
     if options[:filter]
-      projects = $PLUMBER.filter_by options[:filter]
-    else
-
-      projects = $PLUMBER.opened_projects
+      projects = $PLUMBER.filter_by projects, options[:filter]
     end
 
     if options[:csv] 
-      $PLUMBER.sort_projects(:index)
+      projects = $PLUMBER.sort_projects(projects, :index)
       print_project_list_csv projects
     elsif options[:paths] 
       print_project_list_paths projects
@@ -256,9 +268,7 @@ class Commander < Thor
 
   desc "calendar", "creates a calendar from all caterings"
   def calendar
-    $PLUMBER.open_projects_all()
-
-    print_project_list_ical $PLUMBER.opened_projects
+    print_project_list_ical $PLUMBER.open_projects_all()
   end
 
 
@@ -269,33 +279,37 @@ class Commander < Thor
       :lazy_default=> true, :required => false,
       :desc => "Force archiving projects that are invalid."
   def archive(name)
-    $PLUMBER.open_projects
-    project = $PLUMBER.lookup name
-    return false unless project
+    # TODO adapt archive()
+    raise "needs migration"
+    #$PLUMBER.open_projects
+    #project = $PLUMBER.lookup name
+    #return false unless project
 
-    year   = project.date.year
-    prefix = project.data[:invoice][:number]
-    prefix ||= ""
-    prefix  += "canceled" if project.data[:canceled]
+    #year   = project.date.year
+    #prefix = project.data[:invoice][:number]
+    #prefix ||= ""
+    #prefix  += "canceled" if project.data[:canceled]
 
-    unless project.validate(:archive) or options[:force] or project.data[:canceled]
-      $logger.error "\"#{project.name}\" contains errors\n(#{project.ERRORS.join(',')})"
-    else
-      new_path = $PLUMBER.archive_project project, Date.today.year, prefix
-      puts new_path
-    end
+    #unless project.validate(:archive) or options[:force] or project.data[:canceled]
+    #  $logger.error "\"#{project.name}\" contains errors\n(#{project.ERRORS.join(',')})"
+    #else
+    #  new_path = $PLUMBER.archive_project project, Date.today.year, prefix
+    #  puts new_path
+    #end
   end
 
   desc "reopen YEAR NAME", "Reopen an archived project."
   def reopen(year, name)
-    $PLUMBER.open_projects :archive, year
-    project = $PLUMBER.lookup name
-    return false unless project
+    raise "needs migration"
+    ## TODO adapt reopen()
+    #$PLUMBER.open_projects :archive, year
+    #project = $PLUMBER.lookup name
+    #return false unless project
 
-    name = project.data[:name]
-    unless $PLUMBER.unarchive_project project, year
-      $logger.error "Can't unarchive #{name}, checks names of current projects for duplicates!"
-    end
+    #name = project.data[:name]
+    #unless $PLUMBER.unarchive_project project, year
+    #  $logger.error "Can't unarchive #{name}, checks names of current projects for duplicates!"
+    #end
   end
 
 
@@ -309,7 +323,13 @@ class Commander < Thor
       :default => nil,
       :lazy_default=> Date.today.year,
       :required => false,
-      :desc => "Open File from archive YEAR"
+      :desc => "Select File from archive YEAR"
+    method_option :all, :type=>:boolean,
+      :default=> false, :lazy_default=> true, :required => false,
+      :desc => "Select File from any archive and current working directory "
+    method_option :name, :type=>:boolean,
+      :default=> false, :lazy_default=> true, :required => false,
+      :desc => "Display only the name"
     method_option :offer, :type=>:boolean,
       :default=> false, :lazy_default=> true, :required => false,
       :desc => "Display Products parsed as OFFER"
@@ -336,44 +356,45 @@ class Commander < Thor
       :desc => "output key or all as ical event[s]"
   def display(*names)
     projects =  open_projects names, options
-    projects.select! {|project| project}
+
     projects.each{ |project|
       $logger.error("No project found!") if project.nil?
-    
-    unless options[:cal] or options[:yaml] or options[:costs] or options[:caterers] or options[:invoice] or options[:offer]
-      fallback= true
-    end
+      unless options[:cal] or options[:yaml] or options[:costs] or options[:caterers] or options[:invoice] or options[:offer]
+        fallback= true
+      end
 
-    if not options[:yaml].nil?
-      if options[:yaml] == ''
-        puts project.data.to_yaml
-      else
-        puts project.data.get_path(options[:yaml]).to_yaml
-      end
-    elsif options[:raw]
-      raw = project.raw_data
-      raw.delete "cataloge"
-      puts raw.to_yaml
-    elsif not options[:pp].nil?
-      if options[:pp] == ''
-        pp project.data
-      else
-        pp project.data.get_path(options[:pp])
-      end
-    else
-      puts display_products(project, :offer  ) if options[:offer]
-      puts display_products(project, :invoice) if options[:invoice]
-      puts display_costs(project)              if options[:costs] or fallback
-      pp events_from_project(project)          if options[:cal]
-      if options[:caterers]
-        print "#{project.name}:".ljust(35)         if names.length > 1
-        if project.data[:hours][:caterers]
-          puts project.data[:hours][:caterers].map{|name, hours| "#{name} (#{hours})"}.join(", ")
+      if not options[:yaml].nil?
+        if options[:yaml] == ''
+          puts project.data.to_yaml
         else
-          puts "Caterers is empty"
+          puts project.data.get_path(options[:yaml]).to_yaml
+        end
+      elsif options[:name]
+        puts project.name
+      elsif options[:raw]
+        raw = project.raw_data
+        raw.delete "cataloge"
+        puts raw.to_yaml
+      elsif not options[:pp].nil?
+        if options[:pp] == ''
+          pp project.data
+        else
+          pp project.data.get_path(options[:pp])
+        end
+      else
+        puts display_products(project, :offer  ) if options[:offer]
+        puts display_products(project, :invoice) if options[:invoice]
+        puts display_costs(project)              if options[:costs] or fallback
+        pp events_from_project(project)          if options[:cal]
+        if options[:caterers]
+          print "#{project.name}:".ljust(35)         if names.length > 1
+          if project.data[:hours][:caterers]
+            puts project.data[:hours][:caterers].map{|name, hours| "#{name} (#{hours})"}.join(", ")
+          else
+            puts "Caterers is empty"
+          end
         end
       end
-    end
     }
   end
 
@@ -433,8 +454,14 @@ class Commander < Thor
   end
 
   desc "commit message", "Git Integration."
-  def commit message
-    $PLUMBER.git_commit(message) if $PLUMBER.open_git()
+    method_option :message,
+      :type=>:numeric, :aliases => "-m",
+      :default => nil,
+      :lazy_default=> Date.today.year,
+      :required => true,
+      :desc => "Open File from archive YEAR"
+  def commit 
+    $PLUMBER.git_commit(options[:message]) if $PLUMBER.open_git()
   end
 
   desc "push", "Git Integration."

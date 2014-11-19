@@ -15,8 +15,8 @@ class SettingsManager
     raise "SettingsManager: No default file given." unless @init_hash.default_path?
     raise "SettingsManager: No homedir file given." unless @init_hash.homedir_path?
 
-    @init_hash.default_path = File.expand_path @init_hash.default_path
-    @init_hash.homedir_path = File.expand_path @init_hash.homedir_path
+    @init_hash.default_path  = File.expand_path @init_hash.default_path
+    @init_hash.homedir_path  = File.expand_path @init_hash.homedir_path
     @init_hash.template_path = File.expand_path @init_hash.template_path if @init_hash.template_path?
 
     if File.exists?(@init_hash.default_path)
@@ -40,7 +40,7 @@ class SettingsManager
     end
 
     # putting it all together
-    @settings = @default_settings.graft @homedir_settings
+    @settings = Hashr.new @default_settings.graft @homedir_settings
   end
 
   def load_file path
