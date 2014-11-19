@@ -32,6 +32,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'textboxes', '~> 0.0', '>= 0.0.1'
   s.add_runtime_dependency 'euro',        '~> 0.3'
   s.add_runtime_dependency 'hash-graft', '~> 0.9', '>= 0.9.0'
+  s.add_runtime_dependency 'hashr', '~> 0.0.22', '>= 0.0.22'
   s.add_runtime_dependency 'luigi', '~> 1.0', '>= 1.0.0'
 
 

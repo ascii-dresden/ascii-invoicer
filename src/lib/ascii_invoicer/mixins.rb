@@ -81,7 +81,7 @@ module AsciiMixins
       project.date.strftime("%d.%m.%Y"),
       project.validate(:offer).print,
       project.validate(:invoice).print,
-      project.validate(:payed).print($SETTINGS['currency_symbol']),
+      project.validate(:payed).print($SETTINGS.currency_symbol),
       # try these: ☑☒✉☕☀☻
     ]
     return row
@@ -268,7 +268,7 @@ module AsciiMixins
   end
 
   ## hand path to editor
-  def edit_files(paths, editor = $SETTINGS['editor'])
+  def edit_files(paths, editor = $SETTINGS.editor)
     paths = [paths] if paths.class == String
     paths.select! {|path| path}
     if paths.empty?
@@ -277,7 +277,7 @@ module AsciiMixins
     end
     paths.map!{|path| "\"#{path}\"" }
     paths = paths.join ' '
-    editor = $SETTINGS['editor'] unless editor
+    editor = $SETTINGS.editor unless editor
     $logger.info "Opening #{paths} in #{editor}"
     pid = spawn "#{editor} #{paths}"
     Process.wait pid
