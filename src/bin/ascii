@@ -129,13 +129,18 @@ class Commander < Thor
 
 
   desc "new NAME", "creating a new project" 
-    method_option :dont_edit,
-      :type=>:boolean, :aliases => "-d",
-      :lazy_default=> true,
-      :required => false,
-      :desc => "do not edit a new file after creation"
+    method_option :dont_edit, :type=>:boolean, :aliases => "-d",
+      :lazy_default=> true, :required => false, :desc => "do not edit a new file after creation"
+    method_option :template, :type=>:string, :aliases => "-t",
+      :default => "default", :required => false, :desc => "specify a template"
   def new(name)
-    project = $PLUMBER.new_project name
+    template = options[:template].to_sym
+    unless $PLUMBER.templates.keys.include? template
+      $logger.fatal "There is not such template \"#{template}\" "
+      exit
+    end
+    
+    project = $PLUMBER.new_project name, template
     if project
       puts project.path
       puts "creating a new project name #{name}" if project
@@ -529,6 +534,8 @@ class Commander < Thor
       value = $SETTINGS.get_path options[:show]
       if value.class == Hash or value.class == Array
         puts value.to_yaml
+      elsif value.class == Hashr
+        puts value.to_hash.to_yaml
       else
         puts value
       end
