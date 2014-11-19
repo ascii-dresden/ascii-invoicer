@@ -41,8 +41,13 @@ class SettingsManager
 
     # putting it all together
     @settings = Hashr.new @default_settings.graft @homedir_settings
-    @settings.settings_homedir_path = @homedir_settings
-    @settings.settings_deafult_path = @default_settings
+
+    # adding some meta stuff
+    @settings.settings_homedir_path  = @init_hash.homedir_path
+    @settings.settings_default_path  = @init_hash.default_path
+    @settings.settings_template_path = @init_hash.template_path
+    @settings.default_settings       = @default_settings
+    @settings.homedir_settings       = @homedir_settings
     return @settings
   end
 

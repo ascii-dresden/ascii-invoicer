@@ -130,8 +130,8 @@ class Commander < Thor
     project = $PLUMBER.new_project name
     if project
       puts project.path
-    puts "creating a new project name #{name}" if project
-    edit_files $PLUMBER.get_project_file_path name unless options[:dont_edit]
+      puts "creating a new project name #{name}" if project
+      edit_files $PLUMBER.get_project_file_path name unless options[:dont_edit]
     else
       puts "was not able to create #{name}"
     end
@@ -506,55 +506,26 @@ class Commander < Thor
       :lazy_default=> false,
       :required => false,
       :desc => "edit your settings"
-    method_option :key,
-      :type=>:array, :aliases => "-k",
-      :required => false,
-      :desc => "edit a specific settings value"
     method_option :show,
       :type=>:string, :aliases => "-s",
       :required => false,
       :desc => "show a specific settings value"
+
   def settings
+
     if options[:edit]
-      if options[:key]
-        key   = options[:key][0]
-        value = options[:key][1]
-        if $SETTINGS.keys.include? key
-          $personal_settings[key] = value
-          puts $personal_settings.to_yaml
-        else
-          puts "\"#{key}\" is no valid key in settings"
-        end
-
-
-
+      edit_files $SETTINGS.settings_homedir_path
+    elsif options[:show]
+      value = $SETTINGS.get_path options[:show]
+      if value.class == Hash or value.class == Array
+        puts value.to_yaml
       else
-        path = $SETTINGS_PATHS[:global]
-        if not File.exists? path and no? "There is no #{path} yet do you want to use a template? (YES/no)"
-          $logger.error "templatefile #{$SETTINGS_PATHS[:template]} not found" unless File.exists? $SETTINGS_PATHS[:template]
-          puts "ok, I copy over a template"
-          FileUtils.cp($SETTINGS_PATHS[:template], path)
-        end
-        edit_files path
+        puts value
       end
-
     else
-      if options[:show]
-        if $SETTINGS.keys.include? options[:show]
-          value = $SETTINGS[options[:show]]
-          if value.class == Hash or value.class == Array
-            puts value.to_yaml
-          else
-            puts value
-          end
-        else
-          puts "\"#{options[:show]}\" is no valid key in settings"
-        end
-      else
-        puts $SETTINGS.to_yaml
-      end
-      #pp $SETTINGS
+      puts $SETTINGS.to_hash.to_yaml
     end
+    #pp $SETTINGS
   end
 
   desc "path", "returns projects storage path"
