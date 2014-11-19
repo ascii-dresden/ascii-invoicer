@@ -149,7 +149,7 @@ class InvoiceProject < LuigiProject
   end
 
   def fill_template
-    project_name = @name
+    project_name = @name.sub(?_, " ") #latex build fails if values contain a "_"
     manager_name = @settings.manager_name
 
     return binding()
