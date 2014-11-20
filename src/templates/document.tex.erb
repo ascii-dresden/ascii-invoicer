@@ -65,9 +65,16 @@
 <% end %>
 
 \bottomrule[1pt]
-\multicolumn{4}{r}{Netto MwSt. 19\%}   & <%= @data[type][:costs] %>  \\
+\multicolumn{4}{r}{Netto MwSt.}   & <%= @data[type][:costs] %>  \\
 %\multicolumn{4}{r}{Brutto MwSt. 19\%} & <%= @data[type][:total] %>  \\
-\multicolumn{4}{r}{+MwSt. 19\%}        & <%= @data[type][:taxes] %>  \\
+
+<% @data[:productsbytax].each {|tax,products|
+  t = 0 .to_euro
+  products.each {|p| t+= p.tax(type)}
+%>
+    \multicolumn{4}{r}{+MwSt. <%= (tax.rationalize*100).to_f %>\%}        & <%= t %>  \\
+<% } %>
+
 <% if @data[:hours][:time] >0%>
 \multicolumn{4}{r}{MwSt 0\%}           & <%= @data[:hours][:total] %> \\
 <% end %>
