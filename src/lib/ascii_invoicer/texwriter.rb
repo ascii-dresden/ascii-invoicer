@@ -14,9 +14,10 @@ module TexWriter
     end
 
     #check output path first
-    output_path = File.expand_path $SETTINGS['output_path']
+    output_path = File.expand_path $SETTINGS.output_path
     unless File.directory? output_path
       @texlogger.error "your output_path is not a directory! (#{output_path})"
+      exit
     end
 
     #set the output filename
@@ -48,19 +49,19 @@ module TexWriter
   end
 
   def render_tex path, filename
-    @texlogger.info "Rendering #{path} with #{$SETTINGS['latex']}"
-    silencer = $SETTINGS['verbose'] ? "" : "> /dev/null" 
+    @texlogger.info "Rendering #{path} with #{$SETTINGS.latex}"
+    silencer = $SETTINGS.verbose ? "" : "> /dev/null" 
 
 ## TODO output directory is not generic
-    system "#{$SETTINGS['latex']} \"#{path}\" -output-directory . #{silencer}"
+    system "#{$SETTINGS.latex} \"#{path}\" -output-directory . #{silencer}"
 
-    output_path = File.expand_path $SETTINGS['output_path']
+    output_path = File.expand_path $SETTINGS.output_path
     @texlogger.error "your output_path is not a directory! (#{output_path})" unless File.directory? output_path
 
     pdf = filename.gsub('.tex','.pdf')
     log = filename.gsub('.tex','.log')
     aux = filename.gsub('.tex','.aux')
-    unless $SETTINGS['keep_log']
+    unless $SETTINGS.keep_log
       FileUtils.rm log if File.exists? log
       FileUtils.rm aux if File.exists? aux
     else
