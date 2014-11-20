@@ -163,6 +163,18 @@ module Filters
     Date.parse full_data[:event][:dates][0][:begin]  unless full_data[:event][:dates].nil?
   end
 
+  def generate_productsbytax full_data
+    list = {}
+    taxlist = {}
+    full_data[:products].each {|product|
+      list[product.tax_value] = [] unless list[product.tax_value]
+      list[product.tax_value] << product
+    }
+    list.keys.sort.each{|key| taxlist[key] = list[key] } # sorting a hash by keys
+    return taxlist
+  end
+
+
   def sum_money key
     sum = 0.to_euro
     @data[:products].each{|p| sum += p.hash[key]} if @data[:products].class == Array

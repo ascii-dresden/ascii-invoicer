@@ -212,10 +212,10 @@ module AsciiMixins
     end
   end
 
-  def display_products project, choice = :offer
+  def display_products project, choice = :offer, standalone = true
     table = Textboxes.new
-    table.style[:border] = true
-    table.title = "Project:" + "\"#{project.data[:event][:name]}\"".rjust(25)
+    table.style[:border] = standalone
+    table.title = "Project:" + "\"#{project.data[:event][:name]}\"".rjust(25) if standalone
     table.add_row ["#", "name", "price", "cost"]
     table.set_alignments :r, :l, :r, :r
     project.data[:products].each {|product|
@@ -228,7 +228,7 @@ module AsciiMixins
     return table
   end
 
-  def display_costs project 
+  def display_costs project, standalone = true
     data = project.data
 
     co   = data[:offer][:costs].to_s.rjust(7)
@@ -248,17 +248,38 @@ module AsciiMixins
 
     box = Textboxes.new
     box.padding_horizontal = 3
-    box.style[:border] = true
-    box.title = "Project:" + "\"#{data[:event][:name]}\"".rjust(25)
+    box.style[:border] = standalone
+    box.title = "Project:" + "\"#{data[:event][:name]}\"".rjust(25) if standalone
 
-    box.add_row  ["Kosten       :","#{co} -> #{ci}"]
-    box.add_row  ["MWST         :","#{to} -> #{ti}"]
-    box.add_row  ["Gehalt Total :","#{st}", "(#{h}h)"]
-    box.add_row  [nil, "-----------------"]
-    box.add_row  ["Netto        :","#{toto} -> #{toti}"]
-    box.add_row  ["Final        :","#{fo} -> #{fi}"]
+    box.add_row  ["Kosten","#{co}","#{ci}"]
+    project.data[:productsbytax].each {|tax,products|
+      top = 0.to_euro
+      tip = 0.to_euro
+      tax = (tax.rationalize * 100).to_f
+      products.each{|p|
+        top += p.hash[:tax_offer]
+        tip += p.hash[:tax_invoice]
+      }
+      box.add_row  ["MWST #{tax}% ","#{top}","#{tip}"]
+    }
+    box.add_row  ["Gehalt Total","#{st}", "(#{h}h)"]
+    box.add_row  [?-*12, ?-*12, ?-*12]
+    box.add_row  ["Netto","#{toto}","#{toti}"]
+    box.add_row  ["Final","#{fo}","#{fi}"]
     box.footer = "Errors: #{project.errors.length} (#{ project.errors.join ',' })" if project.errors.length >0
     box.set_alignment 1, :r
+
+    return box
+  end
+
+  def display_all project
+    box = Textboxes.new
+    box.padding_horizontal = 0
+    box.style[:border] = true
+    box.style[:row_borders] = true
+    box.title = "Project:" + "\"#{project.data[:event][:name]}\"".rjust(25)
+    box.add_row display_products project, :invoice,false
+    box.add_row display_costs project, false
 
     return box
   end

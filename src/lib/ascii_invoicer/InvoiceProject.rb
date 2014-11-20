@@ -45,6 +45,7 @@ class InvoiceProject < LuigiProject
     :offer_costs,    :offer_taxes,   :offer_total,   :offer_final,
     :invoice_costs,  :invoice_taxes, :invoice_total, :invoice_final,
     :invoice_longnumber,
+    :productsbytax
   ]
 
   #def initialize(project_path = nil, template_path = nil, settings = $settings, name = nil)
@@ -203,6 +204,10 @@ class InvoiceProject < LuigiProject
     return hash
   end
 
+  def products
+    data :products
+  end
+
 
   def prepare_data
     @@known_keys.each {|key| read key }
@@ -262,7 +267,8 @@ end
 
 class InvoiceProduct
   attr_reader :name, :hash, :tax, :valid, :returned,
-    :total_invoice, :cost_offer, :cost_invoice, :cost_offer, :tax_invoice, :tax_offer,
+    :total_invoice, :cost_offer, :cost_invoice, :cost_offer,
+    :tax_invoice, :tax_offer, :tax_value,
     :price, :unit
 
   def initialize(hash, settings)
@@ -285,7 +291,7 @@ class InvoiceProduct
   end
 
   def to_s
-    "#{@amount}|#{@sold} #{@name}, #{@price} cost (#{@cost_offer}|#{@cost_invoice}) total(#{@total_offer}|#{@total_invoice}) "
+    "#{@amount}/#{@sold} #{@name}, #{@price} cost (#{@cost_offer}|#{@cost_invoice}) total(#{@total_offer}|#{@total_invoice} #{@tax_value}) "
   end
 
   def calculate()
@@ -326,6 +332,12 @@ class InvoiceProduct
   def cost choice
     return @cost_invoice if choice == :invoice
     return @cost_offer   if choice == :offer
+    return -1.to_euro
+  end
+
+  def tax choice
+    return @tax_invoice if choice == :invoice
+    return @tax_offer   if choice == :offer
     return -1.to_euro
   end
 end
