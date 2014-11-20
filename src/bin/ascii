@@ -116,7 +116,7 @@ class Commander < Thor
           $logger.error "Nothing found, containing #{names}"
           exit
         end
-        return projects
+        return projects.select{|p|p}
 
       end
     end
@@ -169,7 +169,7 @@ class Commander < Thor
     if paths.size > 0
       edit_files paths, options[:editor]
     else
-      puts "nothing found (#{hash})"
+      puts "nothing found (#{names})"
     end
   end
 
@@ -277,7 +277,7 @@ class Commander < Thor
       if paths.size > 0
         edit_files paths, options[:editor]
       else
-        puts "nothing found (#{hash})"
+        puts "nothing found (#{names})"
       end
     end
   end
