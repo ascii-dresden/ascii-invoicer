@@ -486,10 +486,8 @@ class Commander < Thor
 
   desc "commit message", "Git Integration."
     method_option :message,
-      :type=>:numeric, :aliases => "-m",
-      :default => nil,
-      :lazy_default=> Date.today.year,
-      :required => true,
+      :type=>:string, :aliases => "-m", :default => nil,
+      :lazy_default=> Date.today.year, :required => true,
       :desc => "Open File from archive YEAR"
   def commit 
     $PLUMBER.git_commit(options[:message]) if $PLUMBER.open_git()
