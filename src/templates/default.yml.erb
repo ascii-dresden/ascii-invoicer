@@ -1,6 +1,7 @@
 --- # ascii invoicer document  (<%= $VERSION  %>)
 format: 2.4.0
 created: <%= Date.today.strftime "%d.%m.%Y" %>
+## default template
 
 client: 
   title:     Herr # Frau, Professor, Professorin
@@ -17,11 +18,11 @@ event:
   name: "<%= project_name %>"
   location: # might be a list
   dates:
-  - begin: <%= (Date.today+ 15).strftime "%d.%m.%Y" %> # bezieht sich auf die veranstaltung selbst
+  - begin: <%= (Date.today+ 14).strftime "%d.%m.%Y" %> # bezieht sich auf die veranstaltung selbst
     #end: 
-    #times:
-    #-  begin: "9:00"
-    #   end:   "11:20"
+    times:
+    -  begin: "9:00"
+       end:   "17:00"
 
   description: |
 
@@ -63,7 +64,7 @@ hours:
   caterers:
     "unknown" : 0 #Stunden
     
-manager: <%= settings['manager_name'] %>
+manager: <%= manager_name %>
 
 #canceled: yes
 #lang:
