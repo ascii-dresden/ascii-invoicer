@@ -155,16 +155,24 @@ class Commander < Thor
     method_option :settings, :type=>:boolean, :aliases => '-s',
       :lazy_default=> true, :required => false, :desc => "edit settings"
     method_option :archive,
-      :type=>:numeric, :aliases => "-a",
-      :default => nil,
-      :lazy_default=> Date.today.year,
-      :required => false,
-      :desc => "Open File from archive YEAR"
+      :type=>:numeric, :aliases => "-a", :default => nil,
+      :lazy_default=> Date.today.year, :required => false, :desc => "Open File from archive YEAR"
+    method_option :template,
+      :type=>:string, :aliases => "-t", :default => nil,
+      :lazy_default=> Date.today.year, :required => false, :desc => "Open File from archive YEAR"
 
   def edit( *names )
-    projects = open_projects names, options
-    paths= projects.map{ |project| project.path }
-    puts paths
+    if options[:settings]
+      paths = [ $SETTINGS.settings_homedir_path ]
+    elsif options[:template]
+      path = $PLUMBER.templates[ options[:template].to_sym ]
+      paths = []
+      paths = [path] if File.exists? path
+    else
+      projects = open_projects names, options
+      paths= projects.map{ |project| project.path }
+      puts paths
+    end
 
     if paths.size > 0
       edit_files paths, options[:editor]
@@ -222,7 +230,6 @@ class Commander < Thor
 
     method_option :edit, :type=>:array,
       :required => false, :desc => "open all listed files for edit"
-
 
   def list
     hash            = {}
@@ -285,6 +292,7 @@ class Commander < Thor
   desc "templates", "Deal with templates"
     method_option :add, :type=>:boolean,
       :lazy_default=> true, :required => false, :desc => "Adds template changes to index just like ascii add does to projects."
+
   def templates
     if options[:add]
       path = $PLUMBER.dirs[:templates]
