@@ -84,6 +84,7 @@ class Commander < Thor
   map "-i"    => :invoice
   map "-o"    => :offer
   map "-V"    => :version
+  map "config" => :settings
   #map "-e"  => :edit #depricated
 
   class_option :verbose,   :aliases=> "-v", :type => :boolean, :default => $SETTINGS.verbose
@@ -128,7 +129,7 @@ class Commander < Thor
   }
 
 
-  desc "new NAME", "creating a new project" 
+  desc "new NAME", "Creating a new project" 
     method_option :dont_edit, :type=>:boolean, :aliases => "-d",
       :lazy_default=> true, :required => false, :desc => "do not edit a new file after creation"
     method_option :template, :type=>:string, :aliases => "-t",
@@ -151,7 +152,7 @@ class Commander < Thor
   end
 
 
-  desc "edit index", "Edit project file."
+  desc "edit NAMES", "Edit project"
     method_option :settings, :type=>:boolean, :aliases => '-s',
       :lazy_default=> true, :required => false, :desc => "edit settings"
     method_option :archive,
@@ -183,7 +184,7 @@ class Commander < Thor
 
 
 
-  desc "list", "List current Projects."
+  desc "list", "List current Projects"
     method_option :archive,
       :type=>:numeric, :aliases => "-a",
       :lazy_default=> Date.today.year, :required => false, :desc => "list archived projects"
@@ -289,7 +290,7 @@ class Commander < Thor
     end
   end
 
-  desc "templates", "Deal with templates"
+  desc "templates", "List or add templates"
     method_option :add, :type=>:boolean,
       :lazy_default=> true, :required => false, :desc => "Adds template changes to index just like ascii add does to projects."
 
@@ -302,17 +303,17 @@ class Commander < Thor
     end
   end
 
-  desc "csv", "equal to: ascii list --all --csv --sort=index --filter event/date:#{Date.today.year}"
+  desc "csv", "Equal to: ascii list --all --csv --sort=index --filter event/date:#{Date.today.year}"
   def csv
     invoke :list, [], csv:true, all:true, sort:"index", filter:{"event/date"=>Date.today.year.to_s}# where is this documented
   end
 
-  desc "whoami", "invokes settings --show manager_name"
+  desc "whoami", "Invoke settings --show manager_name"
   def whoami
     invoke :settings, [], show:"manager_name"
   end
 
-  desc "calendar", "creates a calendar from all caterings"
+  desc "calendar", "Create a calendar from all caterings"
   def calendar
     print_project_list_ical $PLUMBER.open_projects_all()
   end
@@ -320,7 +321,7 @@ class Commander < Thor
 
 
 
-  desc "archive NAME", "Move project to archive."
+  desc "archive NAME", "Move project to archive"
     method_option :force,:type=>:boolean,
       :lazy_default=> true, :required => false,
       :desc => "Force archiving projects that are invalid."
@@ -344,7 +345,7 @@ class Commander < Thor
     end
   end
 
-  desc "reopen YEAR NAME", "Reopen an archived project."
+  desc "reopen YEAR NAME", "reopen an archived project"
   def reopen(year, name)
     projects = $PLUMBER.open_projects_archive year
     project = projects.lookup_by_name name
@@ -367,7 +368,7 @@ class Commander < Thor
 
 
 
-  desc "display NAME", "Shows information about a Project in different ways."
+  desc "display NAMES", "Shows information about a project in different ways"
     method_option :archive,
       :type=>:numeric, :aliases => "-a",
       :default => nil,
@@ -449,7 +450,7 @@ class Commander < Thor
     }
   end
 
-  desc "offer NAME", "Create an offer from project file."
+  desc "offer NAMES", "Create an offer from project"
     method_option :archive,
       :type=>:numeric, :aliases => "-a",
       :default => nil,
@@ -466,7 +467,7 @@ class Commander < Thor
     render_projects projects, :offer, options[:stdout]
   end
 
-  desc "invoice NAME", "Create an invoice from project file."
+  desc "invoice NAMES", "Create an invoice from project"
     method_option :archive,
       :type=>:numeric, :aliases => "-a",
       :default => nil,
@@ -488,13 +489,13 @@ class Commander < Thor
 
 
 
-  desc "status", "Git Integration."
+  desc "status", "Git Integration"
   def status
     $PLUMBER.git_status() if $PLUMBER.open_git()
   end
 
 
-  desc "add NAME", "Git Integration."
+  desc "add NAMES", "Git Integration"
   def add *names
     projects = open_projects names, options
     projects.each {|project|
@@ -504,7 +505,7 @@ class Commander < Thor
     status()
   end
 
-  desc "commit message", "Git Integration."
+  desc "commit", "Git Integration"
     method_option :message,
       :type=>:string, :aliases => "-m", :default => nil,
       :lazy_default=> Date.today.year, :required => true,
@@ -513,24 +514,24 @@ class Commander < Thor
     $PLUMBER.git_commit(options[:message]) if $PLUMBER.open_git()
   end
 
-  desc "push", "Git Integration."
+  desc "push", "Git Integration"
   def push
     $PLUMBER.git_push() if $PLUMBER.open_git()
   end
 
-  desc "pull", "Git Integration."
+  desc "pull", "Git Integration"
   def pull
     $PLUMBER.git_pull() if $PLUMBER.open_git()
   end
 
-  desc "history", "Git Integration."
+  desc "log", "Git Integration"
     method_option :count,
       :type=>:numeric, :aliases => "-c",
       :default => 30,
       :lazy_default=> 1000, 
       :required => false,
       :desc => "Max count of history entries"
-  def history
+  def log 
     $PLUMBER.git_log(options[:count]) if $PLUMBER.open_git()
   end
 
@@ -538,7 +539,7 @@ class Commander < Thor
 
 
 
-  desc "settings", "view Settings"
+  desc "settings", "View settings"
     method_option :edit,
       :type=>:boolean, :aliases => "-e",
       :lazy_default=> false,
@@ -568,7 +569,7 @@ class Commander < Thor
     #pp $SETTINGS
   end
 
-  desc "path", "returns projects storage path"
+  desc "path", "Return projects storage path"
   method_option :templates, :type=>:boolean, :aliases => '-t',
     :lazy_default=> true, :required => false, :desc => "returns templates path"
   method_option :output, :type=>:boolean, :aliases => '-o',
@@ -587,7 +588,7 @@ class Commander < Thor
     end
   end
 
-  desc "version", "display Version"
+  desc "version", "Display version"
     method_option :changed_files, :type=>:boolean, :aliases => '-c',
       :lazy_default=> true, :required => false, :desc => "show changed files"
     method_option :fetch, :type=>:boolean, :aliases => '-f',
