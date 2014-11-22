@@ -4,13 +4,6 @@
 
 The ascii-invoicer is a command-line tool that manages projects and stores them not in a database but in a folder structure. New projects can be created from templates and are stored in a working directory. Projects can be archived, each year will have its own archive. A project consists of a folder containing a yaml file describing it and a number of attached files, such tex files. Projects can contain products and personal. You can create preliminary offers and invoices from your projects.
 
-### A brief history
-Invoicer is a tool that was initially created to more easily create PDF offers and invoices.
-Instead of re-editing the same clumsy .odt file over and over again you could fill a slim yml file that describes the project, this could be done with vim, which is so much better than libreoffice for everything.
-The script initially only filled a LaTeX file. After a while it became necessary to be able to archive the documents.
-As a means of collaborating on the same data git proved a good replacement for a specialized server. After all it's all just text-files like any code project is.
-Over time the tool thrived and grew into a more and more usable solution to many of our needs.
-
 ## Usage
 
 Each of these sections starts with a list of commands.
