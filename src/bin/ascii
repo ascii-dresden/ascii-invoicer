@@ -282,6 +282,12 @@ class Commander < Thor
     end
   end
 
+  desc "templates", "Deal with templates"
+  def templates
+    puts $PLUMBER.dirs[:templates]
+    puts $PLUMBER.templates.keys
+  end
+
   desc "csv", "equal to: ascii list --all --csv --sort=index --filter event/date:#{Date.today.year}"
   def csv
     invoke :list, [], csv:true, all:true, sort:"index", filter:{"event/date"=>Date.today.year.to_s}# where is this documented
@@ -549,15 +555,19 @@ class Commander < Thor
   end
 
   desc "path", "returns projects storage path"
-    method_option :script_path, :type=>:boolean, :aliases => '-s',
-      :lazy_default=> true, :required => false, :desc => "returns script path"
-    method_option :output_path, :type=>:boolean, :aliases => '-o',
-      :lazy_default=> true, :required => false, :desc => "returns output path"
+  method_option :templates, :type=>:boolean, :aliases => '-t',
+    :lazy_default=> true, :required => false, :desc => "returns templates path"
+  method_option :output, :type=>:boolean, :aliases => '-o',
+    :lazy_default=> true, :required => false, :desc => "returns output path"
+  method_option :script, :type=>:boolean,
+    :lazy_default=> true, :required => false, :desc => "returns script path"
   def path
-    if options[:script_path]
+    if options[:script]
       puts File.split($GEM_PATH)[0]
-    elsif options[:output_path]
-      puts File.join $SETTINGS.output_path
+    elsif options[:output]
+      puts File.expand_path File.join $SETTINGS.output_path
+    elsif options[:templates]
+      puts $PLUMBER.dirs[:templates]
     else
       puts File.join $SETTINGS.path, $SETTINGS.dirs.storage
     end
