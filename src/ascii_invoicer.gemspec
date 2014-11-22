@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec-core',  '~> 3.1'
   s.add_development_dependency 'rake',        '~> 10'
   s.add_runtime_dependency     'git',         '~> 1.2' ,    '>= 1.2.8'
-  s.add_runtime_dependency     'thor',        '~> 0.19.1'
+  s.add_runtime_dependency     'thor',        '~> 0.19'
   s.add_runtime_dependency     'icalendar',   '~> 2.1',     '>= 2.1.1'
   s.add_runtime_dependency     'textboxes',   '~> 0.0',     '>= 0.0.1'
   s.add_runtime_dependency     'euro',        '~> 0.3'
