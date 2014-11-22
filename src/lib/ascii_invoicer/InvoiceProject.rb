@@ -152,6 +152,8 @@ class InvoiceProject < LuigiProject
   def fill_template
     project_name = @name.sub(?_, " ") #latex build fails if values contain a "_"
     manager_name = @settings.manager_name
+    version = @settings.version
+    template = File.basename(@template_path, ".yml.erb")
 
     return binding()
   end
