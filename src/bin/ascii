@@ -283,9 +283,15 @@ class Commander < Thor
   end
 
   desc "templates", "Deal with templates"
+    method_option :add, :type=>:boolean,
+      :lazy_default=> true, :required => false, :desc => "Adds template changes to index just like ascii add does to projects."
   def templates
-    puts $PLUMBER.dirs[:templates]
-    puts $PLUMBER.templates.keys
+    if options[:add]
+      path = $PLUMBER.dirs[:templates]
+      $PLUMBER.git_update_path(path) if $PLUMBER.open_git()
+    else
+      puts $PLUMBER.templates.keys
+    end
   end
 
   desc "csv", "equal to: ascii list --all --csv --sort=index --filter event/date:#{Date.today.year}"
