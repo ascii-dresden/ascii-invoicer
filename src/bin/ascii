@@ -387,10 +387,13 @@ class Commander < Thor
       :desc => "Display only the name"
     method_option :offer, :type=>:boolean,
       :default=> false, :lazy_default=> true, :required => false,
-      :desc => "Display Products parsed as OFFER"
+      :desc => "Display the offer"
     method_option :invoice, :type=>:boolean,
       :default=> false, :lazy_default=> true, :required => false,
-      :desc => "Display Products parsed as INVOICE"
+      :desc => "Display the invoice"
+    method_option :products, :type=>:boolean,
+      :default=> false, :lazy_default=> true, :required => false,
+      :desc => "Display only the products for the --offer or --invoice"
     method_option :caterers, :type=>:boolean,
       :default=> false, :lazy_default=> true, :required => false,
       :desc => "Display Caterers"
@@ -403,9 +406,9 @@ class Commander < Thor
     method_option :pp, :type=>:string, :banner => "key",
       :default => nil, :lazy_default=> "", :required => false,
       :desc => "output key or all with pp"
-    method_option :yaml, :type=>:string, :banner => "key",
-      :default => nil, :lazy_default=> "", :required => false,
-      :desc => "output key or all as yaml"
+#    method_option :yaml, :type=>:string, :banner => "key",
+#      :default => nil, :lazy_default=> "", :required => false,
+#      :desc => "output key or all as yaml"
     method_option :cal, :type=>:boolean,
       :default => nil, :lazy_default=> "", :required => false,
       :desc => "output key or all as ical event[s]"
@@ -414,7 +417,7 @@ class Commander < Thor
 
     projects.each{ |project|
       $logger.error("No project found!") if project.nil?
-      unless options[:cal] or options[:yaml] or options[:costs] or options[:caterers] or options[:invoice] or options[:offer]
+      unless options[:cal] or options[:yaml] or options[:costs] or options[:caterers] or options[:invoice] or options[:offer] or options[:products]
         fallback= true
       end
 
@@ -437,11 +440,14 @@ class Commander < Thor
           pp project.data.get_path(options[:pp])
         end
       else
-        puts display_products(project, :offer  ) if options[:offer]
-        puts display_products(project, :invoice) if options[:invoice]
-        puts display_costs(project)              if options[:costs]
-        puts display_all(project)                if fallback
-        pp events_from_project(project)          if options[:cal]
+        if options[:products]
+          puts display_products(project, :offer  )
+          puts display_products(project, :invoice) if options[:invoice]
+        else
+          puts display_all(project, :offer  )      if options[:offer  ] 
+          puts display_all(project, :invoice)      if options[:invoice] or fallback
+        end
+        print_project_list_ical [project]          if options[:cal]
         if options[:caterers]
           print "#{project.name}:".ljust(35)         if names.length > 1
           if project.data[:hours][:caterers]

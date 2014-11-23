@@ -1,24 +1,13 @@
-* multiple taxes
-* repl
-
-revisionsfeatures
-
-* sort by index
-* lookup by index
-* show final cost in list
-* sum up open dept claim per year / since dat
+* show mit stunden
+* logo
 
 
-# future
+
+
+# future ideas
 
 * include pdfs in project folder #{YYYMMDDHHMM}-original_pdf_title.pdf
-* perhaps an extra catalogue file?
-* perhaps an extra settings file for branding information?
-* analize git output ( pull push information, divergence help)
-
-* create yaml settings management class (GEM)
-* create project model
-* create Plumber GEM
-* create Euro GEM ( Money etc )
-* create AsciiSanitizer GEM
 * settings for invoice_number format etc
+* perhaps change the behaviour of pull to equal pull --rebase
+* check whether the default template is copied into the template folder if empty.
+

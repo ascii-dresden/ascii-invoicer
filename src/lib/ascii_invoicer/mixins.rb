@@ -174,6 +174,11 @@ module AsciiMixins
       puts "...\n\n"
     end
   end
+  
+  def caterers_string project, join = ", "
+      data = project.data
+      data[:hours][:caterers].map{|name, hours|"#{name} (#{hours})"}.join join if data[:hours][:caterers]
+  end
 
   #takes an array of invoices (@plumber.working_projects)
   def print_project_list_csv(projects)
@@ -190,8 +195,6 @@ module AsciiMixins
     ]
     puts header.to_csv(col_sep:";")
     projects.each do |p|
-      caterers_string = ""
-      caterers_string = p.data[:hours][:caterers].map{|name, hours|"#{name} (#{hours})"}.join ", " if p.data[:hours][:caterers]
       canceled = ""
       canceled = "canceled" if p.data[:canceled]
       line = [
@@ -199,7 +202,7 @@ module AsciiMixins
         p.data[:event][:name],
         p.data[:event][:date],
         p.data[:invoice][:date],
-        caterers_string,
+        caterers_string(p),
         p.data[:manager].words[0],
         p.data[:invoice][:payed_date],
         p.data[:invoice][:final],
@@ -224,64 +227,50 @@ module AsciiMixins
       cost  = product.cost choice
       table.add_row [amount, product.name, price, cost]
     }
+    table.add_row ["#{project.data[:hours][:time]}h", "service" , project.data[:hours][:salary], project.data[:hours][:total]]
+    table.add_row [nil, caterers_string(project)]
 
     return table
   end
 
-  def display_costs project, standalone = true
+  def display_all project, choice
+    raise "choice must be either :invoice or :offer" unless choice == :invoice or choice == :offer
     data = project.data
 
-    co   = data[:offer][:costs].to_s.rjust(7)
-    ci   = data[:invoice][:costs].to_s.rjust(7)
+    table = Textboxes.new
+    table.style[:border] = true
+    table.title = "Project:" + "\"#{data[:event][:name]}\"".rjust(25)
+    table.add_row [nil, "name", "amount","price", "cost"]
+    table.set_alignments :r, :l, :r, :r, :r
 
-    to   = data[:offer][:taxes].to_s.rjust(7)
-    ti   = data[:invoice][:taxes].to_s.rjust(7)
+    i = 0
+    data[:products].each {|product|
+      amount = product.amount choice
+      price = product.price
+      cost  = product.cost choice
+      table.add_row [i+=1,product.name, amount, price, cost]
+    }
+    table.add_row [i+1,"service", "#{data[:hours][:time]}h",  data[:hours][:salary], data[:hours][:total]]
 
-    fo   = data[:offer][:final].to_s.rjust(7)
-    fi   = data[:invoice][:final].to_s.rjust(7)
+    separator = table.column_widths.map{|w| ?=*w}
+    separator[0] = nil
+    table.add_row separator
 
-    toto = data[:offer][:total].to_s.rjust(7)
-    toti = data[:invoice][:total].to_s.rjust(7)
-
-    h    = data[:hours][:time]
-    st   = data[:hours][:total].to_s.rjust(18)
-
-    box = Textboxes.new
-    box.padding_horizontal = 3
-    box.style[:border] = standalone
-    box.title = "Project:" + "\"#{data[:event][:name]}\"".rjust(25) if standalone
-
-    box.add_row  ["Kosten","#{co}","#{ci}"]
-    project.data[:productsbytax].each {|tax,products|
-      top = 0.to_euro
-      tip = 0.to_euro
+    table.add_row  [nil,"Kosten",nil,nil,"#{data[choice][:costs]}"]
+    data[:productsbytax].each {|tax,products|
+      tpv = 0.to_euro # tax per value
       tax = (tax.rationalize * 100).to_f
       products.each{|p|
-        top += p.hash[:tax_offer]
-        tip += p.hash[:tax_invoice]
+        tpv += p.hash[:tax_offer]   if choice == :offer
+        tpv += p.hash[:tax_invoice] if choice == :invoice
       }
-      box.add_row  ["MWST #{tax}% ","#{top}","#{tip}"]
+      table.add_row  [nil, "MWST #{tax}%",nil,nil,"#{tpv}"]
     }
-    box.add_row  ["Gehalt Total","#{st}", "(#{h}h)"]
-    box.add_row  [?-*12, ?-*12, ?-*12]
-    box.add_row  ["Netto","#{toto}","#{toti}"]
-    box.add_row  ["Final","#{fo}","#{fi}"]
-    box.footer = "Errors: #{project.errors.length} (#{ project.errors.join ',' })" if project.errors.length >0
-    box.set_alignment 1, :r
+    table.add_row   [nil,  "Final", nil, nil, "#{data[choice][:final]}"]
 
-    return box
-  end
+    table.footer = "Errors: #{project.errors.length} (#{ project.errors.join ',' })" if project.errors.length >0
 
-  def display_all project
-    box = Textboxes.new
-    box.padding_horizontal = 0
-    box.style[:border] = true
-    box.style[:row_borders] = true
-    box.title = "Project:" + "\"#{project.data[:event][:name]}\"".rjust(25)
-    box.add_row display_products project, :invoice,false
-    box.add_row display_costs project, false
-
-    return box
+    return table
   end
 
   def check_project(path)
