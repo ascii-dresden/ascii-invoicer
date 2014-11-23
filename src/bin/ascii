@@ -245,6 +245,15 @@ class Commander < Thor
     hash[:caterers] = options[:caterers]
     hash[:final]    = options[:final]
 
+    if options[:paths] 
+      map = $PLUMBER.map_project_files_working()
+      map = $PLUMBER.map_project_files_archive(options[:archive]) if options[:archive]
+      table = Textboxes.new
+      map.each{|name, path| table.add_row [name, path] }
+      puts table
+      exit
+    end
+
     if not options[:sort].nil? and [:date, :name, :index].include? options[:sort].to_sym
       sort = options[:sort].to_sym
     else
@@ -272,8 +281,6 @@ class Commander < Thor
     if options[:csv] 
       projects = $PLUMBER.sort_projects(projects, :index)
       print_project_list_csv projects
-    elsif options[:paths] 
-      print_project_list_paths projects
     elsif options[:yaml] 
       print_project_list_yaml projects
     else
