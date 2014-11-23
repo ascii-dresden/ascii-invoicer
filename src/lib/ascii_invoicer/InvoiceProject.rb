@@ -96,8 +96,13 @@ class InvoiceProject < LuigiProject
     begin
       @raw_data        = YAML::load(File.open(project_path))
     rescue SyntaxError => error
-      @logger.warn "error parsing #{project_path}"
-      puts error
+      @logger.error "#{project_path}"
+      @logger.error Paint[error, :red]
+      @status = :unparsable
+      return false
+    rescue Psych::SyntaxError => error
+      @logger.error "#{project_path}"
+      @logger.error Paint[error, :red]
       @status = :unparsable
       return false
     else
