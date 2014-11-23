@@ -10,13 +10,13 @@ module TexWriter
     return fail_at :templates unless document_template
 
     unless validate(type)
-      @texlogger.error "Cannot create an \"#{type.to_s}\" from #{@data[:name]}. (#{blockers(type).join ','})"
+      @logger.error "Cannot create an \"#{type.to_s}\" from #{@data[:name]}. (#{blockers(type).join ','})"
     end
 
     #check output path first
     output_path = File.expand_path $SETTINGS.output_path
     unless File.directory? output_path
-      @texlogger.error "your output_path is not a directory! (#{output_path})"
+      @logger.error "your output_path is not a directory! (#{output_path})"
       exit
     end
 
@@ -42,21 +42,21 @@ module TexWriter
       file.write line
     end
     file.close
-    @texlogger.info "file written: #{path}"
+    @logger.info "file written: #{path}"
     rescue
-      @texlogger.error "Unable to write into #{path}"
+      @logger.error "Unable to write into #{path}"
     end
   end
 
   def render_tex path, filename
-    @texlogger.info "Rendering #{path} with #{$SETTINGS.latex}"
+    @logger.info "Rendering #{path} with #{$SETTINGS.latex}"
     silencer = $SETTINGS.verbose ? "" : "> /dev/null" 
 
 ## TODO output directory is not generic
     system "#{$SETTINGS.latex} \"#{path}\" -output-directory . #{silencer}"
 
     output_path = File.expand_path $SETTINGS.output_path
-    @texlogger.error "your output_path is not a directory! (#{output_path})" unless File.directory? output_path
+    @logger.error "your output_path is not a directory! (#{output_path})" unless File.directory? output_path
 
     pdf = filename.gsub('.tex','.pdf')
     log = filename.gsub('.tex','.log')
@@ -74,7 +74,7 @@ module TexWriter
 
     puts "moving #{pdf} to #{target}"
     if not File.exists? pdf
-      @texlogger.error "#{pdf} does not exist, so it can not be moved to #{output_path}"
+      @logger.error "#{pdf} does not exist, so it can not be moved to #{output_path}"
     elsif File.expand_path(output_path)!= FileUtils.pwd
       FileUtils.mv pdf, output_path, :force => true, :verbose => true
     end
@@ -96,7 +96,7 @@ module TexWriter
     if File.exists?(path)
       return File.open(path).read
     else
-      @texlogger.error "Template (#{path}) File not found!"
+      @logger.error "Template (#{path}) File not found!"
       return false
     end
   end

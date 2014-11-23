@@ -16,6 +16,7 @@ dirs:
 project_file_extension: .yml
 use_git: true
 latex:    pdflatex
+log_file: ~/.ascii_log
 
 defaults:
   tax: 0.19

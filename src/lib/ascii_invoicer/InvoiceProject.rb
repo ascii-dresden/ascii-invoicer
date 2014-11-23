@@ -63,15 +63,8 @@ class InvoiceProject < LuigiProject
     @defaults      = {}
     @defaults      = @settings[:defaults] unless @settings[:defaults].nil?
 
-    @defaults['format']     = '1.0.0'
-    @logger                 = Logger.new STDOUT
-    @texlogger              = Logger.new STDOUT
-    @filter_logger          = Logger.new STDOUT
-    @reader_logger          = Logger.new STDOUT
-    @logger.progname        = "ascii-invoicer project_parser"
-    @texlogger.progname     = "ascii-invoicer tex_writer"
-    @filter_logger.progname = "ascii-invoicer filter"
-    @reader_logger.progname = "ascii-invoicer reader"
+    @defaults['format'] = '1.0.0'
+    @logger             = $logger
 
     unless @template_path.nil?
       create @template_path
@@ -96,13 +89,13 @@ class InvoiceProject < LuigiProject
     begin
       @raw_data        = YAML::load(File.open(project_path))
     rescue SyntaxError => error
-      @logger.error "#{project_path}"
-      @logger.error Paint[error, :red]
+      @logger.warn "#{project_path}", :both
+      @logger.error error, :file
       @status = :unparsable
       return false
     rescue Psych::SyntaxError => error
-      @logger.error "#{project_path}"
-      @logger.error Paint[error, :red]
+      @logger.warn "#{project_path}", :both
+      @logger.error error, :file
       @status = :unparsable
       return false
     else
