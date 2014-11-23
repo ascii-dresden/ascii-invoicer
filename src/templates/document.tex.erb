@@ -1,6 +1,5 @@
-\documentclass[11pt,utf8]{
-       <%= $SETTINGS['gem_path'] %>/latex/ascii-brief}
-\Logo {<%= $SETTINGS['gem_path'] %><%= @data[:includes][:logopath] %>}
+\documentclass[11pt,utf8]{<%= File.join $SETTINGS.plumber_dirs.templates, "latex/ascii-brief" %>}
+\Logo {<%= File.join $SETTINGS.plumber_dirs.templates, @data[:includes][:logopath] %>}
 
 \lochermarke
 \faltmarken

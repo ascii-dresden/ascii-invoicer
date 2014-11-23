@@ -59,7 +59,7 @@ $PLUMBER.create_dir :archive unless $PLUMBER.check_dir :archive
 $PLUMBER.create_dir :templates unless $PLUMBER.check_dir :templates
 $logger.error "template not found!\n#{$PLUMBER.dirs[:templates]}" unless $PLUMBER.check_dir :templates
 
-
+$SETTINGS.plumber_dirs = $PLUMBER.dirs
 
 
 
