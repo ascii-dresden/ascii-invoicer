@@ -86,6 +86,12 @@ The projects directory contains working, archive and templates. If you start wit
 * settings: config
 * log: history
 
+## Known Issues
+
+Some strings may cause problems when rendering latex, e.g.
+a client called `"ABC GmbH & Co. KG"`.
+The `"&"` causes latex to fail, `\&"` bugs the yaml parser but `"\\&"` will do the trick.
+
 ## Pro tips
 
 Check out `repl ascii`.
