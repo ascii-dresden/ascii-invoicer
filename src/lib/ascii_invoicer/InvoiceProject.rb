@@ -225,10 +225,11 @@ class InvoiceProject < LuigiProject
   def blockers choice = :invoice
     (invalidators = { # self explaiatory ain't it? :D
       #:invoice   => [:invoice_number, :products, :manager, :caterers],
+      :offer     => [:offer_number, :event_dates],
       :invoice   => [:invoice_number, :products, :manager, :event_calendaritems],
       :archive   => [:invoice_number, :products, :manager, :invoice_payed_date, :archive, :payed_date],
       :payed     => [:invoice_number, :products, :manager, :invoice_payed_date, :payed_date],
-      :offer     => [:offer_number, :event_dates]
+      :calendar  => [:event_dates]
     }[choice] & @errors)
   end
 

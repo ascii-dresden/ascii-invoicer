@@ -322,9 +322,18 @@ class Commander < Thor
     invoke :settings, [], show:"manager_name"
   end
 
-  desc "calendar", "Create a calendar from all caterings"
+  desc "calendar", "Create a calendar file from all caterings named \"invoicer.ics\""
   def calendar
-    print_project_list_ical $PLUMBER.open_projects_all()
+    projects = $PLUMBER.open_projects_all()
+    valid = true
+    projects.each{|project|
+      unless project.validate(:calendar)
+        valid = false
+        puts "error in event/date in \"#{project.name}\""
+      end
+    }
+    $logger.error "Can't create Calendar." unless valid
+    create_cal_file $PLUMBER.open_projects_all()
   end
 
 

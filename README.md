@@ -56,8 +56,8 @@ Personal advice N°2: add this to your .bash_aliases:
 ### Exporting
 
 ```bash
-ascii calendar # Create a calendar from all caterings
-ascii csv      # Exports Current year into CSV (uses list)
+ascii calendar # Create a calendar file from all caterings named "invoicer.ics"
+ascii csv      # Prints a CSV list of current year into CSV
 ```
 You can pipe the csv into column (`ascii csv | column -ts\;`) to display the table in you terminal.
 

@@ -17,6 +17,7 @@ project_file_extension: .yml
 use_git: true
 latex:    pdflatex
 log_file: ~/.ascii_log
+calendar_file: invoicer.ics # will be put in current directory
 
 defaults:
   tax: 0.19

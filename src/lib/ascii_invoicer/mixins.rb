@@ -1,5 +1,6 @@
 # encoding: utf-8
 require 'icalendar'
+require 'fileutils'
 libpath = File.dirname __FILE__
 
 module AsciiMixins
@@ -102,7 +103,7 @@ module AsciiMixins
     puts table
   end
 
-  def print_project_list_ical(projects)
+  def create_cal_file(projects)
     cal = Icalendar::Calendar.new
     projects.each_index do |i|
       project = projects[i]
@@ -110,10 +111,14 @@ module AsciiMixins
       if events
         events.each { |event| cal.add_event event}
       else
-        $logger.error "Calendar can't be parsed. (#{project.data[:name]})", :file
+        $logger.warn "Calendar can't be parsed. (#{project.data[:name]})", :file
       end
     end
-    puts cal.to_ical
+
+    cal_file_path = File.join(FileUtils.pwd, $SETTINGS.calendar_file)
+    cal_file = File.open(cal_file_path, ?w)
+    cal_file.write cal.to_ical
+    puts "created #{cal_file_path}"
   end
 
   #takes an array of invoices (@plumber.working_projects)

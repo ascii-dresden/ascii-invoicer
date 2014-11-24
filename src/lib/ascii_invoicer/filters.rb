@@ -193,7 +193,7 @@ module Filters
           event.dtend   = Icalendar::Values::Date.new((date[:end]+1).strftime "%Y%m%d")
           events.push  event unless event.dtstart.nil?
 
-        end 
+        end
 
         events.each{ | event|
 
