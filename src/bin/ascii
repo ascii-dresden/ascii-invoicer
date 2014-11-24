@@ -618,7 +618,7 @@ class Commander < Thor
     method_option :fetch, :type=>:boolean, :aliases => '-f',
       :lazy_default=> true, :required => false, :desc => "update new code (FETCH ONLY != pull)"
   def version
-    puts $VERSION
+    puts "ascii-invoicer v#{$VERSION}"
   end
 end
 
