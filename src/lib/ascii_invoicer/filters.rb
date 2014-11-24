@@ -159,8 +159,62 @@ module Filters
     return caterers
   end
 
-  def generate_event_date  full_data
+  def generate_event_date full_data
     Date.parse full_data[:event][:dates][0][:begin]  unless full_data[:event][:dates].nil?
+  end
+
+  def generate_event_calendaritems full_data
+    begin
+      events = []
+      full_data[:event][:dates].each { |date|
+        # TODO event times is not implemented right
+        unless date[:times].nil?
+
+          ## set specific times
+          date[:times].each { |time|
+            if time[:end]
+              dtstart = DateTime.parse( date[:begin].strftime("%d.%m.%Y ") + time[:begin] )
+              dtend   = DateTime.parse( date[:begin].strftime("%d.%m.%Y ") + time[:end] )
+            else
+              dtstart = Icalendar::Values::Date.new( date[:begin].strftime  "%Y%m%d")
+              dtend   = Icalendar::Values::Date.new((date[:end]+1).strftime "%Y%m%d")
+            end
+            event = Icalendar::Event.new
+            event.dtstart = dtstart
+            event.dtend   = dtend
+            events.push  event unless event.dtstart.nil?
+
+          }
+
+        else
+          ## set full day event
+          event = Icalendar::Event.new
+          event.dtstart = Icalendar::Values::Date.new( date[:begin].strftime  "%Y%m%d")
+          event.dtend   = Icalendar::Values::Date.new((date[:end]+1).strftime "%Y%m%d")
+          events.push  event unless event.dtstart.nil?
+
+        end 
+
+        events.each{ | event|
+
+          event.description = ""
+          event.summary     = full_data[:event][:name]
+          event.summary  = "CANCELED: #{ event.summary }" if full_data[:canceled]
+
+          event.description += "Verantwortung: " + full_data[:manager]      + "\n" if full_data[:manager]
+          if full_data[:hours][:caterers]
+            event.description +=  "Caterer:\n"
+            full_data[:caterers].each {|caterer,time| event.description +=  " - #{ caterer}\n" }
+          end
+
+          event.description += full_data[:description]  + "\n" if full_data[:description]
+        }
+      }
+      return events
+    rescue
+      @errors << :event_dates
+      return false
+    end
   end
 
   def generate_productsbytax full_data

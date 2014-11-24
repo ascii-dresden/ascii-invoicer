@@ -45,7 +45,8 @@ class InvoiceProject < LuigiProject
     :offer_costs,    :offer_taxes,   :offer_total,   :offer_final,
     :invoice_costs,  :invoice_taxes, :invoice_total, :invoice_final,
     :invoice_longnumber,
-    :productsbytax
+    :event_calendaritems,
+    :productsbytax,
   ]
 
   #def initialize(project_path = nil, template_path = nil, settings = $settings, name = nil)
@@ -224,10 +225,10 @@ class InvoiceProject < LuigiProject
   def blockers choice = :invoice
     (invalidators = { # self explaiatory ain't it? :D
       #:invoice   => [:invoice_number, :products, :manager, :caterers],
-      :invoice   => [:invoice_number, :products, :manager,],
+      :invoice   => [:invoice_number, :products, :manager, :event_calendaritems],
       :archive   => [:invoice_number, :products, :manager, :invoice_payed_date, :archive, :payed_date],
       :payed     => [:invoice_number, :products, :manager, :invoice_payed_date, :payed_date],
-      :offer     => [:offer_number]
+      :offer     => [:offer_number, :event_dates]
     }[choice] & @errors)
   end
 

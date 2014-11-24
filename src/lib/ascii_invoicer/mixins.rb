@@ -102,67 +102,16 @@ module AsciiMixins
     puts table
   end
 
-  def events_from_project(project)
-      events = []
-      p = project
-      p.data[:event][:dates].each { |date|
-
-        # TODO event times is not implemented right
-        unless date[:times].nil?
-
-          ## set specific times
-          date[:times].each { |time|
-            if time[:end]
-              dtstart = DateTime.parse( date[:begin].strftime("%d.%m.%Y ") + time[:begin] )
-              dtend   = DateTime.parse( date[:begin].strftime("%d.%m.%Y ") + time[:end] )
-            else
-              dtstart = Icalendar::Values::Date.new( date[:begin].strftime  "%Y%m%d")
-              dtend   = Icalendar::Values::Date.new((date[:end]+1).strftime "%Y%m%d")
-            end
-            event = Icalendar::Event.new
-            event.dtstart = dtstart
-            event.dtend   = dtend
-            events.push  event unless event.dtstart.nil?
-
-          }
-
-        else
-          ## set full day event
-          event = Icalendar::Event.new
-          event.dtstart = Icalendar::Values::Date.new( date[:begin].strftime  "%Y%m%d")
-          event.dtend   = Icalendar::Values::Date.new((date[:end]+1).strftime "%Y%m%d")
-            events.push  event unless event.dtstart.nil?
-
-        end 
-
-        events.each{ | event|
-
-          event.description = ""
-          event.summary     = p.data[:event][:name]
-          event.summary   ||= p.name
-          event.summary  = "CANCELED: #{ event.summary }" if p.data[:canceled]
-
-          event.description += "Verantwortung: " + p.data[:manager]      + "\n" if p.data[:manager]
-          if p.data[:hours][:caterers]
-            event.description +=  "Caterer:\n"
-            p.data[:caterers].each {|caterer,time|
-              event.description +=  " - #{ caterer}\n"
-            }
-          end
-
-          event.description += p.data[:description]  + "\n" if p.data[:description]
-        }
-
-      }
-      return events
-  end
-
-## TODO print_project_list_ical(projects) add products list
   def print_project_list_ical(projects)
     cal = Icalendar::Calendar.new
     projects.each_index do |i|
-      events = events_from_project projects[i]
-      events.each { |event| cal.add_event event }
+      project = projects[i]
+      events = project.data[:event][:calendaritems]
+      if events
+        events.each { |event| cal.add_event event}
+      else
+        $logger.error "Calendar can't be parsed. (#{project.data[:name]})", :file
+      end
     end
     puts cal.to_ical
   end
