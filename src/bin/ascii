@@ -417,6 +417,9 @@ class Commander < Thor
     method_option :costs,:type=>:boolean,
       :default=> false, :lazy_default=> true, :required => false,
       :desc => ""
+    method_option :detail, :type=>:string, :banner => "key", :aliases =>"-d",
+      :default => nil, :lazy_default=> "", :required => false,
+      :desc => "output key or all with pp"
     method_option :pp, :type=>:string, :banner => "key",
       :default => nil, :lazy_default=> "", :required => false,
       :desc => "output key or all with pp"
@@ -447,6 +450,12 @@ class Commander < Thor
         raw = project.raw_data
         raw.delete "cataloge"
         puts raw.to_yaml
+      elsif not options[:detail].nil?
+        if options[:detail] == ''
+          puts project.data
+        else
+          puts project.data.get_path(options[:detail])
+        end
       elsif not options[:pp].nil?
         if options[:pp] == ''
           pp project.data
@@ -461,7 +470,11 @@ class Commander < Thor
           puts display_all(project, :offer  )      if options[:offer  ] 
           puts display_all(project, :invoice)      if options[:invoice] or fallback
         end
-        print_project_list_ical [project]          if options[:cal]
+        if options[:cal]
+          project.data[:event][:calendaritems].each{|cal|
+            puts cal.to_ical
+          }
+        end
         if options[:caterers]
           print "#{project.name}:".ljust(35)         if names.length > 1
           if project.data[:hours][:caterers]

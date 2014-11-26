@@ -59,7 +59,7 @@ class InvoiceProject < LuigiProject
 
     @name          = File.basename @path, '.yml'
     @settings      = hash[:settings]
-    @status        = :ok # :ok, :canceled, :unparsable
+    @status        = :ok
     @errors        = []
     @defaults      = {}
     @defaults      = @settings[:defaults] unless @settings[:defaults].nil?
