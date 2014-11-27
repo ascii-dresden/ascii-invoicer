@@ -3,7 +3,6 @@
 require 'paint'
 
 require File.join File.dirname(__FILE__) + '/tweaks.rb'
-require File.join File.dirname(__FILE__) + '/filters.rb'
 
 
 module ProjectFileReader

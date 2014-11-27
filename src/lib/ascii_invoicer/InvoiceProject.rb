@@ -5,10 +5,11 @@ require 'euro'
 libpath = File.dirname __FILE__
 
 require File.join libpath, 'hash_transformer.rb'
-
 require File.join libpath, 'projectFileReader.rb'
 require File.join libpath, 'rfc5322_regex.rb'
 require File.join libpath, 'texwriter.rb'
+require File.join libpath, 'filters.rb'
+require File.join libpath, 'generators.rb'
 
 ## TODO requirements and validity
 ## TODO open, YAML::parse, [transform, ] read_all, generate, validate
@@ -24,9 +25,11 @@ class InvoiceProject < LuigiProject
 
   include TexWriter
   include Filters
+  include Generators
   include ProjectFileReader
 
-  @@known_keys= [ # list default values here
+  # keys that are in the original file and that will be filtered
+  @@filtered_keys= [
     :format,    :lang,      :created,
     :client,    :event,     :manager,
     :offer,     :invoice,   :canceled,
@@ -34,7 +37,8 @@ class InvoiceProject < LuigiProject
     :includes
   ]
 
-  @@dynamic_keys=[
+  # keys that are not originally in the file will be generated
+  @@generated_keys=[
     :client_addressing,
     :hours_time,
     :hours_total,
@@ -211,8 +215,8 @@ class InvoiceProject < LuigiProject
 
 
   def prepare_data
-    @@known_keys.each {|key| read key }
-    @@dynamic_keys.each {|key|
+    @@filtered_keys.each {|key| read key }
+    @@generated_keys.each {|key|
       value = apply_generator key, @data
       @data.set_path key, value, ?_, true # symbols = true
     }

@@ -75,7 +75,7 @@ module AsciiMixins
     name = "##{project.data[:name]}#"
     if not project.data[:event][:name].nil? and project.data[:event][:name].size > 0
       name = project.data[:event][:name]
-      puts name = "CANCELED: " + name if project.data :canceled
+      name = "CANCELED: " + name if project.data :canceled
     end
     row = [
       name,

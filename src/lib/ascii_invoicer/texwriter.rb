@@ -37,11 +37,11 @@ module TexWriter
 
   def write_to_file file_content, path
     begin
-    file = File.new path, ?w
+    File.open(path, ?w){ |file|
     file_content.lines.each do |line|
       file.write line
     end
-    file.close
+    }
     @logger.info "file written: #{path}"
     rescue
       @logger.error "Unable to write into #{path}"
