@@ -226,8 +226,8 @@ class InvoiceProject < LuigiProject
     (invalidators = { # self explaiatory ain't it? :D
       #:invoice   => [:invoice_number, :products, :manager, :caterers],
       :offer     => [:offer_number, :event_dates],
-      :invoice   => [:invoice_number, :products, :manager, :event_calendaritems],
-      :archive   => [:invoice_number, :products, :manager, :invoice_payed_date, :archive, :payed_date],
+      :invoice   => [:invoice_number, :products, :manager, :event_dates],
+      :archive   => [:invoice_number, :products, :manager, :event_dates, :invoice_payed_date, :archive, :payed_date],
       :payed     => [:invoice_number, :products, :manager, :invoice_payed_date, :payed_date],
       :calendar  => [:event_dates]
     }[choice] & @errors)
