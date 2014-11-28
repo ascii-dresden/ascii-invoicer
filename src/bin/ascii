@@ -346,9 +346,13 @@ class Commander < Thor
       unless project.validate(:calendar)
         valid = false
         puts "error in event/date in \"#{project.name}\""
+
       end
     }
-    $logger.error "Can't create Calendar." unless valid
+    unless valid
+      $logger.error "Can't create Calendar."
+      exit
+    end
     create_cal_file $PLUMBER.open_projects_all()
   end
 

@@ -1,3 +1,10 @@
+
+2.5.1 / 2014-11-28
+==================
+
+ * fixed: won't create calendar file if not all events are valid
+ * changed: invoice_date needs to be hard coded before archiving is allowed
+
 2.5.0 / 2014-11-27
 ==================
 ## new features since 2.4.x
