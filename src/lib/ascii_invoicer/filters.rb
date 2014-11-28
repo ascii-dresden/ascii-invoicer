@@ -112,6 +112,7 @@ module Filters
 
   def filter_invoice_date date
     return Date.parse date if date.class == String
+    @errors << :invoice_date
     return Date.today
   end
 
