@@ -94,12 +94,12 @@ class InvoiceProject < LuigiProject
     begin
       @raw_data        = YAML::load(File.open(project_path))
     rescue SyntaxError => error
-      @logger.warn "#{project_path}", :both
+      @logger.warn "SyntaxError in #{project_path}, use \"edit\" to correct it.", :both
       @logger.error error, :file
       @status = :unparsable
       return false
     rescue Psych::SyntaxError => error
-      @logger.warn "#{project_path}", :both
+      @logger.warn "SyntaxError in #{project_path}, use \"edit\" to correct it.", :both
       @logger.error error, :file
       @status = :unparsable
       return false

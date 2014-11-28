@@ -18,6 +18,10 @@ end
 
 class AsciiLogger
 
+  # logger.log, "mesasge", :stdo
+  # logger.log, "mesasge", :file
+  # logger.log, "mesasge", :both
+  # log, error, info, warn, fatal, unknown
   def initialize name, path
     path = File.expand_path path
     FileUtils.touch path

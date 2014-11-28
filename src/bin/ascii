@@ -112,8 +112,8 @@ class Commander < Thor
           end
         }.flatten.uniq
         if projects.count < 1
-          $logger.error "Nothing found, containing #{names}"
-          exit
+          $logger.error "Nothing found, containing #{names}."
+          #exit
         end
         return projects.select{|p|p}
 
@@ -174,7 +174,23 @@ class Commander < Thor
     else
       projects = open_projects names, options
       paths= projects.map{ |project| project.path }
-      puts paths
+
+      if options[:archive]
+        map = $PLUMBER.map_project_files_archive(options[:archive])
+      else
+        map = $PLUMBER.map_project_files_working()
+      end
+      map.each{|k,v|
+        names.each{|name|
+          if k.downcase.include? name.downcase
+            paths += [v]
+          end
+        }
+      }
+      paths.uniq!
+
+      #pp paths
+      $logger.info "opening #{paths}", :stdo
     end
 
     if paths.size > 0
