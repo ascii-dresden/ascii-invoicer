@@ -96,3 +96,24 @@ The `"&"` causes latex to fail, `\&"` bugs the yaml parser but `"\\&"` will do t
 
 Check out `repl ascii`.
 You should copy [repl-file](src/repl/ascii) into ~/.repl/ascii and install rlwrap to take advantage of all the repl goodness such as autocompletion and history.
+
+# Building
+
+```bash
+# lets install building dependencies
+cd src
+gem install bundler # if you don't already have it
+bundle install # pulls all building dependencies
+# actually now you're done
+
+# after you made your own changes
+rake install # installs the gem
+rake gem # builds the gem
+
+# that's it
+```
+
+## Dependencies
+
+* rvm works best, otherwise I have not tested installing it anywhere else
+* a lot of latex packages to run the offer/invoice export
