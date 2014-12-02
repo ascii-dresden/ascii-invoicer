@@ -47,10 +47,15 @@ module AsciiMixins
         row = print_row_simple project, hash
       end
 
-      row << project.data[:invoice][:final] if hash[:final]
       row << project.data[:hours][:caterers].keys.join(", ") if hash[:caterers] and project.data[:hours][:caterers]
 
       row << project.blockers(:archive)      if hash[:blockers]
+      if hash[:details]
+        hash[:details].each {|detail|
+          row << project.data.get_path(detail)
+        }
+      end
+
       row << project.errors                  if hash[:errors] and project.status == :ok
       row << project.status                  if hash[:errors] and project.status == :canceled
       row.insert 0, i+1

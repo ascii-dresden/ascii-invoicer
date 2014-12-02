@@ -247,6 +247,9 @@ class Commander < Thor
     method_option :no_colors, :type=>:boolean, :aliases => '-n',
       :lazy_default=> true, :required => false, :desc => "overrides the colors setting"
 
+    method_option :details, :type=>:array, :aliases => '-d',
+      :required => false, :desc => "adds details"
+
     method_option :edit, :type=>:array,
       :required => false, :desc => "open all listed files for edit"
 
@@ -257,7 +260,7 @@ class Commander < Thor
     hash[:errors]   = options[:errors]
     hash[:blockers] = options[:blockers]
     hash[:caterers] = options[:caterers]
-    hash[:final]    = options[:final]
+    hash[:details]  = options[:details]
 
     if options[:paths] 
       map = $PLUMBER.map_project_files_working()
