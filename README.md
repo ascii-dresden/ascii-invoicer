@@ -78,13 +78,13 @@ The projects directory contains working, archive and templates. If you start wit
 
 ## Aliases
 
-* list: -l, l, ls, dir
-* display: -d, show
-* archive: close
-* invoice: -l
-* offer: -o
-* settings: config
-* log: history
+* `list`: `-l`, `l`, `ls`, `dir`
+* `display`: `-d`, `show`
+* `archive`: `close`
+* `invoice`: `-l`
+* `offer`: `-o`
+* `settings`: `config`
+* `log`: `history`
 
 ## Pro tips
 
