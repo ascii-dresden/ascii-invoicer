@@ -182,7 +182,7 @@ module AsciiMixins
       cost  = product.cost choice
       table.add_row [amount, product.name, price, cost]
     }
-    table.add_row ["#{project.data[:hours][:time]}h", "service" , project.data[:hours][:salary], project.data[:hours][:total]]
+    table.add_row ["#{project.data[:hours][:time]}h", "service" , project.data[:hours][:salary], project.data[:hours][:total]] if project.data.get_path('hours/time').to_i> 0
     table.add_row [nil, caterers_string(project)]
 
     return table
@@ -205,7 +205,7 @@ module AsciiMixins
       cost  = product.cost choice
       table.add_row [i+=1,product.name, amount, price, cost]
     }
-    table.add_row [i+1,"service", "#{data[:hours][:time]}h",  data[:hours][:salary], data[:hours][:total]]
+    table.add_row [i+1,"service", "#{data[:hours][:time]}h",  data[:hours][:salary], data[:hours][:total]] if project.data.get_path('hours/time').to_i> 0
 
     separator = table.column_widths.map{|w| ?=*w}
     separator[0] = nil
