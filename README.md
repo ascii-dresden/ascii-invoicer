@@ -74,7 +74,44 @@ ascii version   # Display version
 ## Filesstructure
 
 Your config-file is located in ~/.ascii-invoicer.yml but you can also access it using `ascii settings --edit` or even `ascii edit --settings`.
-The projects directory contains working, archive and templates. If you start with a blank slate you might want to put the tepm
+The projects directory contains working, archive and templates. If you start with a blank slate you might want to put the templates folder into the storage folder (not well tested yet).
+
+By default in your `path` folder you fill find:
+
+```
+caterings
+├── archive
+│   ├── 2013
+│   │   ├── Foobar1
+│   │   │   └── Foobar1.yml
+│   │   └── Foobar2
+│   │       ├── Foobar2.yml
+│   │       └── R007 Foobar2 2013-02-11.tex
+│   └── 2014
+│       ├── canceled_foobar1
+│       │   ├── A20141009-1 foobar.tex
+│       │   └── foobar1.yml
+│       ├── R029_foobar2
+│       │   └── R029 foobar2 2014-09-10.tex
+│       └── R036_foobar3
+│           ├── foobar3.yml
+│           └── R036 foobar3 2014-10-08.tex
+├── templates
+│   ├── default.yml.erb
+│   └── document.tex.erb
+└── working
+    ├── Foobar1
+    │   ├── A20141127-1 Foobar1.tex
+    │   └── Foobar1.yml
+    ├── Foobar2
+    │   ├── A20141124-1 Foobar2.tex
+    │   └── Foobar2.yml
+    └── Foobar3
+        ├── A20140325-1 Foobar3.tex
+        ├── A20140327-1 Foobar3.tex
+        ├── R008 Foobar3 2014-03-31.tex
+        └── Foobar3.yml
+```
 
 ## Aliases
 
