@@ -175,6 +175,15 @@ module Generators
     full_data[:invoice][:total] + full_data[:hours][:total]
   end
 
+  def generate_invoice_paydelay full_data
+    if full_data[:invoice][:payed_date] and full_data[:invoice][:date]
+      delay = full_data[:invoice][:payed_date] - full_data[:invoice][:date]
+      fail_at :invoice_payed if delay < 0
+      return delay.to_i
+    end
+    return nil
+  end
+
   def generate_invoice_longnumber full_data
     if full_data[:invoice][:date]
       year = full_data[:invoice][:date].year
