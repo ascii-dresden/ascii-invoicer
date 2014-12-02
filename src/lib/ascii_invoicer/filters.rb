@@ -97,11 +97,13 @@ module Filters
   end
 
   def filter_created date
-    Date.parse date if date.class == String
+    return Date.parse date if date.class == String
+    fail_at :created_date
   end
 
   def filter_offer_date date
     return Date.parse date if date.class == String
+    fail_at :offer_date
     return Date.today
   end
 
@@ -112,7 +114,7 @@ module Filters
 
   def filter_invoice_date date
     return Date.parse date if date.class == String
-    @errors << :invoice_date
+    fail_at :invoice_date
     return Date.today
   end
 

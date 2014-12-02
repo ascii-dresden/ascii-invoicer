@@ -228,14 +228,13 @@ class InvoiceProject < LuigiProject
   end
 
   def blockers choice = :invoice
-    (invalidators = { # self explaiatory ain't it? :D
-      #:invoice   => [:invoice_number, :products, :manager, :caterers],
-      :offer     => [:offer_number, :event_dates],
-      :invoice   => [:invoice_number, :products, :manager, :event_dates],
-      :archive   => [:invoice_number, :products, :manager, :event_dates, :invoice_payed_date, :archive, :payed_date, :invoice_date],
-      :payed     => [:invoice_number, :products, :manager, :invoice_payed_date, :payed_date, :invoice_date],
-      :calendar  => [:event_dates]
-    }[choice] & @errors)
+    inval = {} # invalidators
+    inval[ :offer   ] = [:offer_number, :event_dates, :products, :manager, :cateres]
+    inval[ :invoice ] = inval[:offer] + [:invoice_number]
+    inval[ :payed   ] = inval[:invoice] + [:invoice_date, :invoice_payed_date]
+    inval[ :archive ] = inval[:payed]
+    inval[ :calendar] = inval[:offer]
+    inval[choice] & @errors
   end
 
   def to_s

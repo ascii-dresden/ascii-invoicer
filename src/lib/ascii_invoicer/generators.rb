@@ -176,8 +176,10 @@ module Generators
   end
 
   def generate_invoice_longnumber full_data
-    year = full_data[:invoice][:date].year
-    full_data[:invoice][:number].gsub /^R/, "R#{year}-" if full_data[:invoice][:number]
+    if full_data[:invoice][:date]
+      year = full_data[:invoice][:date].year
+      full_data[:invoice][:number].gsub /^R/, "R#{year}-" if full_data[:invoice][:number]
+    end
   end
 
 end
