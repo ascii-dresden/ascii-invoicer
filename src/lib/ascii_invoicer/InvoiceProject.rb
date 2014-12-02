@@ -49,6 +49,7 @@ class InvoiceProject < LuigiProject
     :offer_number,
     :offer_costs,    :offer_taxes,   :offer_total,   :offer_final,
     :invoice_costs,  :invoice_taxes, :invoice_total, :invoice_final,
+    :invoice_paydelay,
     :invoice_longnumber,
     :event_calendaritems,
     :productsbytax,
@@ -231,7 +232,7 @@ class InvoiceProject < LuigiProject
     inval = {} # invalidators
     inval[ :offer   ] = [:offer_number, :event_dates, :products, :manager, :cateres]
     inval[ :invoice ] = inval[:offer] + [:invoice_number]
-    inval[ :payed   ] = inval[:invoice] + [:invoice_date, :invoice_payed_date]
+    inval[ :payed   ] = inval[:invoice] + [:invoice_date, :invoice_payed]
     inval[ :archive ] = inval[:payed]
     inval[ :calendar] = inval[:offer]
     inval[choice] & @errors

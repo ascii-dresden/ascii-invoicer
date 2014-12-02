@@ -120,7 +120,7 @@ module Filters
 
   def filter_invoice_payed_date date
     return Date.parse date if date.class == String
-    return fail_at :invoice_payed_date
+    return fail_at :invoice_payed
   end
 
   def filter_hours_salary salary
