@@ -188,7 +188,7 @@ module AsciiMixins
     return table
   end
 
-  def display_all project, choice
+  def display_all project, choice, show_errors = true
     raise "choice must be either :invoice or :offer" unless choice == :invoice or choice == :offer
     data = project.data
 
@@ -223,7 +223,9 @@ module AsciiMixins
     }
     table.add_row   [nil,  "Final", nil, nil, "#{data[choice][:final]}"]
 
-    table.footer = "Errors: #{project.errors.length} (#{ project.errors.join ',' })" if project.errors.length >0
+    if show_errors
+      table.footer = "Errors: #{project.errors.length} (#{ project.errors.join ',' })" if project.errors.length >0
+    end
 
     return table
   end

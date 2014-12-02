@@ -425,6 +425,8 @@ class Commander < Thor
     method_option :invoice, :type=>:boolean,
       :default=> false, :lazy_default=> true, :required => false,
       :desc => "Display the invoice"
+    method_option :errors, :type=>:boolean, :aliases => '-e',
+      :lazy_default=> true, :required => false, :desc => "show errors in footer"
     method_option :products, :type=>:boolean,
       :default=> false, :lazy_default=> true, :required => false,
       :desc => "Display only the products for the --offer or --invoice"
@@ -487,8 +489,8 @@ class Commander < Thor
           puts display_products(project, :offer  )
           puts display_products(project, :invoice) if options[:invoice]
         else
-          puts display_all(project, :offer  )      if options[:offer  ] 
-          puts display_all(project, :invoice)      if options[:invoice] or fallback
+          puts display_all(project, :offer  , options[:errors]) if options[:offer  ] 
+          puts display_all(project, :invoice, options[:errors]) if options[:invoice] or fallback
         end
         if options[:cal]
           project.data[:event][:calendaritems].each{|cal|
