@@ -1,5 +1,6 @@
 # encoding: utf-8
 require 'yaml'
+require 'csv'
 require 'date'
 require 'euro'
 libpath = File.dirname __FILE__
@@ -294,6 +295,10 @@ class InvoiceProduct
 
     @valid = true
     calculate() unless hash.nil?
+  end
+
+  def to_csv *args
+    [@name, @price, @amount, @sold, @tax_value].to_csv(*args)
   end
 
   def to_s

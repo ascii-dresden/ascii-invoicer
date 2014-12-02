@@ -88,8 +88,12 @@ The projects directory contains working, archive and templates. If you start wit
 
 ## Pro tips
 
-Check out `repl ascii`.
+1. Check out `repl ascii`!
 You should copy [repl-file](src/repl/ascii) into ~/.repl/ascii and install rlwrap to take advantage of all the repl goodness such as autocompletion and history.
+
+2. Check out `xclip`!
+You can pipe the output of `ascii show` or `ascii show --csv` to xclip and paste to your email program or into a spreadsheet tool like libreoffice calc.
+
 
 ## Known Issues
 

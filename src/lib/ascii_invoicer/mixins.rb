@@ -230,6 +230,11 @@ module AsciiMixins
     return table
   end
 
+  def display_products_csv project
+    puts [['name', 'price', 'amount', 'sold', 'tax_value'].to_csv(col_sep:?;)]+
+    project.data[:products].map{|p| p.to_csv(col_sep:?;)}
+  end
+
   def check_project(path)
     project = InvoiceProject.new $SETTINGS
     project.open path

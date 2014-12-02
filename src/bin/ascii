@@ -425,6 +425,8 @@ class Commander < Thor
     method_option :invoice, :type=>:boolean,
       :default=> false, :lazy_default=> true, :required => false,
       :desc => "Display the invoice"
+    method_option :csv, :type=>:boolean, :aliases => '-c',
+      :lazy_default=> true, :required => false, :desc => "show as csv"
     method_option :errors, :type=>:boolean, :aliases => '-e',
       :lazy_default=> true, :required => false, :desc => "show errors in footer"
     method_option :products, :type=>:boolean,
@@ -468,6 +470,8 @@ class Commander < Thor
         end
       elsif options[:name]
         puts project.name
+      elsif options[:csv]
+        display_products_csv project
       elsif options[:raw]
         raw = project.raw_data
         raw.delete "cataloge"
