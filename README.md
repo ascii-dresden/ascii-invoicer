@@ -1,6 +1,6 @@
 # ascii invoicer
 
-## introduction
+## Introduction
 
 The ascii-invoicer is a command-line tool that manages projects and stores them not in a database but in a folder structure. New projects can be created from templates and are stored in a working directory. Projects can be archived, each year will have its own archive. A project consists of a folder containing a yaml file describing it and a number of attached files, such tex files. Projects can contain products and personal. You can create preliminary offers and invoices from your projects.
 
@@ -86,16 +86,17 @@ The projects directory contains working, archive and templates. If you start wit
 * settings: config
 * log: history
 
+## Pro tips
+
+Check out `repl ascii`.
+You should copy [repl-file](src/repl/ascii) into ~/.repl/ascii and install rlwrap to take advantage of all the repl goodness such as autocompletion and history.
+
 ## Known Issues
 
 Some strings may cause problems when rendering latex, e.g.
 a client called `"ABC GmbH & Co. KG"`.
 The `"&"` causes latex to fail, `\&"` bugs the yaml parser but `"\\&"` will do the trick.
 
-## Pro tips
-
-Check out `repl ascii`.
-You should copy [repl-file](src/repl/ascii) into ~/.repl/ascii and install rlwrap to take advantage of all the repl goodness such as autocompletion and history.
 
 # Building
 
