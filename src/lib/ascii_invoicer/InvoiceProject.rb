@@ -40,6 +40,7 @@ class InvoiceProject < LuigiProject
 
   # keys that are not originally in the file will be generated
   @@generated_keys=[
+    :client_fullname,
     :client_addressing,
     :hours_time,
     :hours_total,

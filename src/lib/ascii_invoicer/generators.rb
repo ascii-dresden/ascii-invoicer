@@ -19,6 +19,12 @@ module Generators
     sum
   end
 
+  def generate_client_fullname full_data
+    client = full_data[:client]
+    return fail_at :client_fullname unless client[:first_name] and client[:last_name]
+    return [client[:first_name], client[:last_name]].join ' '
+  end
+
   def generate_client_addressing full_data
     return fail_at(:client_addressing) unless full_data[:client]
     return fail_at(:client_title) unless full_data[:client][:title]
