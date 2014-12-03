@@ -53,6 +53,17 @@ Personal advice N°1: use `git pull --rebase`
 Personal advice N°2: add this to your .bash_aliases:
 `alias agit="git --git-dir=$(ascii path)/.git --work-tree=$(ascii path)"`
 
+### More Details
+
+The commands `ascii list` and `ascii display` (equals `ascii show`) allow to display all sorts of details from a project.
+You can define sort of path through the document structure to the key you want to be displayed.
+`ascii show -d client/email` will display the clients email.
+`ascii show -d invoice/date` will display the date of the invoice.
+
+`ascii list --details` will add columns to the table.
+For example try `ascii list --details client/fullname client/email`
+
+
 ### Exporting
 
 ```bash
