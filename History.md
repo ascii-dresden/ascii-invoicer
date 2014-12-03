@@ -1,4 +1,22 @@
 
+2.5.2 / 2014-12-03
+==================
+
+ * added: "ascii add --template" - though I had that in 2.5.0
+ * documented new features
+ * added: validating client_fullname
+ * added: "list --details" and removed "list --final"
+ * introduced "paydelay", meaning how long it took for a catering to be payed
+ * changed: --blockers now displays archiving blockers ( more strict )
+ * simplified: validation
+ * changed: not showing service in "ascii show" there has been none
+ * added: filestructure example to readme
+ * prettier readme
+ * added: show --csv ( check out the README )
+ * updated readme
+ * added: ascii display does not display errors by default, use -e for that
+ * added a note on how to "build" it
+
 2.5.1 / 2014-11-28
 ==================
 
