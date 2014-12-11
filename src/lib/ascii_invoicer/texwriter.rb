@@ -7,10 +7,10 @@ module TexWriter
   def create_tex type, stdout = true
     document_template = load_template :document
     document_type     = type
-    return fail_at :templates unless document_template
 
-    unless validate(type)
-      @logger.error "Cannot create an \"#{type.to_s}\" from #{@data[:name]}. (#{blockers(type).join ','})"
+    unless document_template
+      @logger.error "Template Error!"
+      exit
     end
 
     #check output path first

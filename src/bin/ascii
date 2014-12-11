@@ -120,9 +120,15 @@ class Commander < Thor
       end
     end
 
-    def render_projects(projects, type, stdout = false)
-      puts "% RENDERING"
-      projects.each{|project| project.create_tex(type, stdout) unless project.nil? }
+    def render_projects(projects, type, options)
+      projects.each{|project|
+        if project.validate type or options[:force]
+          puts "% RENDERING"
+          project.create_tex(type, options[:stdout]) unless project.nil?
+        else
+          $logger.error "Cannot create an #{type.to_s} from \"#{project.name}\". No valid #{type}: #{project.blockers(type).join ','})"
+        end
+      }
     end
   }
 
@@ -352,9 +358,9 @@ class Commander < Thor
     projects.each{|project|
       unless project.validate(:calendar)
         valid = false
-        puts "error in event/date in \"#{project.name}\""
-
+        $logger.error "error in event/date in \"#{project.name}\""
       end
+
     }
     unless valid
       $logger.error "Can't create Calendar."
@@ -532,9 +538,12 @@ class Commander < Thor
       :lazy_default=> true,
       :required => false,
       :desc => "print tex to stdout"
+    method_option :force,:type=>:boolean,
+      :lazy_default=> true, :required => false,
+      :desc => "Ignore validator."
   def offer(*names)
     projects = open_projects names, options
-    render_projects projects, :offer, options[:stdout]
+    render_projects projects, :offer, options
   end
 
   desc "invoice NAMES", "Create an invoice from project"
@@ -549,9 +558,12 @@ class Commander < Thor
       :lazy_default=> true,
       :required => false,
       :desc => "print tex to stdout"
+    method_option :force,:type=>:boolean,
+      :lazy_default=> true, :required => false,
+      :desc => "Ignore validator."
   def invoice( *names)
     projects = open_projects names, options
-    render_projects projects, :invoice, options[:stdout]
+    render_projects projects, :invoice, options
   end
 
 
