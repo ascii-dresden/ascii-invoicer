@@ -346,6 +346,16 @@ class Commander < Thor
     invoke :list, [], csv:true, all:true, sort:"index", filter:{"event/date"=>Date.today.year.to_s}# where is this documented
   end
 
+  desc "search QUERY", "Search everything, only one query currently"
+  def search *queries
+    queries.map!{|query|
+      path, term = query.split ?:
+      {path => term}
+    }
+    puts "#{queries[0].keys[0]}: #{queries[0].values[0]}"
+    invoke :list, [], all:true, filter:queries[0]#, details:queries[0].keys
+  end
+
   desc "whoami", "Invoke settings --show manager_name"
   def whoami
     invoke :settings, [], show:"manager_name"
@@ -368,7 +378,6 @@ class Commander < Thor
     end
     create_cal_file $PLUMBER.open_projects_all()
   end
-
 
 
 
