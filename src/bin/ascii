@@ -587,9 +587,15 @@ class Commander < Thor
 
 
   desc "add NAMES", "Git Integration"
-  method_option :template,
-    :type=>:string, :aliases => "-t", :default => nil,
-    :required => false, :desc => "Adds a template file"
+    method_option :template,
+      :type=>:string, :aliases => "-t", :default => nil,
+      :required => false, :desc => "Adds a template file"
+    method_option :archive,
+      :type=>:numeric, :aliases => "-a",
+      :default => nil,
+      :lazy_default=> Date.today.year,
+      :required => false,
+      :desc => "Add File from archive YEAR"
 
   def add *names
     if options[:template]
