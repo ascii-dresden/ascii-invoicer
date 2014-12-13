@@ -137,7 +137,7 @@ module AsciiMixins
   
   def caterers_string project, join = ", "
       data = project.data
-      data[:hours][:caterers].map{|name, hours|"#{name} (#{hours})"}.join join if data[:hours][:caterers]
+      data[:hours][:caterers].map{|name, hours| "#{name} (#{hours})" if hours > 0 }.join join if data[:hours][:caterers]
   end
 
   #takes an array of invoices (@plumber.working_projects)
