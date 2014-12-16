@@ -21,6 +21,8 @@ module Generators
 
   def generate_client_fullname full_data
     client = full_data[:client]
+    fail_at :client_first_name unless client[:first_name] 
+    fail_at :client_last_name unless client[:last_name]
     return fail_at :client_fullname unless client[:first_name] and client[:last_name]
     return [client[:first_name], client[:last_name]].join ' '
   end
