@@ -1,3 +1,11 @@
+2.5.3 / 2014-12-18
+==================
+
+  * changed: client name is now required, invoice_date must be set manually
+  * fixed: ascii add lacked the --archive option
+  * changed: caterers that worked 0h are no longer listed
+  * started: $ascii search, works remarkably well for 8 lines of code
+  * fixed: correctly refusing to produce invoice if invalid
 
 2.5.2 / 2014-12-03
 ==================
