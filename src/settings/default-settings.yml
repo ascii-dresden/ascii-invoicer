@@ -53,7 +53,7 @@ defaults:
         - ""
       invoice: 
         - Rechnung
-        - "wir bedanken uns für Ihren Auftrag für das Catering am <%= @data[:event][:prettydate] %> und erlauben uns ihnen folgende Rechnung zu stellen:"
+        - "wir bedanken uns für Ihren Auftrag für das Catering am <%= @data[:event][:prettydate] %> und erlauben uns Ihnen folgende Rechnung zu stellen:"
         - "Wir bitten um eine Begleichung des Betrags innerhalb von 14 Tagen nach Erhalt der Rechnung."
       signature: Mit freundlichen Grüßen
 
