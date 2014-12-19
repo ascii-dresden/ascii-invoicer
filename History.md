@@ -1,3 +1,8 @@
+
+2.5.4 / 2014-12-19
+==================
+ * spelling fix in default settings (German, such a complicated language)
+
 2.5.3 / 2014-12-18
 ==================
 
