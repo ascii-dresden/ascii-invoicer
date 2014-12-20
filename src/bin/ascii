@@ -82,6 +82,7 @@ class Commander < Thor
   map "-i"    => :invoice
   map "-o"    => :offer
   map "-V"    => :version
+  map "--version"    => :version
   map "config" => :settings
   map "history" => :log
   #map "-e"  => :edit #depricated

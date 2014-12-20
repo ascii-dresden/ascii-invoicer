@@ -50,6 +50,7 @@ class InvoiceProject < LuigiProject
     :offer_number,
     :offer_costs,    :offer_taxes,   :offer_total,   :offer_final,
     :invoice_costs,  :invoice_taxes, :invoice_total, :invoice_final,
+    :invoice_delay,
     :invoice_paydelay,
     :invoice_longnumber,
     :event_calendaritems,

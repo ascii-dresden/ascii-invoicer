@@ -183,6 +183,12 @@ module Generators
     full_data[:invoice][:total] + full_data[:hours][:total]
   end
 
+  def generate_invoice_delay full_data
+    return 0 if full_data[:canceled]
+    return -(full_data[:event][:date] - full_data[:invoice][:date] if full_data[:invoice][:date]).to_i
+    return -(full_data[:event][:date] - Date.today).to_i
+  end
+
   def generate_invoice_paydelay full_data
     if full_data[:invoice][:payed_date] and full_data[:invoice][:date]
       delay = full_data[:invoice][:payed_date] - full_data[:invoice][:date]
