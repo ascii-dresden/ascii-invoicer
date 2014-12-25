@@ -1,16 +1,14 @@
-# encoding: utf-8
 require 'yaml'
 require 'csv'
 require 'date'
 require 'euro'
-libpath = File.dirname __FILE__
 
-require File.join libpath, 'hash_transformer.rb'
-require File.join libpath, 'projectFileReader.rb'
-require File.join libpath, 'rfc5322_regex.rb'
-require File.join libpath, 'texwriter.rb'
-require File.join libpath, 'filters.rb'
-require File.join libpath, 'generators.rb'
+require File.join __dir__, 'hash_transformer.rb'
+require File.join __dir__, 'projectFileReader.rb'
+require File.join __dir__, 'rfc5322_regex.rb'
+require File.join __dir__, 'texwriter.rb'
+require File.join __dir__, 'filters.rb'
+require File.join __dir__, 'generators.rb'
 
 ## TODO requirements and validity
 ## TODO open, YAML::parse, [transform, ] read_all, generate, validate
@@ -30,31 +28,31 @@ class InvoiceProject < LuigiProject
   include ProjectFileReader
 
   # keys that are in the original file and that will be filtered
-  @@filtered_keys= [
-    :format,    :lang,      :created,
-    :client,    :event,     :manager,
-    :offer,     :invoice,   :canceled,
-    :messages,  :products,  :hours,
-    :includes
+  @@filtered_keys=%i[
+    format    lang      created
+    client    event     manager
+    offer     invoice   canceled
+    messages  products  hours
+    includes
   ]
 
   # keys that are not originally in the file will be generated
-  @@generated_keys=[
-    :client_fullname,
-    :client_addressing,
-    :hours_time,
-    :hours_total,
-    :event_date,
-    :event_prettydate,
-    :caterers,
-    :offer_number,
-    :offer_costs,    :offer_taxes,   :offer_total,   :offer_final,
-    :invoice_costs,  :invoice_taxes, :invoice_total, :invoice_final,
-    :invoice_delay,
-    :invoice_paydelay,
-    :invoice_longnumber,
-    :event_calendaritems,
-    :productsbytax,
+  @@generated_keys=%i[
+    client_fullname
+    client_addressing
+    hours_time
+    hours_total
+    event_date
+    event_prettydate
+    caterers
+    offer_number
+    offer_costs    offer_taxes   offer_total   offer_final
+    invoice_costs  invoice_taxes invoice_total invoice_final
+    invoice_delay
+    invoice_paydelay
+    invoice_longnumber
+    event_calendaritems
+    productsbytax
   ]
 
   #def initialize(project_path = nil, template_path = nil, settings = $settings, name = nil)

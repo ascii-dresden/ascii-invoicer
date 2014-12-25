@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 module Generators
   def generate_hours_total full_data
     hours = full_data[:hours]

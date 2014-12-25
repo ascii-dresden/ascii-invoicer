@@ -1,8 +1,6 @@
-# encoding: utf-8
-
 require 'paint'
 
-require File.join File.dirname(__FILE__) + '/tweaks.rb'
+require File.join __dir__, 'tweaks.rb'
 
 
 module ProjectFileReader

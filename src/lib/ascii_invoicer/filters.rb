@@ -1,6 +1,5 @@
-# encoding: utf-8
 require 'date'
-#require File.join File.dirname(__FILE__) + '/rfc5322_regex.rb'
+#require File.join __dir__ + '/rfc5322_regex.rb'
 
 module Filters
 

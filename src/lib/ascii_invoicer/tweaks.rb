@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 $FB = "foobar"
 class TrueClass
   def print(symbol=?✓)

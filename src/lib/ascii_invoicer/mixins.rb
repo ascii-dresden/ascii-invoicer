@@ -1,7 +1,5 @@
-# encoding: utf-8
 require 'icalendar'
 require 'fileutils'
-libpath = File.dirname __FILE__
 
 module AsciiMixins
 
