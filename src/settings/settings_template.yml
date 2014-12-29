@@ -3,6 +3,7 @@
 #verbose:  false
 #editor:   "vim -O"
 #colors:   false
+#list_sort: date # index, name
 
 #path: "~" #/where/you/want/to/put/the/dirs
 #output_path: "."

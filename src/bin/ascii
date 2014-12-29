@@ -283,6 +283,8 @@ class Commander < Thor
 
     if not options[:sort].nil? and [:date, :name, :index].include? options[:sort].to_sym
       sort = options[:sort].to_sym
+    elsif $SETTINGS.list_sort?
+      sort = $SETTINGS.list_sort.to_sym
     else
       sort = :date
     end

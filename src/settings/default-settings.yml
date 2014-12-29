@@ -3,6 +3,7 @@ manager_name: "The Unnamed Manager"
 verbose:  false
 editor:   "vim -O"
 colors:   false
+list_sort: date
 
 path: "~"
 output_path: "."
