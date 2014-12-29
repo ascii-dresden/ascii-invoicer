@@ -29,7 +29,7 @@ module TexWriter
     result   = ERB.new(template).result(binding)
 
     output_path = File.join @project_folder, filename
- 
+
     puts result                       if  stdout
     write_to_file result, output_path if !stdout
     render_tex output_path, filename  if !stdout
@@ -50,7 +50,7 @@ module TexWriter
 
   def render_tex path, filename
     @logger.info "Rendering #{path} with #{$SETTINGS.latex}"
-    silencer = $SETTINGS.verbose ? "" : "> /dev/null" 
+    silencer = $SETTINGS.verbose ? "" : "> /dev/null"
 
 ## TODO output directory is not generic
     system "#{$SETTINGS.latex} \"#{path}\" -output-directory . #{silencer}"
@@ -92,7 +92,7 @@ module TexWriter
     files.each{|file|
       templates[File.basename(file.split(?.)[0]).to_sym] = file
     }
-    path = templates[type] 
+    path = templates[type]
     if File.exists?(path)
       return File.open(path).read
     else

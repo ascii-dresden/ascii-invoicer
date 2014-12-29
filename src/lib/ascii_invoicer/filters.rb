@@ -6,7 +6,7 @@ module Filters
 
   def strpdates(string,pattern = nil)
     return [Date.today] unless string.class == String
-    if pattern 
+    if pattern
       return [Date.strptime(string, pattern).to_date]
     else
       p = string.split('.')
@@ -58,7 +58,7 @@ module Filters
       if d[:end].class == String
         d[:end] = Date.parse(d[:end])
       else
-        d[:end] = d[:begin] 
+        d[:end] = d[:begin]
       end
     }
     dates
@@ -80,7 +80,7 @@ module Filters
   def filter_products products
     new_products = []
     products.each{|k,v|
-      if [String, Symbol].include?  k.class 
+      if [String, Symbol].include?  k.class
         v[:name] = k
         new_products.push InvoiceProduct.new v , @settings
       elsif k.class == Hash

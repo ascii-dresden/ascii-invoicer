@@ -133,7 +133,7 @@ class Commander < Thor
   }
 
 
-  desc "new NAME", "Creating a new project" 
+  desc "new NAME", "Creating a new project"
     method_option :dont_edit, :type=>:boolean, :aliases => "-d",
       :lazy_default=> true, :required => false, :desc => "do not edit a new file after creation"
     method_option :template, :type=>:string, :aliases => "-t",
@@ -146,7 +146,7 @@ class Commander < Thor
       $logger.fatal "There is not such template \"#{template}\" "
       exit
     end
-    
+
     project = $PLUMBER.new_project name, template
     if project
       puts project.path
@@ -227,7 +227,7 @@ class Commander < Thor
       :lazy_default=> true, :required => false, :desc => "list paths to .yml files"
 
 
-    method_option :csv, :type=>:boolean, 
+    method_option :csv, :type=>:boolean,
       :lazy_default=> true, :required => false, :desc => "output as csv"
     method_option :sort, :type=>:string,
       :required => false, :desc => "sort by [date | index | name | manager]",
@@ -272,7 +272,7 @@ class Commander < Thor
     hash[:caterers] = options[:caterers]
     hash[:details]  = options[:details]
 
-    if options[:paths] 
+    if options[:paths]
       map = $PLUMBER.map_project_files_working()
       map = $PLUMBER.map_project_files_archive(options[:archive]) if options[:archive]
       table = Textboxes.new
@@ -307,10 +307,10 @@ class Commander < Thor
       projects = $PLUMBER.filter_by projects, options[:filter]
     end
 
-    if options[:csv] 
+    if options[:csv]
       projects = $PLUMBER.sort_projects(projects, :index)
       print_project_list_csv projects
-    elsif options[:yaml] 
+    elsif options[:yaml]
       print_project_list_yaml projects
     else
       print_project_list(projects, hash)
@@ -517,7 +517,7 @@ class Commander < Thor
           puts display_products(project, :offer  )
           puts display_products(project, :invoice) if options[:invoice]
         else
-          puts display_all(project, :offer  , options[:errors]) if options[:offer  ] 
+          puts display_all(project, :offer  , options[:errors]) if options[:offer  ]
           puts display_all(project, :invoice, options[:errors]) if options[:invoice] or fallback
         end
         if options[:cal]
@@ -622,7 +622,7 @@ class Commander < Thor
       :type=>:string, :aliases => "-m", :default => nil,
       :lazy_default=> Date.today.year, :required => true,
       :desc => "Open File from archive YEAR"
-  def commit 
+  def commit
     $PLUMBER.git_commit(options[:message]) if $PLUMBER.open_git()
   end
 
@@ -640,10 +640,10 @@ class Commander < Thor
     method_option :count,
       :type=>:numeric, :aliases => "-c",
       :default => 30,
-      :lazy_default=> 1000, 
+      :lazy_default=> 1000,
       :required => false,
       :desc => "Max count of history entries"
-  def log 
+  def log
     $PLUMBER.git_log(options[:count]) if $PLUMBER.open_git()
   end
 

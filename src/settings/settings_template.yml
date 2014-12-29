@@ -19,11 +19,11 @@
 #  canceled: false
 #  messages:
 #    de:
-#      invoice: 
+#      invoice:
 #        - Rechnung
 #        - "wir bedanken uns für Ihren Auftrag für das Catering am <%= @data[:raw_date] %> und erlauben uns ihnen folgende Rechnung zu stellen:"
 #        - "Wir bitten um eine Begleichung des Betrags innerhalb von 14 Tagen nach Erhalt der Rechnung."
-#      offer: 
+#      offer:
 #        - Angebot
 #        - "hiermit möchten wir Ihnen für die gastronomische Betreuung Ihrer Veranstaltung am <%= @data[:raw_date] %> folgendes Angebot unterbreiten:"
 #        - ""
