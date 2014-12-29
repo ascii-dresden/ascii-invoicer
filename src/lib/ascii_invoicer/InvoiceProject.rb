@@ -165,8 +165,8 @@ class InvoiceProject < LuigiProject
 
   # returns index for sorting (year+invoicenumber)
   def index
-    return date.year.to_s + @data[:invoice][:number] if @data[:invoice][:number]
-    return date.year.to_s + "Zzz"
+    return @data[:invoice][:number] + date.strftime('%Y%m%d') if @data[:invoice][:number]
+    return "zzz" + date.strftime('%Y%m%d')
   end
 
   ## currently only from 1.0.0 to 2.4.0 Format
@@ -285,7 +285,7 @@ class InvoiceProduct
     @price     = hash[:price]
     @unit      = hash[:unit]
     @amount    = hash[:amount]
-    @settings  = settings 
+    @settings  = settings
     if hash[:tax]
       @tax_value = hash[:tax]
     else
