@@ -43,6 +43,7 @@ class InvoiceProject < LuigiProject
     hours_time
     hours_total
     event_date
+    event_age
     event_prettydate
     caterers
     offer_number

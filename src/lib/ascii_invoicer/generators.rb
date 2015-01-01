@@ -111,6 +111,9 @@ module Generators
     return taxlist
   end
 
+  def generate_event_age full_data
+    (Date.today - full_data[:event][:date]).to_i
+  end
 
   def sum_money key
     sum = 0.to_euro
