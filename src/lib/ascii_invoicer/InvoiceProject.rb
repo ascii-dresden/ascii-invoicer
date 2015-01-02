@@ -231,7 +231,7 @@ class InvoiceProject < LuigiProject
 
   def blockers choice = :invoice
     inval = {} # invalidators
-    inval[ :minimal ] = [:client_fullname,:caterers, :manager, :products, :event_dates]
+    inval[ :minimal ] = [:client_last_name, :caterers, :manager, :products, :event_dates]
     inval[ :offer   ] = [:offer_number ] + inval[:minimal]
     inval[ :invoice ] = inval[:offer]    + [:invoice_number, :invoice_date]
     inval[ :payed   ] = inval[:invoice]  + [:invoice_payed]
