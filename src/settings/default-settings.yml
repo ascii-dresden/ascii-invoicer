@@ -61,6 +61,56 @@ defaults:
 
 currency_symbol: €
 
+list_sort: date
+listing:
+  # states: cool, warm, hot, today, due, overdue, done
+  # incomplete -> [overdue] -> erroneous|done|canceled
+  states:
+    overdue:    14
+    cool:       -.inf
+    warm:       -14
+    hot:        -7
+    due:        1
+    canceled:   #leave empty!
+    erroneous:  #leave empty!
+    done:       #leave empty!
+  colors:
+    done:       white
+    erroneous:  red
+    canceled:   gray
+    overdue:    cyan
+    due:        bright, white
+    today:      red
+    hot:        yellow, bright
+    warm:       yellow
+    cool:       green
+
+validations:
+  minimal: &minimal
+    - :format_100:
+      - client_last_name
+    - format_240:
+      - client_full_name
+    - caterers
+    - manager
+    - products
+    - event_dates
+  offer: &offer
+    - :minimal
+    - offer_number
+  invoice: &invoice
+    - :offer
+    - invoice_number
+    - invoice_date
+  payed: &payed
+    - :invoice
+    - invoice_payed
+  archive:
+    - :payed
+  calendar:
+    - :offer
+
+
 gender_matches:
   herr: male
   frau: female
