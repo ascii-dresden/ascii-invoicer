@@ -37,8 +37,7 @@ module Generators
   end
 
   def generate_caterers full_data
-    caterers = []
-    full_data[:hours][:caterers].each{|name, time| caterers.push name} if full_data[:hours][:caterers]
+    caterers = full_data[:hours][:caterers].map{|name, time| name} unless full_data[:hours][:caterers].nil?
     return caterers
   end
 
@@ -113,6 +112,15 @@ module Generators
 
   def generate_event_age full_data
     (Date.today - full_data[:event][:date]).to_i
+  end
+
+  def generate_state full_data
+    age = generate_event_age full_data
+    state = nil
+    $SETTINGS.listing.states.each{|k,v|
+      state = k if not v.nil? and v < age
+    }
+    return state
   end
 
   def sum_money key
