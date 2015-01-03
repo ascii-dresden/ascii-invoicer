@@ -14,15 +14,14 @@ module AsciiMixins
     end
   end
 
-  ##TODO turn color_from_date(date) into a loopuk into $SETTINGS
-  def color_from_date(date)
-    diff = date - Date.today
-    return (rand * 256**3).to_i.to_s(16) if Date.today.day == 1 and Date.today.month == 4 #april fools
-    return :magenta                      if diff < -28
-    return :cyan                         if diff < 0
+  def color_from_date(age)
+    diff = age
+    return (rand * 256**3).to_i.to_s(16) if (Date.today.day == 1 and Date.today.month == 4) #april fools
+    return :magenta                      if diff > 28
+    return :cyan                         if diff > 0
     return [:yellow,:bright]             if diff == 0
-    return :red                          if diff < 7
-    return :yellow                       if diff < 14
+    return :red                          if diff > -7
+    return :yellow                       if diff > -14
     return [:green]
   end
 
@@ -35,7 +34,7 @@ module AsciiMixins
     projects.each_index do |i|
       project  = projects[i]
       if !hash[:colors].nil? and hash[:colors]
-        color = color_from_date(project.date)
+        color = color_from_date(project.data[:event][:age])
         color = :default if project.validate(:invoice)
         color = [:blue] if project.status == :canceled
       end
@@ -63,7 +62,7 @@ module AsciiMixins
     puts table
   end
 
-  def print_row_simple(project,hash) 
+  def print_row_simple(project,hash)
     row = [
       project.pretty_name,
       project.data[:manager],
