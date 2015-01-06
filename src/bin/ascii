@@ -344,8 +344,11 @@ class Commander < Thor
   end
 
   desc "csv", "Equal to: ascii list --all --csv --sort=index --filter event/date:#{Date.today.year}"
+    method_option :year,
+      :type=>:numeric, :aliases => "-y",
+      :default=> Date.today.year, :required => false, :desc => "Year to export"
   def csv
-    invoke :list, [], csv:true, all:true, sort:"index", filter:{"event/date"=>Date.today.year.to_s}# where is this documented
+    invoke :list, [], csv:true, all:true, sort:"index", filter:{"event/date"=>options[:year].to_s}# where is this documented
   end
 
   desc "search QUERY", "Search everything, only one query currently"
@@ -698,6 +701,11 @@ class Commander < Thor
     else
       puts File.join $SETTINGS.path, $SETTINGS.dirs.storage
     end
+  end
+
+  desc "output", "Equal to: ascii path --output"
+  def output
+    invoke :path, [], output:true
   end
 
   desc "version", "Display version"
