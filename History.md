@@ -1,4 +1,15 @@
 
+2.5.5 / 2015-01-23
+==================
+
+  * added: "ascii csv --year" and "ascii output", which equals "ascii path --output"
+  * added: event/age
+  * added: invoice/delay telling you how long it took to create an invoice
+  * added: sorting can now be set in ~/.ascii-invoicer.yml
+  * changed: default sort order is now :index
+  * fixed: requiring only last_name, not full name for minimal
+  * fixed: sorting by index still sorts correctly by date tooo
+
 2.5.4 / 2014-12-19
 ==================
  * spelling fix in default settings (German, such a complicated language)
