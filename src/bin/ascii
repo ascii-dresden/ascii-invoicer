@@ -73,6 +73,7 @@ class Commander < Thor
   #argument :first, :type => :numeric
   map "-l"    => :list
   map "l"     => :list
+  map "o"     => :offer
   map "ls"    => :list
   map "dir"   => :list
   map "show"  => :display

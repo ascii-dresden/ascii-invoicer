@@ -66,9 +66,9 @@ module AsciiMixins
   def print_row_simple(project,hash) 
     row = [
       project.pretty_name,
-      project.data[:manager], 
-      project.data[:event][:invoice_number], 
-      project.data[:event][:date].strftime("%d.%m.%Y"), 
+      project.data[:manager],
+      project.data[:event][:invoice_number],
+      project.data[:event][:date].strftime("%d.%m.%Y"),
       #project.index
     ]
     return row
