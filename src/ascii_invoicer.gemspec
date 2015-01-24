@@ -8,8 +8,12 @@ Gem::Specification.new do |s|
   s.authors     = ["Hendrik Sollich"]
   s.email       = "hendrik@hoodie.de"
   s.homepage    = "https://github.com/ascii-dresden/ascii-invoicer"
-  s.summary     = "ascii-invoicer "
-  s.description = "ascii invoice tool"
+  s.summary     = "ascii-invoicer"
+  s.description = "
+  A commandline project management tool.
+  It manages future and past projects, can create invoice documents, csv and ical overviews.
+  All from the commandline, syncs via git.
+  "
   s.required_ruby_version     = '>= 2.1'
   s.files =
     Dir.glob('lib/*') +
