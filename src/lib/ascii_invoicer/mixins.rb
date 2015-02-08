@@ -249,6 +249,18 @@ module AsciiMixins
     end
   end
 
+  ## hand path to default programm
+  def open_file path
+    unless path.class == String and File.exists? path
+      $logger.error "Cannot open #{path}", :both 
+      return false
+    end
+    opener = $SETTINGS.opener
+    $logger.info "Opening #{path} in #{opener}"
+    pid = spawn "#{opener} \"#{path}\""
+    Process.wait pid
+  end
+
   ## hand path to editor
   def edit_files(paths, editor = $SETTINGS.editor)
     paths = [paths] if paths.class == String

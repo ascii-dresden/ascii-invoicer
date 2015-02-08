@@ -212,6 +212,30 @@ class Commander < Thor
   end
 
 
+  desc "open NAMES", "Open created documents"
+    method_option :archive,
+      :type=>:numeric, :aliases => "-a", :default => nil,
+      :lazy_default=> Date.today.year, :required => false, :desc => "Open File from archive YEAR"
+    method_option :offer, :type=>:boolean, :aliases => "-o",
+      :default=> false, :lazy_default=> true, :required => false,
+      :desc => "Open the offer, otherwise defaults to invoice"
+
+  def open *names
+    choice = :invoice
+    choice = :offer if options[:offer]
+
+    projects = open_projects names, options
+    projects.each{|p|
+      path = p.output_files[choice]
+      unless File.exists? path
+        $logger.error "File does not exist: #{path}."
+        return false
+      else
+        open_file path
+      end
+    }
+  end
+
 
   desc "list", "List current Projects"
     method_option :archive,
@@ -411,8 +435,8 @@ class Commander < Thor
     end
   end
 
-  desc "reopen YEAR NAME", "reopen an archived project"
-  def reopen(year, name)
+  desc "unarchive YEAR NAME", "reopen an archived project"
+  def unarchive(year, name)
     projects = $PLUMBER.open_projects_archive year
     project = projects.lookup_by_name name
     if project.count > 1

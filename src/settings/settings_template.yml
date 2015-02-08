@@ -1,9 +1,10 @@
 ---
-#manager_name: "The Unnamed Manager"
+manager_name: "The Unnamed Manager"
 #verbose:  false
 #editor:   "vim -O"
+#opener:   "xdg-open"
 #colors:   false
-#list_sort: date # index, name
+#list_sort: index # index, date, name
 
 #path: "~" #/where/you/want/to/put/the/dirs
 #output_path: "."
