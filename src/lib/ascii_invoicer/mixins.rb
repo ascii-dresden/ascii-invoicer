@@ -85,8 +85,8 @@ module AsciiMixins
       project.data[:manager],
       project.data[:invoice][:number],
       project.date.strftime("%d.%m.%Y"),
-      project.validate(:offer).print,
-      project.validate(:invoice).print,
+      project.state_sign(:offer),
+      project.state_sign(:invoice),
       project.validate(:payed).print($SETTINGS.currency_symbol),
       # try these: ☑☒✉☕☀☻
     ]
@@ -98,8 +98,8 @@ module AsciiMixins
     projects.each_index do |i|
       p  = projects[i]
       table.add_row [
-        (i+1).to_s+".", 
-        p.name.ljust(35), 
+        (i+1).to_s+".",
+        p.name.ljust(35),
         p.data[:project_path]
       ]
     end
@@ -132,7 +132,7 @@ module AsciiMixins
       puts "...\n\n"
     end
   end
-  
+
   def caterers_string project, join = ", "
       data = project.data
       data[:hours][:caterers].map{|name, hours| "#{name} (#{hours})" if hours > 0 }.join join if data[:hours][:caterers]

@@ -272,6 +272,28 @@ class InvoiceProject < LuigiProject
       return false
     end
   end
+
+  def output_files
+    output_path = File.expand_path File.join @settings.output_path
+    {
+      :offer => File.join(output_path, export_filename(:offer, 'pdf')),
+      :invoice => File.join(output_path, export_filename(:invoice, 'pdf'))
+    }
+  end
+
+  def state_sign choice
+    if validate(choice)
+      if File.exists? output_files[choice]
+        return Paint[?✓,:green, :bright]
+      else
+        return Paint[?✓,:green]
+      end
+    else
+      return Paint[?✗,:red]
+    end
+  end
+
+
 end
 
 class InvoiceProduct

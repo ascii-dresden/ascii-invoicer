@@ -1,3 +1,3 @@
 module AsciiInvoicer
-  VERSION = '2.5.5'
+  VERSION = '2.5.6.dev'
 end
