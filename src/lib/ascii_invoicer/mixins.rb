@@ -45,7 +45,7 @@ module AsciiMixins
         row = print_row_simple project, hash
       end
 
-      row << project.data[:hours][:caterers].keys.join(", ") if hash[:caterers] and project.data[:hours][:caterers]
+      row << caterers_string(project) if hash[:caterers] and project.data[:hours][:caterers]
 
       row << project.blockers(:archive)      if hash[:blockers]
       if hash[:details]

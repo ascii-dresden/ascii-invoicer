@@ -1,4 +1,9 @@
 
+2.5.7 / 2015-02-19
+==================
+
+  * changed: more verbose caterers display in "ascii list"
+
 2.5.6 / 2015-02-19
 ==================
 
