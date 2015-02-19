@@ -1,4 +1,11 @@
 
+2.5.6 / 2015-02-19
+==================
+
+  * changed: pointing to log file for parser errors
+  * added: "ascii open" to open output pdfs directly if they exist
+  * added: highlighting existing output files
+
 2.5.5 / 2015-01-23
 ==================
 
