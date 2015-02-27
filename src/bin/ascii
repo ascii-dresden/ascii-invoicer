@@ -398,7 +398,7 @@ class Commander < Thor
     projects.each{|project|
       unless project.validate(:calendar)
         valid = false
-        $logger.error "error in event/date in \"#{project.name}\""
+        $logger.error "\"#{project.name}\" #{project.blockers(:calendar)}"
       end
 
     }
