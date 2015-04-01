@@ -314,6 +314,12 @@ class Commander < Thor
       sort = :date
     end
 
+    if options[:final]
+      hash[:details] = [] if hash[:details].nil?
+      hash[:details] << "invoice/final"
+      puts hash
+    end
+
     if options[:all]
       projects = $PLUMBER.open_projects_all() #TODO
     elsif options[:archives]
