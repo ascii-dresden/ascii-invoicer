@@ -34,7 +34,9 @@ module AsciiMixins
     table.style[:padding_horizontal] = 1
     projects.each_index do |i|
       project  = projects[i]
-      if !hash[:colors].nil? and hash[:colors]
+      if  Date.today.day == 1 and Date.today.month == 4
+        color = color_from_date(project.date)
+      elsif !hash[:colors].nil? and hash[:colors]
         color = color_from_date(project.date)
         color = :default if project.validate(:invoice)
         color = [:blue] if project.status == :canceled
