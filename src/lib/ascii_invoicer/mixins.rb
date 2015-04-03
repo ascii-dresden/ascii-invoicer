@@ -48,6 +48,7 @@ module AsciiMixins
       end
 
       row << caterers_string(project) if hash[:caterers] and project.data[:hours][:caterers]
+      row << wages_string(project) if hash[:wages] and project.data[:hours][:caterers]
 
       row << project.blockers(:archive)      if hash[:blockers]
       if hash[:details]
@@ -138,6 +139,12 @@ module AsciiMixins
   def caterers_string project, join = ", "
       data = project.data
       data[:hours][:caterers].map{|name, hours| "#{name} (#{hours})" if hours > 0 }.join join if data[:hours][:caterers]
+  end
+
+  def wages_string project, join = ", "
+      data = project.data
+      salary = data[:hours][:salary]
+      data[:hours][:caterers].map{|name, hours| "#{name} (#{salary* hours})" if hours > 0 }.join join if data[:hours][:caterers]
   end
 
   #takes an array of invoices (@plumber.working_projects)

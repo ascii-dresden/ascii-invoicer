@@ -8,6 +8,7 @@ require 'euro'
 require 'paint'
 require 'luigi'
 require 'logger'
+require 'bundler/setup'
 require 'textboxes'
 require 'hash-graft'
 
@@ -264,6 +265,9 @@ class Commander < Thor
     method_option :caterers, :type=>:boolean,
       :lazy_default=> true, :required => false, :desc => "list caterers"
 
+    method_option :wages, :type=>:boolean,
+      :lazy_default=> true, :required => false, :desc => "list wages"
+
     method_option :blockers, :type=>:boolean, :aliases => '-b',
       :lazy_default=> true, :required => false, :desc => "list blockers"
 
@@ -292,10 +296,8 @@ class Commander < Thor
     hash            = {}
     hash[:verbose]  = (options[:verbose] and !options[:simple])
     hash[:colors]   = (options[:colors] and !options[:no_colors])
-    hash[:errors]   = options[:errors]
-    hash[:blockers] = options[:blockers]
-    hash[:caterers] = options[:caterers]
-    hash[:details]  = options[:details]
+    [ :errors, :blockers,
+      :caterers, :wages, :details ].each {|name| hash[name] = options[name]}
 
     if options[:paths]
       map = $PLUMBER.map_project_files_working()
@@ -317,7 +319,6 @@ class Commander < Thor
     if options[:final]
       hash[:details] = [] if hash[:details].nil?
       hash[:details] << "invoice/final"
-      puts hash
     end
 
     if options[:all]

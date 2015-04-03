@@ -38,7 +38,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency     'euro',        '~> 0.3'
   s.add_runtime_dependency     'hash-graft',  '~> 0.9',     '>= 0.9.0'
   s.add_runtime_dependency     'luigi',       '~> 1.1',     '>= 1.1.0'
-  s.add_runtime_dependency     'paint',       '~> 0.8',     '>= 0.8.7'
+  s.add_runtime_dependency     'paint',       '~> 1.0',     '>= 1.0.0'
   s.add_runtime_dependency     'hashr',       '~> 0.0.22',  '>= 0.0.22'
   s.add_runtime_dependency     'repl',        '~> 1.0',     '>= 1.0.0'
 
