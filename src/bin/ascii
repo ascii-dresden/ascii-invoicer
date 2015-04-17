@@ -4,7 +4,6 @@ require 'pp'
 require 'csv'
 require 'yaml'
 require 'thor'
-require 'euro'
 require 'paint'
 require 'luigi'
 require 'logger'
@@ -40,6 +39,8 @@ $SETTINGS.version = $VERSION = AsciiInvoicer::VERSION
 ## path to the project File, here we expand the "~"
 $SETTINGS.path = File.expand_path $SETTINGS.path
 
+## money
+$SETTINGS.currency_symbol = Money::Currency.new($SETTINGS.currency).symbol
 
 ## "security"
 #error "settings:editor is an elaborate string: \"#{$SETTINGS.editor}\"!\nDANGEROUS!" if $SETTINGS.editor.include? " "

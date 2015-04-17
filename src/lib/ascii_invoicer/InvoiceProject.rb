@@ -1,7 +1,7 @@
 require 'yaml'
 require 'csv'
 require 'date'
-require 'euro'
+require 'money'
 
 require File.join __dir__, 'hash_transformer.rb'
 require File.join __dir__, 'projectFileReader.rb'

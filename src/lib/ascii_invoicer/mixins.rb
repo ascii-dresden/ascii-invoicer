@@ -1,5 +1,47 @@
 require 'icalendar'
 require 'fileutils'
+require 'money'
+
+module EuroConversion
+
+  def euro
+    self.to_euro
+  end
+
+  def €
+    self.to_euro
+  end
+
+  def to_euro
+    Money.new self*100, $SETTINGS.currency
+  end
+
+end
+
+class Money
+  def to_s
+    value = self.amount
+    a,b = sprintf("%0.2f", value.to_s).split('.')
+    a.gsub!(/(\d)(?=(\d{3})+(?!\d))/, '\\1.')
+    "#{a}#{self.currency.separator}#{b}#{self.currency.symbol}"
+  end
+
+  def to_euro
+    self
+  end
+end
+
+class Fixnum
+  include EuroConversion
+end
+
+class Rational
+  include EuroConversion
+end
+
+class Float
+  include EuroConversion
+end
 
 module AsciiMixins
 
@@ -66,7 +108,7 @@ module AsciiMixins
     puts table
   end
 
-  def print_row_simple(project,hash) 
+  def print_row_simple(project,hash)
     row = [
       project.pretty_name,
       project.data[:manager],
@@ -261,7 +303,7 @@ module AsciiMixins
   ## hand path to default programm
   def open_file path
     unless path.class == String and File.exists? path
-      $logger.error "Cannot open #{path}", :both 
+      $logger.error "Cannot open #{path}", :both
       return false
     end
     opener = $SETTINGS.opener

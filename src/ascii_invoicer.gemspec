@@ -35,7 +35,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency     'thor',        '~> 0.19'
   s.add_runtime_dependency     'icalendar',   '~> 2.1',     '>= 2.1.1'
   s.add_runtime_dependency     'textboxes',   '~> 0.0',     '>= 0.0.1'
-  s.add_runtime_dependency     'euro',        '~> 0.3'
+  s.add_runtime_dependency     'money',       '~> 6.5.1'
   s.add_runtime_dependency     'hash-graft',  '~> 0.9',     '>= 0.9.0'
   s.add_runtime_dependency     'luigi',       '~> 1.1',     '>= 1.1.0'
   s.add_runtime_dependency     'paint',       '~> 1.0',     '>= 1.0.0'
