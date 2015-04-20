@@ -1,3 +1,18 @@
+2.5.10 / 2015-04-20
+==================
+
+  * changed: replace Euro with Money
+  * added: ascii ls --wages updated: paint
+
+2.5.9 / 2015-04-01
+==================
+
+  * fixed: "ascii list --final"
+
+2.5.8 / 2015-04-01
+==================
+
+  * changed: requirements for building a calendar
 
 2.5.7 / 2015-02-19
 ==================
