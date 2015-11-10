@@ -56,7 +56,7 @@
 \renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
 
 \def \sprache{ngerman}
-\newcommand{\leadingzero}[1]{\ifnum #1<10 0\the#1\else\the#1\fi}
+\newcommand{\leadingzero}[1]{\ifnum #1<10 0\the#1\else\the#1\fi}       
 
 \def \telefontex          {{ \footnotesize  Telefon\/:        }}
 \def \telefaxtext         {{ \footnotesize  Telefax\/:        }}
@@ -75,13 +75,13 @@
 
 \def \rechnungsnummer{}
 \def \rechnung{ R\the\year-\rechnungsnummer }
-
+     
 \def \angebotltext{\footnotesize{Angebot}}
 %\de f\angebot{A\the\year\leadingzero{\month}\leadingzero{\day}}
 \def \angebot{}
-
+     
 \def \unserzeichentext{\footnotesize{Unser Zeichen}}
-
+     
 \def \datumtext{\footnotesize{Datum}}
 \def \datum{\number\day.~\ifcase\month\or Januar\or Februar\or
   M\"arz\or April\or Mai\or Juni\or Juli\or August\or September\or
@@ -220,34 +220,34 @@
 
   %
   % Veranstaltung - Rechnungsnummer - Angebot - Datum
-
+  
   \ifx \veranstaltung\empty
-  \makebox[45.5mm][l]{}
+    \makebox[45.5mm][l]{}
   \else
   \makebox[45.5mm][l]{\veranstaltungtext}
   \fi
+  \if \angebotmanuel\empty
+    \makebox[20.0mm][r]{} 
+  \else
+    \makebox[20.0mm][r]{\angebotltext} 
+  \fi 
   \if \rechnungsnummer\empty
     \makebox[55.0mm][l]{}
   \else
-    \makebox[55.0mm][l]{\rechnungstext}
-  \fi
-  \if \angebotmanuel\empty
-    \makebox[20.0mm][r]{}
-  \else
-    \makebox[20.0mm][r]{\angebotltext}
-  \fi
+    \makebox[55.0mm][l]{\rechnungstext} 
+  \fi 
   \makebox[37.0mm][r]{\datumtext} \\ % ZEILENUMBRUCH
-  \makebox[45.5mm][l]{\veranstaltung}
-  \if \rechnungsnummer\empty
-    \makebox[55.0mm][l]{}
-  \else
-    \makebox[55.0mm][l]{\rechnungsnummer}
-  \fi
+  \makebox[45.5mm][l]{\veranstaltung}  
   \if \angebotmanuel\empty
-    \makebox[20.0mm][r]{\angebot}
+    \makebox[20.0mm][r]{\angebot} 
   \else
-    \makebox[20.0mm][r]{\angebotmanuel}
-  \fi
+    \makebox[20.0mm][r]{\angebotmanuel} 
+  \fi 
+  \if \rechnungsnummer\empty
+    \makebox[55.0mm][l]{} 
+  \else 
+    \makebox[55.0mm][l]{\rechnungsnummer} 
+  \fi 
   \makebox[37.0mm][r]{\datum} \par
 
     \vspace{8mm}
@@ -284,12 +284,12 @@
   \renewcommand{\baselinestretch}{1.0}
   \ifcase \@ptsize\relax \normalsize \or \small \or \footnotesize \fi
   \headheight16pt\headsep63mm
-
+  
   %% kopf
   \def\@oddhead{
     \unitlength1mm
     \begin{picture}(0,0)
-
+    
       \put(-13, 6){\parbox{180mm}{\huge \ifklassisch \textsl{\quad\name}
           \else {\quad\name} \fi}
       }
@@ -301,7 +301,7 @@
       \put(-10, -8){\parbox{180mm}{\large \ifklassisch \textsl{\quad\fakultaet \textbullet \ort}
           \else {\quad\fakultaet \textbullet \ort} \fi}
       }
-
+      
       %\put(-9, 4){\parbox{180mm}{\hfill \normalsize \ifklassisch \textsl{
       %      \begin{tabular}{r} \strasse \quad \\ \ifx \zusatz\empty \else
       %        \zusatz \quad \\ \fi \ort \quad \ifx \land\empty \else \\
@@ -310,11 +310,11 @@
       %        \zusatz \quad \\ \fi \ort \quad \ifx \land\empty \else \\
       %        \land \quad \fi \end{tabular}} \fi}
       %}
-
+      
       %\iftrennlinien
       %  \put(-9,-7){\rule{180mm}{0.5pt}}
       %\fi
-
+      
       \iflochermarke
         \put(-20,- 130.50){\line(1,0){4}}
       \fi
@@ -356,7 +356,7 @@
     \end{picture}
     \hfill
   }
-
+  
   %%fuss
   \def\@oddfoot{\unitlength1mm
     \begin{picture}(0,0)
