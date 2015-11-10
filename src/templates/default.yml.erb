@@ -1,24 +1,24 @@
 --- # ascii invoicer document  (version: <%= version %>, template: <%= template %>)
-format: 2.4.0
-created: <%= Date.today.strftime "%d.%m.%Y" %>
 
-client: 
-  title:     Herr # Frau, Professor, Professorin
-  first_name: John
-  last_name:  Doe
+client:
+  title:      Herr # Frau # Professor # Professorin
+  first_name:
+  last_name:
 
-  email: jon.doe@example.com
-  address: | 
-    John Doe
+  email:
+  address: |
+    Technische Universität Dresden
+    Fakultät Informatik
+    ....
     Nöthnitzerstraße 46
     01187 Dresden
 
-event: 
+event:
   name: "<%= project_name %>"
   location: # might be a list
   dates:
   - begin: <%= (Date.today+ 14).strftime "%d.%m.%Y" %> # bezieht sich auf die veranstaltung selbst
-    #end: 
+    #end:
     times:
     -  begin: "9:00"
        end:   "17:00"
@@ -31,8 +31,9 @@ offer:
 
 invoice:
   number: #27
-  date: #leave empty for auto date
-  payed_date:
+  date:  #required
+  payed_date: #required
+  official: # use instead of
 
 cataloge:
   product: &kaffee       { name: Kaffee          , price: 2.5  , unit: 1l  }
@@ -49,20 +50,21 @@ cataloge:
   product: &obstplatte   { name: Obstplatte      , price: 30.00 , unit: stk }
 
 products:
+  *kaffee:
+    amount: 4
+    sold:   5
 
-  *kaffee: { amount: 4, sold:   5 }
   *wasser_gross:
     amount: 4
-    returned:   3
+
   *kekse:
     amount: 4
-    sold: 2
 
-hours: 
+hours:
   salary: 8.00
   caterers:
     "unknown" : 0 #Stunden
-    
+
 manager: <%= manager_name %>
 
 #canceled: yes
@@ -71,4 +73,8 @@ manager: <%= manager_name %>
 
 #messages: # read default-settings.yml on how to overwrite
 
+invoicer_version: <%= version %>
+template: <%= template %>
+format: 2.4.1
+created: <%= Date.today.strftime "%d.%m.%Y" %>
 ...

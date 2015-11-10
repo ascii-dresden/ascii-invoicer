@@ -31,7 +31,8 @@
 \Postvermerk         {}
 \Adresse             {<%= @data[:client][:address].gsub("\n","\\newline ") %>}
 
-\Betreff             {<%= @data[:messages][document_type][0] %>} %% [Angebot|Rechnung]
+\Betreff             {<%= @data[:messages][document_type][0] %>
+                      <%= "\\newline #{@data[:invoice][:official]}" unless @data[:invoice][:official].nil?  %>} %% [Angebot|Rechnung]
 
 \Datum               {<%= @data[type][:date] %>}
 \AngebotManuel       {<%= @data[:offer][:number] if type == :offer %>} %% Manuel ueberschreibbar ansonsten automatisch heute
