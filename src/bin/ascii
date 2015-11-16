@@ -7,7 +7,6 @@ require 'thor'
 require 'paint'
 require 'luigi'
 require 'logger'
-require 'bundler/setup'
 require 'textboxes'
 require 'hash-graft'
 
