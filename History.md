@@ -1,3 +1,12 @@
+
+2.5.11 / 2015-11-16
+==================
+
+  * removed bundler/setup dependency
+  * show offer number in invoice, not the other  way around
+  * switched offer-no and invoice-no in latex template
+  * added new field "invoice/official" for very long official titles
+
 2.5.10 / 2015-04-20
 ==================
 
