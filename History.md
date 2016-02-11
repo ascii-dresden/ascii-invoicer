@@ -1,4 +1,9 @@
 
+2.5.12 / 2016-02-11
+==================
+
+  * fixed: producing pretty date, even if months or years differ
+
 2.5.11 / 2015-11-16
 ==================
 
