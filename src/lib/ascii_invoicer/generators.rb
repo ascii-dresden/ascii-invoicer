@@ -132,6 +132,8 @@ module Generators
     last = full_data[:event][:dates].last[:end]
     last = full_data[:event][:dates].last[:begin] if last.nil?
 
+    return "#{first.strftime "%d.%m.%Y"}-#{last.strftime "%d.%m.%Y"}" if first.year != last.year
+    return "#{first.strftime "%d.%m."}-#{last.strftime "%d.%m.%Y"}" if first.month != last.month
     return "#{first.strftime "%d"}-#{last.strftime "%d.%m.%Y"}" if first != last
     return first.strftime "%d.%m.%Y" if first.class == Date
     return first
