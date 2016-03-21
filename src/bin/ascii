@@ -496,19 +496,10 @@ class Commander < Thor
       :desc => "Display Caterers"
     method_option :raw,:type=>:boolean,
       :default=> false, :lazy_default=> true, :required => false,
-      :desc => ""
-    method_option :costs,:type=>:boolean,
-      :default=> false, :lazy_default=> true, :required => false,
-      :desc => ""
+      :desc => "This is not the option you are looking for!"
     method_option :detail, :type=>:string, :banner => "key", :aliases =>"-d",
       :default => nil, :lazy_default=> "", :required => false,
-      :desc => "output key or all with pp"
-    method_option :pp, :type=>:string, :banner => "key",
-      :default => nil, :lazy_default=> "", :required => false,
-      :desc => "output key or all with pp"
-#    method_option :yaml, :type=>:string, :banner => "key",
-#      :default => nil, :lazy_default=> "", :required => false,
-#      :desc => "output key or all as yaml"
+      :desc => "output value of a specific field (example: --key event/date)"
     method_option :cal, :type=>:boolean,
       :default => nil, :lazy_default=> "", :required => false,
       :desc => "output key or all as ical event[s]"
@@ -517,57 +508,57 @@ class Commander < Thor
 
     projects.each{ |project|
       $logger.error("No project found!") if project.nil?
-      unless options[:cal] or options[:yaml] or options[:costs] or options[:caterers] or options[:invoice] or options[:offer] or options[:products]
-        fallback= true
+
+      if options[:offer] and options[:invoice]
+        raise "don't use --offer and --invoice, I don't know what to do"
+      elsif options[:invoice]
+        choice = :invoice
+      elsif options[:offer]
+        choice = :offer
+      elsif (project.date - Date.today) >= 0
+        choice = :offer
+      else
+        choice = :invoice
       end
 
-      if not options[:yaml].nil?
-        if options[:yaml] == ''
-          puts project.data.to_yaml
-        else
-          puts project.data.get_path(options[:yaml]).to_yaml
-        end
-      elsif options[:name]
+      if options[:name]
         puts project.name
+
       elsif options[:csv]
         display_products_csv project
+
       elsif options[:raw]
         raw = project.raw_data
         raw.delete "cataloge"
         puts raw.to_yaml
+
       elsif not options[:detail].nil?
         if options[:detail] == ''
-          puts project.data
-        else
-          puts project.data.get_path(options[:detail])
-        end
-      elsif not options[:pp].nil?
-        if options[:pp] == ''
           pp project.data
         else
-          pp project.data.get_path(options[:pp])
-        end
-      else
-        if options[:products]
-          puts display_products(project, :offer  )
-          puts display_products(project, :invoice) if options[:invoice]
-        else
-          puts display_all(project, :offer  , options[:errors]) if options[:offer  ]
-          puts display_all(project, :invoice, options[:errors]) if options[:invoice] or fallback
-        end
-        if options[:cal]
-          project.data[:event][:calendaritems].each{|cal|
-            puts cal.to_ical
-          }
-        end
-        if options[:caterers]
-          print "#{project.name}:".ljust(35)         if names.length > 1
-          if project.data[:hours][:caterers]
-            puts project.data[:hours][:caterers].map{|name, hours| "#{name} (#{hours})"}.join(", ")
+          field = project.data.get_path(options[:detail])
+          if [Hash, Array].include? field.class
+            pp field
           else
-            puts "Caterers is empty"
+            puts field
           end
         end
+
+      elsif options[:products]
+        puts display_products(project, choice)
+
+      elsif options[:cal]
+        project.data[:event][:calendaritems].each{|cal| puts cal.to_ical }
+
+      elsif options[:caterers]
+        print "#{project.name}:".ljust(35)         if names.length > 1
+        if project.data[:hours][:caterers]
+          puts project.data[:hours][:caterers].map{|name, hours| "#{name} (#{hours})"}.join(", ")
+        else
+          puts "Caterers is empty"
+        end
+
+      else puts display_all(project, choice, options[:errors])
       end
     }
   end

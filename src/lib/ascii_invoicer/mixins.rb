@@ -225,9 +225,8 @@ module AsciiMixins
   end
 
   def display_products project, choice = :offer, standalone = true
-    table = Textboxes.new
     table.style[:border] = standalone
-    table.title = "Project:" + "\"#{project.data[:event][:name]}\"".rjust(25) if standalone
+    table.title = "#{choice}:" + "\"#{project.data[:event][:name]}\"".rjust(25) if standalone
     table.add_row ["#", "name", "price", "cost"]
     table.set_alignments :r, :l, :r, :r
     project.data[:products].each {|product|
@@ -248,7 +247,7 @@ module AsciiMixins
 
     table = Textboxes.new
     table.style[:border] = true
-    table.title = "Project:" + "\"#{data[:event][:name]}\"".rjust(25)
+    table.title = "#{choice}:" + "\"#{data[:event][:name]}\"".rjust(25)
     table.add_row [nil, "name", "amount","price", "cost"]
     table.set_alignments :r, :l, :r, :r, :r
 
