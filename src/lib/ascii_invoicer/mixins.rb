@@ -179,8 +179,14 @@ module AsciiMixins
   end
 
   def caterers_string project, join = ", "
-      data = project.data
-      data[:hours][:caterers].map{|name, hours| "#{name} (#{hours})" if hours > 0 }.join join if data[:hours][:caterers]
+    data = project.data
+    data[:hours][:caterers].map{
+      |name, hours|
+      if (hours.class == Fixnum || hours.class == Float ) and hours > 0
+      "#{name} (#{hours})"
+      end
+    }.keep_if{|e|e}
+    .join join if data[:hours][:caterers]
   end
 
   def wages_string project, join = ", "
