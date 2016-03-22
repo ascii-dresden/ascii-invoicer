@@ -4,6 +4,12 @@
 
 The ascii-invoicer is a command-line tool that manages projects and stores them not in a database but in a folder structure. New projects can be created from templates and are stored in a working directory. Projects can be archived, each year will have its own archive. A project consists of a folder containing a yaml file describing it and a number of attached files, such tex files. Projects can contain products and personal. You can create preliminary offers and invoices from your projects.
 
+## Installation
+
+Should be as easy as `$ gem install ascii_invoicer`.
+You might need **rvm** to install it in your `$HOME` directory, otherwise use `$ sudo gem install ascii_invoicer`.
+New versions should be automatically updated via `$ gem update`.
+
 ## Usage
 
 Each of these sections starts with a list of commands.
