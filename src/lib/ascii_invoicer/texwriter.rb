@@ -93,11 +93,18 @@ module TexWriter
       templates[File.basename(file.split(?.)[0]).to_sym] = file
     }
     path = templates[type]
-    if File.exists?(path)
-      return File.open(path).read
-    else
+
+    if path.nil?
+      @logger.error "No template found!\n  Check #{$PLUMBER.dirs[:templates]} !"
+      return false
+
+    elsif not File.exists?(path)
       @logger.error "Template (#{path}) File not found!"
       return false
+
+    else
+      return File.open(path).read
+
     end
   end
 
