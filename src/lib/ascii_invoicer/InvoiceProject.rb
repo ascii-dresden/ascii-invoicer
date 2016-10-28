@@ -1,3 +1,4 @@
+# warn_indent: true
 require 'yaml'
 require 'csv'
 require 'date'
@@ -115,7 +116,13 @@ class InvoiceProject < LuigiProject
     end
 
     #load format and transform or not
-    @data[:format] = @raw_data['format'] ? @raw_data['format'] : "1.0.0"
+    @data[:format] = if @raw_data['format']
+                       @raw_data['format']
+                     elsif @raw_data['meta']['format']
+                       @raw_data['meta']['format']
+                     else
+                       "1.0.0"
+                     end
     if @data[:format] < "2.4.0"
       begin
         @raw_data = import_100 @raw_data
@@ -199,7 +206,11 @@ class InvoiceProject < LuigiProject
     new_hash.set_path("event/dates/0/time/begin", new_hash.get_path("time"))     if date[1].nil?
     new_hash.set_path("event/dates/0/time/end",   new_hash.get_path("time_end")) if date[1].nil?
 
-    new_hash['manager']= new_hash['manager'].lines.to_a[1] if new_hash['manager'].lines.to_a.length > 1
+    pp new_hash
+    manager_lines = new_hash['manager'].lines.to_a()
+    if manager_lines.length > 1
+      new_hash['manager'] = new_hash['manager'].lines[1]
+    end
 
     if new_hash.get_path("client/fullname").words.class == Array
       new_hash.set_path("client/title",     new_hash.get_path("client/fullname").lines.to_a[0].strip)
